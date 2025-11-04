@@ -73,11 +73,11 @@ function Navbar() {
       <Drawer open={open} onOpenChange={setOpen}>
         <DrawerTrigger asChild>
           <motion.div
-            className="fixed bottom-6 right-6 z-50 p-4 bg-gradient-to-br from-[#BA7F55] to-[#8B5E3C] rounded-full shadow-2xl border border-white/20 cursor-pointer"
+            className="fixed bottom-6 right-6 z-50 p-2 bg-gradient-to-br from-[#BA7F55] to-[#8B5E3C] rounded-full shadow-2xl border border-white/20 cursor-pointer"
             whileTap={{ scale: 0.9 }}
             whileHover={{ scale: 1.05 }}
           >
-            <Menu className="text-white" />
+            <Menu className="text-white w-5 h-5" />
           </motion.div>
         </DrawerTrigger>
         <DrawerContent className="z-[9999] bg-white/95 backdrop-blur-lg rounded-t-2xl shadow-xl">
