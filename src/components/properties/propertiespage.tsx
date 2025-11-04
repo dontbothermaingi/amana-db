@@ -183,7 +183,7 @@ function PropertiesPage() {
             </div>
           </div>
 
-          <div className="z-[99999]">
+          <div className="z-9991">
             <PropertyFilterBar onFilterChange={setFilters} type={type ?? ""} />
           </div>
 

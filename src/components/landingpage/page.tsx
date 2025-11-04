@@ -28,9 +28,12 @@ function Page() {
               ? "We listen to understand your needs — guiding you to the perfect property in the UAE. AMANA opens doors to your dream home and a vision of tomorrow."
               : "We listen to you so we understand your needs. Only then can we be your knowledgeable guide to add value in your search for property inthe UAE of endless possibilities, AMANA opens doors to your perfect home. More than just properties, we offer a vision of tomorrow in UAE."}
           </Typography>
-          <Button className="flex items-center mt-5 gap-2 px-4 py-2 rounded-2xl border border-white/30 bg-white/10 text-white hover:bg-white hover:text-[#0B253F] transition">
-            Explore Properties
-          </Button>
+
+          {isMobile && (
+            <Button className="flex items-center mt-5 gap-2 px-4 py-2 rounded-2xl border border-white/30 bg-white/10 text-white hover:bg-white hover:text-[#0B253F] transition">
+              Explore Properties
+            </Button>
+          )}
         </div>
       </div>
     </div>
