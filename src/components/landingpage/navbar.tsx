@@ -80,7 +80,7 @@ function Navbar() {
             <Menu className="text-white w-5 h-5" />
           </motion.div>
         </DrawerTrigger>
-        <DrawerContent className="z-[99999] bg-white/95 backdrop-blur-lg rounded-t-2xl shadow-xl">
+        <DrawerContent className="z-[999999] bg-white/95 backdrop-blur-lg rounded-t-2xl shadow-xl">
           <DrawerHeader>
             <DrawerTitle className="text-xl font-bold text-[#8B5E3C]">
               Amana Homes
