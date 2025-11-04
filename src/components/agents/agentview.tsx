@@ -20,9 +20,9 @@ function AgentView() {
   const { data: agent } = useQuery({
     queryKey: ["agent", agentId],
     queryFn: () =>
-      fetch(
-        `https://6895ec7a039a1a2b2890d0a3.mockapi.io/amana/agents/${agentId}`
-      ).then((res) => res.json()),
+      fetch(`https://db-amana.onrender.com/agents/${agentId}`).then((res) =>
+        res.json()
+      ),
   });
 
   const { data: properties = [] } = useQuery({

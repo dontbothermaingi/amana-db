@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
-import { Box, Divider, Typography } from "@mui/material";
-import { FaInstagram, FaLinkedin, FaWhatsapp } from "react-icons/fa";
-import { useCallback } from "react";
+import { Box, Typography } from "@mui/material";
+// import { FaInstagram, FaLinkedin, FaWhatsapp } from "react-icons/fa";
+import { useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Form from "@/leads/form";
 
@@ -9,13 +9,17 @@ function AgentsOverview() {
   const navigate = useNavigate();
 
   const { data: agents } = useQuery({
-    queryKey: ["agent"],
+    queryKey: ["agent_new"],
     queryFn: () =>
-      fetch("https://6895ec7a039a1a2b2890d0a3.mockapi.io/amana/agents")
+      fetch("https://db-amana.onrender.com/agents")
         .then((res) => res.json())
         .catch((err) => console.error("Error fetching agents:", err)),
     staleTime: 1000 * 60 * 10,
   });
+
+  useEffect(() => {
+    console.log("Agents Info", agents);
+  }, [agents]);
 
   const handleDetails = useCallback((agentId: any) => {
     navigate(`/agent-details/${agentId}`);
@@ -73,29 +77,33 @@ function AgentsOverview() {
                 style={{ backgroundImage: `url(${item.img})` }}
                 aria-label={`Agent ${item.name}`}
               >
-                <div className="absolute bottom-3 left-3 right-3 bg-white rounded-md py-3 px-4 flex flex-col gap-3">
+                <div className="absolute bg-gradient-to-t from-black/60 to-black/20 h-full w-full rounded-xl" />
+
+                <div className="absolute bottom-3 left-3 right-3 rounded-md py-3 px-4 flex flex-col gap-3">
                   <div>
                     <Typography
                       fontFamily={"IT Medium"}
-                      fontSize={{ lg: "17px", xs: "14px" }}
+                      fontSize={{ lg: "30px", xs: "14px" }}
+                      color="white"
                     >
                       {item.name}
                     </Typography>
                     <Typography
                       fontSize={{ lg: "17px", xs: "14px" }}
                       fontFamily={"IT Light"}
+                      color="white"
                     >
-                      {item.specialty}
+                      {item.specialization}
                     </Typography>
                   </div>
 
-                  <Divider />
+                  {/* <Divider /> */}
 
-                  <div className="flex gap-4">
+                  {/* <div className="flex gap-4">
                     <FaWhatsapp className="w-5 h-5 text-black hover:text-[#BA7F55] transition" />
                     <FaInstagram className="w-5 h-5 text-black hover:text-[#BA7F55] transition" />
                     <FaLinkedin className="w-5 h-5 text-black hover:text-[#BA7F55] transition" />
-                  </div>
+                  </div> */}
                 </div>
               </div>
             </div>

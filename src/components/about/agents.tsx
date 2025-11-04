@@ -12,9 +12,7 @@ function Agents() {
   const { data: agents } = useQuery({
     queryKey: ["agent"],
     queryFn: () =>
-      fetch("https://6895ec7a039a1a2b2890d0a3.mockapi.io/amana/agents").then(
-        (res) => res.json()
-      ),
+      fetch("https://db-amana.onrender.com/agents").then((res) => res.json()),
   });
 
   function handleDetails(agentId: any) {

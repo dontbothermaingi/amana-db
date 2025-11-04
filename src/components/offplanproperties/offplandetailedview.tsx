@@ -1,15 +1,20 @@
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
 import MortgageCalculator from "../properties/morgagecalculator";
-import { Dialog, IconButton, Typography } from "@mui/material";
-import { ArrowBack, ArrowForward } from "@mui/icons-material";
+import { Dialog, Typography } from "@mui/material";
 import { useState } from "react";
 import Form from "@/leads/form";
 import { X } from "lucide-react";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 function OffPlanDetails() {
   const { propertyId } = useParams();
-  const [currentIndex, setCurrentIndex] = useState(0);
   const [open, setOpen] = useState(false);
 
   const {
@@ -23,13 +28,6 @@ function OffPlanDetails() {
         `https://68e7771910e3f82fbf3f4033.mockapi.io/offplan/offplan/${propertyId}`
       ).then((resp) => resp.json()),
   });
-
-  const nextImage = () =>
-    setCurrentIndex((prev: any) => (prev + 1) % project.images.length);
-  const prevImage = () =>
-    setCurrentIndex(
-      (prev) => (prev - 1 + project.images.length) % project.images.length
-    );
 
   if (isLoading) return <p>Loading...</p>;
   if (error) return <p>Something went wrong.</p>;
@@ -86,34 +84,18 @@ function OffPlanDetails() {
         </section>
 
         {/* Gallery */}
-        <section>
-          <h2
-            style={{ fontFamily: "IT Bold" }}
-            className="text-2xl font-semibold mb-4"
-          >
-            Gallery
-          </h2>
-          <div className="flex items-center">
-            <IconButton
-              onClick={prevImage}
-              className="text-black hover:scale-110 transition-transform"
-            >
-              <ArrowBack fontSize="large" className="text-black" />
-            </IconButton>
-
-            <img
-              src={project?.images[currentIndex]}
-              alt={`Preview ${currentIndex}`}
-              className="max-h-[90vh] w-75 lg:w-full object-contain rounded-xl shadow-lg transition-transform"
-            />
-
-            <IconButton
-              onClick={nextImage}
-              className="text-white hover:scale-110 transition-transform"
-            >
-              <ArrowForward fontSize="large" className="text-black" />
-            </IconButton>
-          </div>
+        <section className="flex justify-center p-10">
+          <Carousel className="w-full max-w-xs lg:max-w-2xl">
+            <CarouselContent>
+              {project?.images.map((item: any, index: any) => (
+                <CarouselItem key={index}>
+                  <img src={item} alt="image" />
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious />
+            <CarouselNext />
+          </Carousel>
         </section>
 
         {/* Video */}

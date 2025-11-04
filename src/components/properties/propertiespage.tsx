@@ -183,7 +183,7 @@ function PropertiesPage() {
             </div>
           </div>
 
-          <div className="">
+          <div className="z-[99999]">
             <PropertyFilterBar onFilterChange={setFilters} type={type ?? ""} />
           </div>
 
@@ -204,7 +204,7 @@ function PropertiesPage() {
                 <Box
                   display={"grid"}
                   gridTemplateColumns={{
-                    md: "repeat(1,1fr)",
+                    md: "repeat(2,1fr)",
                     xs: "repeat(1,1fr)",
                     lg: "repeat(1,1fr)",
                   }}

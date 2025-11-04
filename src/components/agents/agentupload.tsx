@@ -15,21 +15,34 @@ function AgentUpload() {
     email: "",
     profile: "",
     about: "",
+    languages: [],
   });
 
   function handleChange(e: any) {
     const { name, value } = e.target;
 
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      [name]: value,
-    }));
+    if (name === "languages") {
+      const languagesArray = value
+        .split(",") // split on commas
+        .map((lang: any) => lang.trim()) // remove spaces
+        .filter((lang: any) => lang); // remove empty strings
+
+      setFormData((prev) => ({
+        ...prev,
+        languages: languagesArray,
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
   }
 
   function handleFileChange(e: any) {
     setFormData((prevFormData) => ({
       ...prevFormData,
-      photo: e.target.files[0],
+      img: e.target.files[0],
     }));
   }
 
@@ -46,18 +59,17 @@ function AgentUpload() {
       data.append("email", formData.email);
       data.append("profile", formData.profile);
       data.append("about", formData.about);
+      data.append("languages", JSON.stringify(formData.languages));
 
       if (formData.img != null) {
-        data.append("photo", formData.img);
+        data.append("img", formData.img);
       }
 
-      fetch("/localhost:9000", {
+      console.log("DATA TO BACK", data);
+
+      fetch("https://db-amana.onrender.com/agents", {
         method: "POST",
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-        credentials: "include",
-        body: JSON.stringify(data),
+        body: data, // just pass FormData directly
       })
         .then((res) => res.json())
         .then((data) => {
@@ -68,6 +80,7 @@ function AgentUpload() {
       alert("Upload failed!");
     }
   }
+
   return (
     <div>
       <form onSubmit={handleSubmit}>
@@ -75,6 +88,8 @@ function AgentUpload() {
 
         <TextField
           value={formData.name}
+          label="Agent Name"
+          variant="outlined"
           type="text"
           onChange={handleChange}
           name="name"
@@ -84,6 +99,8 @@ function AgentUpload() {
         <TextField
           value={formData.work_experience}
           type="number"
+          label="Agent Work Experience"
+          variant="outlined"
           onChange={handleChange}
           name="work_experience"
           sx={{ mb: 2 }}
@@ -92,6 +109,8 @@ function AgentUpload() {
         <TextField
           value={formData.specialization}
           type="text"
+          label="Agent Specialization"
+          variant="outlined"
           onChange={handleChange}
           name="specialization"
           sx={{ mb: 2 }}
@@ -100,6 +119,8 @@ function AgentUpload() {
         <TextField
           value={formData.broker_license_number}
           type="text"
+          label="Agent Broker Lisence Number"
+          variant="outlined"
           onChange={handleChange}
           name="broker_license_number"
           sx={{ mb: 2 }}
@@ -111,7 +132,7 @@ function AgentUpload() {
           onChange={(value) =>
             setFormData((prevData) => ({
               ...prevData,
-              phone: "+" + value,
+              phone_number: "+" + value,
             }))
           }
           inputStyle={{
@@ -126,14 +147,21 @@ function AgentUpload() {
         <TextField
           value={formData.about}
           type="text"
+          label="Agent Description"
+          variant="outlined"
           onChange={handleChange}
-          name="phone_number"
+          name="about"
           sx={{ mb: 2 }}
+          multiline
+          minRows={4}
+          maxRows={20}
         />
 
         <TextField
           value={formData.email}
           type="text"
+          label="Agent Email"
+          variant="outlined"
           onChange={handleChange}
           name="email"
           sx={{ mb: 2 }}
@@ -142,8 +170,20 @@ function AgentUpload() {
         <TextField
           value={formData.profile}
           type="text"
+          label="Agent Profile"
+          variant="outlined"
           onChange={handleChange}
           name="profile"
+          sx={{ mb: 2 }}
+        />
+
+        <TextField
+          label="Languages"
+          name="languages"
+          variant="outlined"
+          type="text"
+          value={formData.languages.join(", ")}
+          onChange={handleChange}
           sx={{ mb: 2 }}
         />
 

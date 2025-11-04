@@ -42,7 +42,7 @@ function App() {
           <Loader />
         </div>
       )}
-      <div className="fixed bottom-10 w-full flex flex-col justify-center items-center z-[999]">
+      <div className="fixed top-10 w-full flex flex-col justify-center items-center z-[999]">
         <div className="w-full">
           <Navbar />
         </div>

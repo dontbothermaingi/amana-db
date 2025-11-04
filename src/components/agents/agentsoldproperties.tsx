@@ -13,6 +13,7 @@ function AgentSoldProperties() {
     community: "",
     city: "",
     country: "",
+    agent_Id: "",
   });
 
   function handleChange(e: any) {
@@ -41,18 +42,18 @@ function AgentSoldProperties() {
       data.append("beds", formData.beds);
       data.append("baths", formData.baths);
       data.append("sqft", formData.sqft);
+      data.append("agent_id", formData.agent_Id);
+      data.append("city", formData.city);
+      data.append("community", formData.community);
+      data.append("country", formData.country);
 
       if (formData.photo != null) {
         data.append("photo", formData.photo);
       }
 
-      fetch("/localhost:9000", {
+      fetch("https://db-amana.onrender.com/properties", {
         method: "POST",
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-        credentials: "include",
-        body: JSON.stringify(data),
+        body: data,
       })
         .then((res) => res.json())
         .then((data) => {
@@ -105,6 +106,16 @@ function AgentSoldProperties() {
           type="number"
           onChange={handleChange}
           name="beds"
+          sx={{ mb: 2 }}
+        />
+
+        <TextField
+          value={formData.agent_Id}
+          label="Agent Id"
+          variant="outlined"
+          type="number"
+          onChange={handleChange}
+          name="agent_Id"
           sx={{ mb: 2 }}
         />
 
