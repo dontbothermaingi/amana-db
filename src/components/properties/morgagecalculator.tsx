@@ -65,7 +65,7 @@ function MortgageCalculator({ totalPrice }: any) {
           {totalPrice <= 0 && (
             <Slider
               value={totalPricee}
-              onChange={(e, value) => setTotalPricee(value)}
+              onChange={(_, value) => setTotalPricee(value)}
               max={30000000}
               min={230500}
               style={{ color: "#BA7F55" }}
@@ -88,7 +88,7 @@ function MortgageCalculator({ totalPrice }: any) {
           </div>
           <Slider
             value={downPayment}
-            onChange={(e, value) => setDownPayment(value)}
+            onChange={(_, value) => setDownPayment(value)}
             max={80}
             min={20}
             style={{ color: "#BA7F55" }}
@@ -120,7 +120,7 @@ function MortgageCalculator({ totalPrice }: any) {
           </div>
           <Slider
             value={loanPeriod}
-            onChange={(e, value) => setLoanPeriod(value)}
+            onChange={(_, value) => setLoanPeriod(value)}
             max={25}
             min={1}
             style={{ color: "#BA7F55" }}
@@ -139,7 +139,7 @@ function MortgageCalculator({ totalPrice }: any) {
           </div>
           <Slider
             value={interestRate}
-            onChange={(e, value) => setInterestRate(value)}
+            onChange={(_, value) => setInterestRate(value)}
             max={10}
             min={1}
             step={0.01}

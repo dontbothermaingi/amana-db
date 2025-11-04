@@ -1,34 +1,11 @@
 import Form from "@/leads/form";
-import { TextField, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
 import { motion } from "framer-motion";
-import { BadgeCheck, Building2, Percent, Home } from "lucide-react";
-import { useRef, useState } from "react";
-
-type FormData = {
-  first_name: string;
-  last_name: string;
-  email: string;
-  phone_number: string;
-  message?: string;
-};
+import { BadgeCheck } from "lucide-react";
+import { useRef } from "react";
 
 function Tenants() {
-  const [formData, setFormData] = useState<FormData>({
-    first_name: "",
-    last_name: "",
-    email: "",
-    phone_number: "",
-  });
-
   const formRef = useRef<HTMLDivElement | null>(null);
-
-  function handleChange(e: any) {
-    const { name, value } = e.target;
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      [name]: value,
-    }));
-  }
 
   function scrollToForm() {
     formRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -38,29 +15,6 @@ function Tenants() {
     { value: "£30,000", label: "Starting Price" },
     { value: "0%", label: "Property & Income Tax" },
     { value: "8-10%", label: "Rental Yields" },
-  ];
-
-  const advantages = [
-    {
-      icon: <Home color="#BA7F55" />,
-      title: "Apartments from £250,000",
-      desc: "Less than a starter flat in Greater London",
-    },
-    {
-      icon: <Percent color="#BA7F55" />,
-      title: "Rental yields up to 8-10%",
-      desc: "Among the highest globally",
-    },
-    {
-      icon: <Building2 color="#BA7F55" />,
-      title: "Full foreign ownership rights",
-      desc: "In designated investment zones",
-    },
-    {
-      icon: <Percent color="#BA7F55" />,
-      title: "Zero property & rental tax",
-      desc: "Keep more of what you earn",
-    },
   ];
 
   const marketStats = [

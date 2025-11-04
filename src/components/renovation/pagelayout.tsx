@@ -1,21 +1,7 @@
-import React, { useRef, useState, type JSX } from "react";
-import { TextField, Typography, Button } from "@mui/material";
-import { ArrowRight, Check, Clock } from "lucide-react";
+import { useRef, type JSX } from "react";
+import { Typography } from "@mui/material";
 import { motion } from "framer-motion";
 import Form from "@/leads/form";
-
-type FormData = {
-  full_name: string;
-  email: string;
-  phone_number: string;
-  message: string;
-};
-
-const stats = [
-  { label: "Projects Completed", value: "120+" },
-  { label: "Years Experience", value: "15" },
-  { label: "Average ROI", value: "18%" },
-];
 
 const valueCards = [
   {
@@ -36,43 +22,10 @@ const valueCards = [
 ];
 
 export default function Renovation(): JSX.Element {
-  const [formData, setFormData] = useState<FormData>({
-    full_name: "",
-    email: "",
-    phone_number: "",
-    message: "",
-  });
-  const [submitted, setSubmitted] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
   const formRef = useRef<HTMLDivElement | null>(null);
 
   function scrollToForm() {
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
-  }
-
-  function handleChange(
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  }
-
-  async function handleSubmit(e: any) {
-    e.preventDefault();
-    // Basic guard
-    if (!formData.full_name || !formData.email) {
-      // In real app, show a validation error component / snackbar
-      return;
-    }
-    setSubmitting(true);
-
-    // Simulate request (replace with real API call)
-    await new Promise((r) => setTimeout(r, 900));
-    setSubmitting(false);
-    setSubmitted(true);
-
-    // optionally reset after delay:
-    // setFormData({ full_name: "", email: "", phone_number: "", message: "" });
   }
 
   return (
