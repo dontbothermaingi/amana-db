@@ -49,6 +49,8 @@ function AdminPage() {
           navigate("/login");
         }, timeout);
       }
+    } else {
+      navigate("/login");
     }
   }, []);
 
