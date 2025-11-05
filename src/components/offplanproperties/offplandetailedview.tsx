@@ -53,7 +53,7 @@ function OffPlanDetails() {
         </section>
 
         {/* CTA */}
-        <section className="text-center space-y-4">
+        <section className="text-center space-y-4 flex flex-col lg:flex-row">
           <a
             href={project.cta.brochure}
             className="px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold"
@@ -63,7 +63,7 @@ function OffPlanDetails() {
           </a>
           <a
             onClick={() => setOpen(true)}
-            className="px-6 py-3 bg-green-600 text-white rounded-lg font-semibold ml-4"
+            className="px-6 py-3 bg-green-600 text-white rounded-lg font-semibold"
             style={{ fontFamily: "IT Medium" }}
           >
             Enquire Now
@@ -83,8 +83,33 @@ function OffPlanDetails() {
           </p>
         </section>
 
+        {/* Location */}
+        <section>
+          <h2
+            style={{ fontFamily: "IT Bold" }}
+            className="text-2xl font-semibold mb-1"
+          >
+            Location
+          </h2>
+          <p style={{ fontFamily: "IT Light" }} className="text-gray-600 mb-4">
+            {project.map.description}
+          </p>
+
+          <iframe
+            title="map"
+            className="w-full h-64 rounded-xl"
+            src={`https://www.google.com/maps?q=${project.map.lat},${project.map.lng}&hl=es;z=14&output=embed`}
+          ></iframe>
+        </section>
+
         {/* Gallery */}
-        <section className="flex justify-center p-10">
+        <h2
+          style={{ fontFamily: "IT Bold" }}
+          className="text-2xl font-semibold mb-4"
+        >
+          Gallery
+        </h2>
+        <section className="flex justify-center px-10">
           <Carousel className="w-full max-w-xs lg:max-w-2xl">
             <CarouselContent>
               {project?.images.map((item: any, index: any) => (
@@ -195,24 +220,6 @@ function OffPlanDetails() {
               </div>
             ))}
           </div>
-        </section>
-
-        {/* Location */}
-        <section>
-          <h2
-            style={{ fontFamily: "IT Bold" }}
-            className="text-2xl font-semibold mb-1"
-          >
-            Location
-          </h2>
-          <p style={{ fontFamily: "IT Light" }} className="text-gray-600 mb-4">
-            {project.map.description}
-          </p>
-          <iframe
-            title="map"
-            className="w-full h-64 rounded-xl"
-            src={`https://www.google.com/maps?q=${project.map.lat},${project.map.lng}&hl=es;z=14&output=embed`}
-          ></iframe>
         </section>
       </div>
 

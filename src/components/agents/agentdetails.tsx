@@ -80,6 +80,7 @@ function AgentDetails() {
       sx={{
         minHeight: "100vh",
         backgroundColor: "#F8F9FB",
+        paddingBottom: "5px",
       }}
     >
       {/* Hero Section */}
@@ -169,7 +170,7 @@ function AgentDetails() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {soldproperties?.length ? (
             soldproperties?.map((item: any) => (
-              <div className="relative group flex flex-col">
+              <div key={item.id} className="relative group flex flex-col">
                 {" "}
                 {/* SOLD Overlay */}{" "}
                 <div className="absolute inset-0 z-50 flex pt-10 justify-center rounded-2xl overflow-hidden pointer-events-none">

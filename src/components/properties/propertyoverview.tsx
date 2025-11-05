@@ -38,7 +38,7 @@ function PropertyOverview() {
       );
 
       const json = await res.json();
-      console.log("Raw API response:", json);
+      // console.log("Raw API response:", json);
 
       if (!res.ok) {
         throw new Error(json.message || "Failed to fetch property");
@@ -79,7 +79,7 @@ function PropertyOverview() {
     : [];
 
   return (
-    <div className="flex flex-col gap-10 pt-22">
+    <div className="flex flex-col gap-10">
       <div className="h-full flex flex-col gap-2 px-4 sm:px-6 md:px-10 lg:px-40 py-1 lg:py-0">
         {/* Hero Image */}
 

@@ -1,9 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { Box, Typography } from "@mui/material";
 // import { FaInstagram, FaLinkedin, FaWhatsapp } from "react-icons/fa";
-import { useCallback, useEffect } from "react";
+import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import Form from "@/leads/form";
+import { Skeleton } from "../ui/skeleton";
 
 function AgentsOverview() {
   const navigate = useNavigate();
@@ -16,10 +17,6 @@ function AgentsOverview() {
         .catch((err) => console.error("Error fetching agents:", err)),
     staleTime: 1000 * 60 * 10,
   });
-
-  useEffect(() => {
-    console.log("Agents Info", agents);
-  }, [agents]);
 
   const handleDetails = useCallback((agentId: any) => {
     navigate(`/agent-details/${agentId}`);
@@ -66,87 +63,101 @@ function AgentsOverview() {
           gap={4}
           className="mt-10 px-3 lg:px-50"
         >
-          {agents?.map((item: any, index: any) => (
-            <div
-              key={index}
-              onClick={() => handleDetails(item.id)}
-              className="cursor-pointer"
-            >
-              <div
-                className="relative h-[300px] lg:h-150 w-full bg-cover bg-center rounded-xl hover:grayscale transition-all"
-                style={{ backgroundImage: `url(${item.img})` }}
-                aria-label={`Agent ${item.name}`}
-              >
-                <div className="absolute bg-gradient-to-t from-black/60 to-black/20 h-full w-full rounded-xl" />
+          {agents ? (
+            <>
+              {agents?.map((item: any, index: any) => (
+                <div
+                  key={index}
+                  onClick={() => handleDetails(item.id)}
+                  className="cursor-pointer"
+                >
+                  <div
+                    className="relative h-[300px] lg:h-150 w-full bg-cover bg-center rounded-xl hover:grayscale transition-all"
+                    style={{ backgroundImage: `url(${item.img})` }}
+                    aria-label={`Agent ${item.name}`}
+                  >
+                    <div className="absolute bg-gradient-to-t from-black/60 to-black/20 h-full w-full rounded-xl" />
 
-                <div className="absolute bottom-3 left-3 right-3 rounded-md py-3 px-4 flex flex-col gap-3">
-                  <div>
-                    <Typography
-                      fontFamily={"IT Medium"}
-                      fontSize={{ lg: "30px", xs: "14px" }}
-                      color="white"
-                    >
-                      {item.name}
-                    </Typography>
-                    <Typography
-                      fontSize={{ lg: "17px", xs: "14px" }}
-                      fontFamily={"IT Light"}
-                      color="white"
-                    >
-                      {item.specialization}
-                    </Typography>
-                  </div>
+                    <div className="absolute bottom-3 left-3 right-3 rounded-md py-3 px-4 flex flex-col gap-3">
+                      <div>
+                        <Typography
+                          fontFamily={"IT Medium"}
+                          fontSize={{ lg: "30px", xs: "14px" }}
+                          color="white"
+                        >
+                          {item.name}
+                        </Typography>
+                        <Typography
+                          fontSize={{ lg: "17px", xs: "14px" }}
+                          fontFamily={"IT Light"}
+                          color="white"
+                        >
+                          {item.specialization}
+                        </Typography>
+                      </div>
 
-                  {/* <Divider /> */}
+                      {/* <Divider /> */}
 
-                  {/* <div className="flex gap-4">
+                      {/* <div className="flex gap-4">
                     <FaWhatsapp className="w-5 h-5 text-black hover:text-[#BA7F55] transition" />
                     <FaInstagram className="w-5 h-5 text-black hover:text-[#BA7F55] transition" />
                     <FaLinkedin className="w-5 h-5 text-black hover:text-[#BA7F55] transition" />
                   </div> */}
+                    </div>
+                  </div>
                 </div>
-              </div>
+              ))}
+            </>
+          ) : (
+            <div className="space-y-4">
+              {[...Array(10)].map((_, index) => (
+                <div key={index} className="flex flex-col space-y-3">
+                  <Skeleton className="h-[125px] w-full rounded-xl" />
+                </div>
+              ))}
             </div>
-          ))}
+          )}
         </Box>
       </div>
 
       {/* Contact Form */}
-      <div className="bg-white shadow-lg border border-gray-200 rounded-3xl px-4 sm:px-8 py-10 flex flex-col items-center max-w-3xl mx-auto mb-1 lg:mb-20">
-        {/* Tagline */}
-        <Typography
-          fontFamily={"RM Medium"}
-          color="#BA7F55"
-          className="uppercase tracking-wide text-sm mb-2"
-        >
-          [Get In Touch]
-        </Typography>
+      <div className="px-5 py-5">
+        <div className="bg-white shadow-lg border border-gray-200 rounded-3xl px-4 sm:px-8 py-10 flex flex-col items-center max-w-3xl mx-auto mb-1 lg:mb-20">
+          {/* Tagline */}
+          <Typography
+            fontFamily={"RM Medium"}
+            color="#BA7F55"
+            className="uppercase tracking-wide text-sm mb-2"
+          >
+            [Get In Touch]
+          </Typography>
 
-        {/* Heading */}
-        <Typography
-          fontFamily={"DM Medium"}
-          fontSize={{ xs: "24px", lg: "30px" }}
-          className="text-center mb-4"
-        >
-          Let’s Make Your Property Journey Effortless
-        </Typography>
+          {/* Heading */}
+          <Typography
+            fontFamily={"DM Medium"}
+            fontSize={{ xs: "24px", lg: "30px" }}
+            className="text-center mb-4"
+          >
+            Let’s Make Your Property Journey Effortless
+          </Typography>
 
-        {/* Subheading */}
-        <Typography
-          fontFamily={"IT Light"}
-          className="text-center text-gray-600 leading-relaxed max-w-xl"
-        >
-          Whether you're buying, renting, or investing, our expert team is here
-          to guide you every step of the way. Let's turn your property goals
-          into reality—together.
-        </Typography>
+          {/* Subheading */}
+          <Typography
+            fontFamily={"IT Light"}
+            className="text-center text-gray-600 leading-relaxed max-w-xl"
+          >
+            Whether you're buying, renting, or investing, our expert team is
+            here to guide you every step of the way. Let's turn your property
+            goals into reality—together.
+          </Typography>
 
-        {/* Form */}
-        <Form
-          propertyId={""}
-          extraData={{ reason: "Submitted at the agents page" }}
-          formType="default"
-        />
+          {/* Form */}
+          <Form
+            propertyId={""}
+            extraData={{ reason: "Submitted at the agents page" }}
+            formType="default"
+          />
+        </div>
       </div>
     </div>
   );

@@ -1,16 +1,10 @@
 import { Divider, Typography } from "@mui/material";
-import {
-  ArrowRight,
-  CheckCircle,
-  Gift,
-  Handshake,
-  Repeat,
-  UserPlus,
-} from "lucide-react";
+import { CheckCircle, Gift, Handshake, Repeat, UserPlus } from "lucide-react";
 import { useRef } from "react";
 import { motion } from "framer-motion";
 import { useMediaQuery } from "@mui/system";
 import Form from "@/leads/form";
+import { Button } from "../ui/button";
 
 function ConnectAndEarn() {
   const isMobile = useMediaQuery("(max-width:768px)");
@@ -116,26 +110,38 @@ function ConnectAndEarn() {
           </Typography>
 
           <ul className="py-5 space-y-3 text-gray-700 text-lg">
-            <li>
-              <span className="font-medium text-[#0B253F]">
+            <li style={{ fontFamily: "IT Light" }}>
+              <span
+                style={{ fontFamily: "IT Medium" }}
+                className="font-medium text-[#0B253F]"
+              >
                 Generous Rewards:
               </span>{" "}
               Earn up to AED 9,500 per successful referral.
             </li>
-            <li>
-              <span className="font-medium text-[#0B253F]">
+            <li style={{ fontFamily: "IT Light" }}>
+              <span
+                style={{ fontFamily: "IT Medium" }}
+                className="font-medium text-[#0B253F]"
+              >
                 Simple Process:
               </span>{" "}
               Refer, relax, and get rewarded once the deal closes.
             </li>
-            <li>
-              <span className="font-medium text-[#0B253F]">
+            <li style={{ fontFamily: "IT Light" }}>
+              <span
+                style={{ fontFamily: "IT Medium" }}
+                className="font-medium text-[#0B253F]"
+              >
                 Trusted Expertise:
               </span>{" "}
               Amana’s experienced real estate professionals handle everything.
             </li>
-            <li>
-              <span className="font-medium text-[#0B253F]">
+            <li style={{ fontFamily: "IT Light" }}>
+              <span
+                style={{ fontFamily: "IT Medium" }}
+                className="font-medium text-[#0B253F]"
+              >
                 Unlimited Opportunities:
               </span>{" "}
               Refer as many friends as you like — each successful deal earns you
@@ -143,13 +149,9 @@ function ConnectAndEarn() {
             </li>
           </ul>
 
-          <button
-            onClick={scrollToForm}
-            className="group mt-4 lg:px-8 px-5 lg:py-3 py-2 border-2 border-[#0B253F] rounded-2xl bg-[#0B253F] text-white flex items-center gap-3 hover:bg-white hover:text-[#0B253F] transition-all duration-500"
-          >
+          <Button onClick={scrollToForm} className="group bg-[#0B253F]">
             <Typography fontFamily="IT Medium">Start Earning Now</Typography>
-            <ArrowRight className="rounded-full border border-[#0B253F] text-[#BA7F55] w-8 h-8 p-2 group-hover:rotate-[-45deg] transition-all duration-500" />
-          </button>
+          </Button>
         </div>
 
         {!isMobile && (
@@ -219,40 +221,42 @@ function ConnectAndEarn() {
       </div>
 
       {/* REFERRAL FORM */}
-      <div
-        ref={formRef}
-        className="bg-white shadow-lg border border-gray-200 rounded-3xl px-4 sm:px-8 py-10 flex flex-col items-center max-w-3xl mx-auto mb-1 lg:mt-20"
-      >
-        {/* Tagline */}
-        <Typography
-          fontFamily={"RM Medium"}
-          color="#BA7F55"
-          className="uppercase tracking-wide text-sm mb-2"
+      <div className="px-5">
+        <div
+          ref={formRef}
+          className="bg-white shadow-lg border border-gray-200 rounded-3xl px-4 sm:px-8 py-10 flex flex-col items-center max-w-3xl mx-auto mb-1 lg:mt-20"
         >
-          [Get In Touch]
-        </Typography>
+          {/* Tagline */}
+          <Typography
+            fontFamily={"RM Medium"}
+            color="#BA7F55"
+            className="uppercase tracking-wide text-sm mb-2"
+          >
+            [Get In Touch]
+          </Typography>
 
-        {/* Heading */}
-        <Typography
-          fontFamily={"DM Medium"}
-          fontSize={{ xs: "24px", lg: "30px" }}
-          className="text-center mb-4"
-        >
-          Let’s Make Your Property Journey Effortless
-        </Typography>
+          {/* Heading */}
+          <Typography
+            fontFamily={"DM Medium"}
+            fontSize={{ xs: "24px", lg: "30px" }}
+            className="text-center mb-4"
+          >
+            Let’s Make Your Property Journey Effortless
+          </Typography>
 
-        {/* Subheading */}
-        <Typography
-          fontFamily={"IT Light"}
-          className="text-center text-gray-600 leading-relaxed max-w-xl"
-        >
-          Whether you're buying, renting, or investing, our expert team is here
-          to guide you every step of the way. Let's turn your property goals
-          into reality—together.
-        </Typography>
+          {/* Subheading */}
+          <Typography
+            fontFamily={"IT Light"}
+            className="text-center text-gray-600 leading-relaxed max-w-xl"
+          >
+            Whether you're buying, renting, or investing, our expert team is
+            here to guide you every step of the way. Let's turn your property
+            goals into reality—together.
+          </Typography>
 
-        {/* Form */}
-        <Form propertyId={""} extraData={{}} formType="referral" />
+          {/* Form */}
+          <Form propertyId={""} extraData={{}} formType="referral" />
+        </div>
       </div>
     </div>
   );

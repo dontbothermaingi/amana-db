@@ -1,11 +1,21 @@
 import { Typography, useMediaQuery } from "@mui/material";
 import { Button } from "../ui/button";
+import { useNavigate } from "react-router";
 
 function Page() {
   const isMobile = useMediaQuery("(max-width:768px)");
+  const navigate = useNavigate();
   return (
-    <div className="relative h-screen bg-[url(/la.jpg)] bg-cover bg-center">
-      <div className="absolute bg-gradient-to-b from-black/30 to-black/30 h-full w-full" />
+    <div
+      className={`relative  ${
+        isMobile ? "bg-[url(/l3.jpg)] h-200" : "bg-[url(/la.jpg)] h-screen"
+      }  bg-cover bg-center`}
+    >
+      {isMobile ? (
+        <div className="absolute bg-gradient-to-t from-black/60 via-black/60 to-black/30 h-full w-full" />
+      ) : (
+        <div className="absolute bg-gradient-to-b from-black/30 to-black/30 h-full w-full" />
+      )}
 
       <div className="h-screen relative mx-auto flex flex-col items-center justify-center">
         <div className="flex flex-col items-center justify-center max-w-sm lg:max-w-4xl">
@@ -30,7 +40,10 @@ function Page() {
           </Typography>
 
           {isMobile && (
-            <Button className="flex items-center mt-5 gap-2 px-4 py-2 rounded-2xl border border-white/30 bg-white/10 text-white hover:bg-white hover:text-[#0B253F] transition">
+            <Button
+              onClick={() => navigate("/SELL/public-listings")}
+              className="flex items-center mt-5 gap-2 px-4 py-2 rounded-2xl border border-white/30 bg-white/10 text-white hover:bg-white hover:text-[#0B253F] transition"
+            >
               Explore Properties
             </Button>
           )}

@@ -7,6 +7,7 @@ import PropertyCard from "./propertycard";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import MapView from "./mapview";
 import Form from "@/leads/form";
+import { Skeleton } from "../ui/skeleton";
 
 function PropertiesPage() {
   const navigate = useNavigate();
@@ -50,7 +51,7 @@ function PropertiesPage() {
       );
 
       const json = await res.json();
-      console.log("Raw API response:", json);
+      // console.log("Raw API response:", json);
       return json?.list || json?.data || json || [];
     },
     staleTime: 1000 * 60 * 10,
@@ -210,13 +211,25 @@ function PropertiesPage() {
                   }}
                   gap={"30px"}
                 >
-                  {currentData?.map((item: any) => (
-                    <PropertyCard
-                      key={item.id}
-                      item={item}
-                      onClick={() => handleDetails(item.propertyId)}
-                    />
-                  ))}
+                  {properties ? (
+                    <>
+                      {currentData.map((item: any) => (
+                        <PropertyCard
+                          key={item.id}
+                          item={item}
+                          onClick={() => handleDetails(item.propertyId)}
+                        />
+                      ))}
+                    </>
+                  ) : (
+                    <div className="space-y-4">
+                      {[...Array(10)].map((_, index) => (
+                        <div key={index} className="flex flex-col space-y-3">
+                          <Skeleton className="h-[300px] w-full rounded-xl" />
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </Box>
 
                 <div className="flex justify-center items-center gap-5 mt-10 overflow-x-auto">

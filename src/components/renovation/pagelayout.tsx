@@ -191,106 +191,47 @@ export default function Renovation(): JSX.Element {
         </div>
       </section>
 
-      {/* Split Hero: Text + Video */}
-      {/* <section className="px-6 lg:px-40 py-12 lg:py-28 grid lg:grid-cols-2 gap-12 items-center">
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="z-10"
+      {/* Consultation Form */}
+      <div className="px-5 pb-5">
+        <div
+          ref={formRef}
+          className="bg-white shadow-lg border border-gray-200 rounded-3xl px-4 sm:px-8 py-10 flex flex-col items-center max-w-3xl mx-auto mb-1 lg:mb-20"
         >
+          {/* Tagline */}
           <Typography
-            fontFamily={"IT Medium"}
-            sx={{ fontSize: { xs: "30px", lg: "56px" } }}
-            className="leading-tight bg-gradient-to-r from-[#0B253F] to-[#BA7F55] bg-clip-text text-transparent"
+            fontFamily={"RM Medium"}
+            color="#BA7F55"
+            className="uppercase tracking-wide text-sm mb-2"
           >
-            Bespoke Design, Flawless Execution
+            [Get In Touch]
           </Typography>
 
+          {/* Heading */}
+          <Typography
+            fontFamily={"DM Medium"}
+            fontSize={{ xs: "24px", lg: "30px" }}
+            className="text-center mb-4"
+          >
+            Let’s Make Your Property Renovation Effortless
+          </Typography>
+
+          {/* Subheading */}
           <Typography
             fontFamily={"IT Light"}
-            className="text-lg text-gray-600 mt-4 max-w-xl"
+            className="text-center text-gray-600 leading-relaxed max-w-xl"
           >
-            Experience seamless property transformation — from concept to
-            completion, without the complexity.
+            Whether you're buying, renting, or investing, our expert team is
+            here to guide you every step of the way. Let's turn your property
+            goals into reality—together.
           </Typography>
 
-          <div className="mt-6 flex gap-4">
-            <motion.button
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={scrollToForm}
-              className="flex items-center gap-3 px-6 py-3 rounded-2xl bg-[#0B253F] text-white shadow-lg"
-            >
-              Book Your Call
-              <ArrowRight />
-            </motion.button>
-
-            <button
-              onClick={() => window.open("/case-studies", "_blank")}
-              className="flex items-center gap-2 px-4 py-2 rounded-2xl border border-gray-300"
-            >
-              Case Studies
-            </button>
-          </div>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, x: 60 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 1 }}
-          className="rounded-3xl overflow-hidden shadow-2xl relative h-72 lg:h-96"
-        >
-          <video
-            src="/R7.mp4"
-            autoPlay
-            loop
-            muted
-            className="w-full h-full object-cover"
+          {/* Form */}
+          <Form
+            propertyId={""}
+            extraData={{ reason: "Submitted at the renovations page" }}
+            formType="default"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
-        </motion.div>
-      </section> */}
-
-      {/* Consultation Form */}
-      <div
-        ref={formRef}
-        className="bg-white shadow-lg border border-gray-200 rounded-3xl px-4 sm:px-8 py-10 flex flex-col items-center max-w-3xl mx-auto mb-1 lg:mb-20"
-      >
-        {/* Tagline */}
-        <Typography
-          fontFamily={"RM Medium"}
-          color="#BA7F55"
-          className="uppercase tracking-wide text-sm mb-2"
-        >
-          [Get In Touch]
-        </Typography>
-
-        {/* Heading */}
-        <Typography
-          fontFamily={"DM Medium"}
-          fontSize={{ xs: "24px", lg: "30px" }}
-          className="text-center mb-4"
-        >
-          Let’s Make Your Property Renovation Effortless
-        </Typography>
-
-        {/* Subheading */}
-        <Typography
-          fontFamily={"IT Light"}
-          className="text-center text-gray-600 leading-relaxed max-w-xl"
-        >
-          Whether you're buying, renting, or investing, our expert team is here
-          to guide you every step of the way. Let's turn your property goals
-          into reality—together.
-        </Typography>
-
-        {/* Form */}
-        <Form
-          propertyId={""}
-          extraData={{ reason: "Submitted at the renovations page" }}
-          formType="default"
-        />
+        </div>
       </div>
     </div>
   );

@@ -4,6 +4,7 @@ import { useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import Form from "@/leads/form";
+import { Skeleton } from "../ui/skeleton";
 
 function OffPlan() {
   const formRef = useRef<HTMLDivElement>(null);
@@ -67,101 +68,115 @@ function OffPlan() {
         gap="30px"
         className="max-w-7xl mx-auto px-6 py-5"
       >
-        {stats?.map((item: any, index: number) => (
-          <motion.div
-            key={index}
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: index * 0.05 }}
-            viewport={{ once: true }}
-            onClick={() => handleDetails(item.id)}
-            className="rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-500 bg-white flex flex-col"
-          >
-            {/* Image */}
-            <img
-              src={`${item.img}`}
-              alt={item.title}
-              loading="lazy"
-              className="object-cover h-56 w-full"
-            />
+        {stats ? (
+          <>
+            {stats?.map((item: any, index: number) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: index * 0.05 }}
+                viewport={{ once: true }}
+                onClick={() => handleDetails(item.id)}
+                className="rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-500 bg-white flex flex-col"
+              >
+                {/* Image */}
+                <img
+                  src={`${item.img}`}
+                  alt={item.title}
+                  loading="lazy"
+                  className="object-cover h-56 w-full"
+                />
 
-            {/* Content */}
-            <div className="p-6 flex flex-col">
-              {/* Developer */}
-              <div className="pb-3 border-b border-gray-200">
-                <Typography fontFamily="IT Light">
-                  <strong style={{ fontFamily: "IT Medium" }}>
-                    Developer:
-                  </strong>{" "}
-                  {item.developer}
-                </Typography>
-              </div>
+                {/* Content */}
+                <div className="p-6 flex flex-col">
+                  {/* Developer */}
+                  <div className="pb-3 border-b border-gray-200">
+                    <Typography fontFamily="IT Light">
+                      <strong style={{ fontFamily: "IT Medium" }}>
+                        Developer:
+                      </strong>{" "}
+                      {item.developer}
+                    </Typography>
+                  </div>
 
-              {/* Project Name */}
-              <div className="py-3 border-b border-gray-200">
-                <Typography
-                  fontFamily="IT Light"
-                  className="text-xl text-[#0B253F] font-semibold"
-                >
-                  <strong style={{ fontFamily: "IT Medium" }}>
-                    Project Name:
-                  </strong>{" "}
-                  {item.title}
-                </Typography>
-              </div>
+                  {/* Project Name */}
+                  <div className="py-3 border-b border-gray-200">
+                    <Typography
+                      fontFamily="IT Light"
+                      className="text-xl text-[#0B253F] font-semibold"
+                    >
+                      <strong style={{ fontFamily: "IT Medium" }}>
+                        Project Name:
+                      </strong>{" "}
+                      {item.title}
+                    </Typography>
+                  </div>
 
-              {/* Pricing */}
-              <div className="py-3 border-b border-gray-200">
-                <Typography
-                  fontFamily="IT Light"
-                  className="text-lg text-[#0B253F]"
-                >
-                  <strong style={{ fontFamily: "IT Medium" }}>
-                    Starting Price:
-                  </strong>{" "}
-                  AED {new Intl.NumberFormat().format(item.startingPrice)}
-                </Typography>
-              </div>
+                  {/* Pricing */}
+                  <div className="py-3 border-b border-gray-200">
+                    <Typography
+                      fontFamily="IT Light"
+                      className="text-lg text-[#0B253F]"
+                    >
+                      <strong style={{ fontFamily: "IT Medium" }}>
+                        Starting Price:
+                      </strong>{" "}
+                      AED {new Intl.NumberFormat().format(item.startingPrice)}
+                    </Typography>
+                  </div>
 
-              {/* Payment Plan */}
-              <div className="py-3 border-b border-gray-200">
-                <Typography
-                  fontFamily="IT Light"
-                  className="text-lg text-[#0B253F]"
-                >
-                  <strong style={{ fontFamily: "IT Medium" }}>
-                    Payment Plan:
-                  </strong>{" "}
-                  {item.pp}
-                </Typography>
-              </div>
+                  {/* Payment Plan */}
+                  <div className="py-3 border-b border-gray-200">
+                    <Typography
+                      fontFamily="IT Light"
+                      className="text-lg text-[#0B253F]"
+                    >
+                      <strong style={{ fontFamily: "IT Medium" }}>
+                        Payment Plan:
+                      </strong>{" "}
+                      {item.pp}
+                    </Typography>
+                  </div>
 
-              {/* Handover */}
-              <div className="pt-3">
-                <Typography
-                  fontFamily="IT Light"
-                  className="text-lg text-[#0B253F]"
-                >
-                  <strong style={{ fontFamily: "IT Medium" }}>Handover:</strong>{" "}
-                  {item.handover}
-                </Typography>
-              </div>
+                  {/* Handover */}
+                  <div className="pt-3">
+                    <Typography
+                      fontFamily="IT Light"
+                      className="text-lg text-[#0B253F]"
+                    >
+                      <strong style={{ fontFamily: "IT Medium" }}>
+                        Handover:
+                      </strong>{" "}
+                      {item.handover}
+                    </Typography>
+                  </div>
 
-              {/* Actions */}
-              <div className="flex gap-5 mt-6">
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={scrollToForm}
-                  style={{ fontFamily: "IT Medium" }}
-                  className="w-full bg-slate-500 text-white flex items-center justify-center gap-3 font-semibold py-2 rounded-md shadow-md hover:bg-[#a66d49] transition-all"
-                >
-                  View Details
-                </motion.button>
+                  {/* Actions */}
+                  <div className="flex gap-5 mt-6">
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={scrollToForm}
+                      style={{ fontFamily: "IT Medium" }}
+                      className="w-full bg-slate-500 text-white flex items-center justify-center gap-3 font-semibold py-2 rounded-md shadow-md hover:bg-[#a66d49] transition-all"
+                    >
+                      View Details
+                    </motion.button>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </>
+        ) : (
+          <div className="space-y-4">
+            {[...Array(10)].map((_, index) => (
+              <div key={index} className="flex flex-col space-y-3">
+                <Skeleton className="h-[300px] w-full rounded-xl" />
               </div>
-            </div>
-          </motion.div>
-        ))}
+            ))}
+          </div>
+        )}
       </Box>
 
       {/* Form */}
