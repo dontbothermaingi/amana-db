@@ -17,6 +17,8 @@ import Renovation from "./components/renovation/pagelayout";
 import Tenants from "./components/tenants/page";
 import ScrollToTop from "./ScrollTop";
 import ContactUs from "./components/contactus/contactpage";
+import { LoginPage } from "./components/Authentication/loginpage";
+import AdminPage from "./components/admin/page";
 
 function App() {
   const [fadeOut, setFadeOut] = useState(false);
@@ -48,6 +50,8 @@ function App() {
         </div>
       </div>
       <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/admin" element={<AdminPage />} />
         <Route path="/" element={<Page />} />
         <Route path="/:type/public-listings" element={<PropertiesPage />} />
         <Route path="/off-plan/:propertyId" element={<OffPlanDetails />} />

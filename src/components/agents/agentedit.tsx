@@ -1,10 +1,29 @@
 import { TextField, Typography, Box, Divider } from "@mui/material";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "../ui/button";
 import "react-phone-input-2/lib/style.css";
 import PhoneInput from "react-phone-input-2";
 
-function AgentUpload() {
+interface Agent {
+  id: string;
+  name: string;
+  img: string;
+  work_experience: string;
+  specialization: string;
+  broker_license_number: string;
+  phone_number: string;
+  email: string;
+  profile: string;
+  about: string;
+  languages: string[];
+}
+
+interface AgentEditProps {
+  agent: Agent; // The agent to edit
+  onSuccess?: () => void; // Optional callback after update
+}
+
+function AgentEdit({ agent }: AgentEditProps) {
   const [formData, setFormData] = useState({
     name: "",
     img: null,
@@ -15,15 +34,37 @@ function AgentUpload() {
     email: "",
     profile: "",
     about: "",
-    languages: [],
+    dialects: [] as string[],
   });
 
   const [preview, setPreview] = useState<string | null>(null);
 
+  // Prefill form data when agent prop changes
+  useEffect(() => {
+    if (agent) {
+      setFormData({
+        name: agent.name || "",
+        img: null,
+        work_experience: agent.work_experience || "",
+        specialization: agent.specialization || "",
+        broker_license_number: agent.broker_license_number || "",
+        phone_number: agent.phone_number || "",
+        email: agent.email || "",
+        profile: agent.profile || "",
+        about: agent.about || "",
+        dialects: agent.languages || [],
+      });
+
+      if (!formData.img) {
+        setPreview(agent.img || null);
+      }
+    }
+  }, [agent]);
+
   function handleChange(e: any) {
     const { name, value } = e.target;
 
-    if (name === "languages") {
+    if (name === "dialects") {
       const languagesArray = value
         .split(",")
         .map((lang: any) => lang.trim())
@@ -31,7 +72,7 @@ function AgentUpload() {
 
       setFormData((prev) => ({
         ...prev,
-        languages: languagesArray,
+        dialects: languagesArray,
       }));
     } else {
       setFormData((prev) => ({
@@ -50,12 +91,10 @@ function AgentUpload() {
 
     if (file) {
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreview(reader.result as string);
-      };
+      reader.onloadend = () => setPreview(reader.result as string);
       reader.readAsDataURL(file);
     } else {
-      setPreview(null);
+      setPreview(agent.img || null);
     }
   }
 
@@ -72,23 +111,21 @@ function AgentUpload() {
       data.append("email", formData.email);
       data.append("profile", formData.profile);
       data.append("about", formData.about);
-      data.append("languages", JSON.stringify(formData.languages));
+      data.append("dialects", JSON.stringify(formData.dialects));
 
-      if (formData.img != null) {
+      if (formData.img) {
         data.append("img", formData.img);
       }
 
-      fetch("https://db-amana.onrender.com/agents", {
-        method: "POST",
+      fetch(`https://db-amana.onrender.com/agents/${agent.id}`, {
+        method: "PATCH", // update existing agent
         body: data,
       })
         .then((res) => res.json())
-        .then((data) => {
-          console.log("Upload successful", data);
-        });
+        .then(() => {});
     } catch (error) {
-      console.error("Upload error:", error);
-      alert("Upload failed!");
+      console.error("Update error:", error);
+      alert("Update failed!");
     }
   }
 
@@ -101,7 +138,7 @@ function AgentUpload() {
         mb={3}
         className="text-center"
       >
-        Add New Agent
+        Edit Agent
       </Typography>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
@@ -134,9 +171,7 @@ function AgentUpload() {
             className="hidden"
           />
         </Box>
-
         <Divider />
-
         {/* Agent Details */}
         <TextField
           value={formData.name}
@@ -147,7 +182,6 @@ function AgentUpload() {
           name="name"
           fullWidth
         />
-
         <TextField
           value={formData.work_experience}
           type="number"
@@ -157,7 +191,6 @@ function AgentUpload() {
           name="work_experience"
           fullWidth
         />
-
         <TextField
           value={formData.specialization}
           type="text"
@@ -167,7 +200,6 @@ function AgentUpload() {
           name="specialization"
           fullWidth
         />
-
         <TextField
           value={formData.broker_license_number}
           type="text"
@@ -177,7 +209,6 @@ function AgentUpload() {
           name="broker_license_number"
           fullWidth
         />
-
         {/* Phone Input */}
         <Box>
           <Typography className="text-sm mb-1 text-gray-600">
@@ -185,7 +216,7 @@ function AgentUpload() {
           </Typography>
           <PhoneInput
             country={"ae"}
-            value={formData?.phone_number || ""}
+            value={formData.phone_number || ""}
             onChange={(value) =>
               setFormData((prevData) => ({
                 ...prevData,
@@ -201,7 +232,6 @@ function AgentUpload() {
             }}
           />
         </Box>
-
         <TextField
           value={formData.email}
           type="email"
@@ -211,7 +241,6 @@ function AgentUpload() {
           name="email"
           fullWidth
         />
-
         <TextField
           value={formData.profile}
           type="text"
@@ -221,7 +250,7 @@ function AgentUpload() {
           name="profile"
           fullWidth
         />
-
+        dialects
         <TextField
           value={formData.about}
           type="text"
@@ -234,26 +263,24 @@ function AgentUpload() {
           minRows={4}
           maxRows={20}
         />
-
         <TextField
           label="Languages (comma separated)"
-          name="languages"
+          name="dialects"
           variant="outlined"
           type="text"
-          value={formData.languages.join(", ")}
+          value={formData.dialects.join(", ")}
           onChange={handleChange}
           fullWidth
         />
-
         <Button
           type="submit"
           className="bg-[#BA7F55] hover:bg-[#a06d49] text-white py-2 rounded-lg transition"
         >
-          Upload Agent
+          Update Agent
         </Button>
       </form>
     </div>
   );
 }
 
-export default AgentUpload;
+export default AgentEdit;

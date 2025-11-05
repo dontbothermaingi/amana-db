@@ -1,8 +1,26 @@
 import { TextField, Typography, Box } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
 
-function AgentSoldProperties() {
+interface Property {
+  id: string;
+  photo: null;
+  price: string;
+  property_type: string;
+  beds: string;
+  baths: string;
+  sqft: string;
+  community: string;
+  city: string;
+  country: string;
+  agent_Id: string;
+}
+
+interface PropertyEditProps {
+  property: Property;
+}
+
+function AgentPropertyEdit({ property }: PropertyEditProps) {
   const [formData, setFormData] = useState({
     photo: null,
     price: "",
@@ -17,6 +35,27 @@ function AgentSoldProperties() {
   });
 
   const [preview, setPreview] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (property) {
+      setFormData({
+        photo: null,
+        price: property.price || "",
+        property_type: property.property_type || "",
+        beds: property.beds || "",
+        baths: property.baths || "",
+        sqft: property.sqft || "",
+        community: property.community || "",
+        city: property.city || "",
+        country: property.country || "",
+        agent_Id: property.agent_Id || "",
+      });
+
+      if (formData.photo == null) {
+        setPreview(property.photo);
+      }
+    }
+  }, [property]);
 
   function handleChange(e: any) {
     const { name, value } = e.target;
@@ -40,7 +79,7 @@ function AgentSoldProperties() {
       };
       reader.readAsDataURL(file);
     } else {
-      setPreview(null);
+      setPreview(property.photo || null);
     }
   }
 
@@ -63,14 +102,12 @@ function AgentSoldProperties() {
         data.append("photo", formData.photo);
       }
 
-      fetch("https://db-amana.onrender.com/properties", {
-        method: "POST",
+      fetch(`https://db-amana.onrender.com/properties/${property.id}`, {
+        method: "PATCH",
         body: data,
       })
         .then((res) => res.json())
-        .then((data) => {
-          console.log("Upload successful", data);
-        });
+        .then(() => {});
     } catch (error) {
       console.error("Upload error:", error);
       alert("Upload failed!");
@@ -86,7 +123,7 @@ function AgentSoldProperties() {
         mb={3}
         className="text-center"
       >
-        Upload New Property
+        Edit Property
       </Typography>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
@@ -226,4 +263,4 @@ function AgentSoldProperties() {
   );
 }
 
-export default AgentSoldProperties;
+export default AgentPropertyEdit;
