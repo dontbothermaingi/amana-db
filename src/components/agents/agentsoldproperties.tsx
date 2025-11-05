@@ -1,6 +1,7 @@
 import { TextField, Typography, Box } from "@mui/material";
 import { useState } from "react";
 import { Button } from "../ui/button";
+import { nanoid } from "nanoid";
 
 function AgentSoldProperties() {
   const [formData, setFormData] = useState({
@@ -58,6 +59,7 @@ function AgentSoldProperties() {
       data.append("city", formData.city);
       data.append("community", formData.community);
       data.append("country", formData.country);
+      data.append("property_Id", nanoid());
 
       if (formData.photo != null) {
         data.append("photo", formData.photo);

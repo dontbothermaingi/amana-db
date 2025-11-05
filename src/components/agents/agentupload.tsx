@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Button } from "../ui/button";
 import "react-phone-input-2/lib/style.css";
 import PhoneInput from "react-phone-input-2";
+import { nanoid } from "nanoid";
 
 function AgentUpload() {
   const [formData, setFormData] = useState({
@@ -73,6 +74,7 @@ function AgentUpload() {
       data.append("profile", formData.profile);
       data.append("about", formData.about);
       data.append("languages", JSON.stringify(formData.languages));
+      data.append("agent_Id", nanoid());
 
       if (formData.img != null) {
         data.append("img", formData.img);
