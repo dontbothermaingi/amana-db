@@ -90,7 +90,8 @@ function ConnectAndEarn() {
 
           <Typography
             fontFamily="IT Light"
-            className="pt-6 text-gray-700 leading-relaxed text-lg"
+            fontSize={{ lg: "18px", xs: "17px" }}
+            className="pt-6 text-gray-700 leading-relaxed"
           >
             Looking to{" "}
             <span className="font-medium text-[#0B253F]">
@@ -144,7 +145,7 @@ function ConnectAndEarn() {
               >
                 Unlimited Opportunities:
               </span>{" "}
-              Refer as many friends as you like — each successful deal earns you
+              Refer as many people as you like each successful deal earns you
               more.
             </li>
           </ul>
@@ -155,7 +156,7 @@ function ConnectAndEarn() {
         </div>
 
         {!isMobile && (
-          <Divider orientation="vertical" sx={{ height: "550px" }} />
+          <Divider orientation="vertical" sx={{ height: "690px" }} />
         )}
 
         {/* HOW IT WORKS */}
@@ -171,28 +172,28 @@ function ConnectAndEarn() {
           <div className="grid sm:grid-cols-2 gap-6">
             {[
               {
-                title: "Refer",
-                desc: "Share your friend’s contact details with us.",
+                title: "1. Refer",
+                desc: "Introduce someone who could benefit from our services by sharing their details with us.",
                 icon: <UserPlus />,
               },
               {
-                title: "Confirm",
-                desc: "We verify their interest and connect.",
-                icon: <CheckCircle />,
-              },
-              {
-                title: "Connect",
-                desc: "Our team reaches out to assist them.",
+                title: "2. We Connect",
+                desc: "Our team reaches out to learn more about their needs and provide support.",
                 icon: <Handshake />,
               },
               {
-                title: "Reward",
-                desc: "You receive your reward within 14 days.",
+                title: "3. Deal Closes",
+                desc: "Once your referral successfully completes a deal or transaction with us, it’s confirmed.",
+                icon: <CheckCircle />,
+              },
+              {
+                title: "4. Earn Your Reward",
+                desc: "You’ll receive a reward as a token of appreciation once the process is completed.",
                 icon: <Gift />,
               },
               {
-                title: "Repeat",
-                desc: "Refer again — there’s no limit!",
+                title: "5. Refer Again",
+                desc: "Keep sharing — there’s no limit to how many people you can refer!",
                 icon: <Repeat />,
               },
             ].map((step, i) => (

@@ -13,7 +13,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import PropertyCard from "../properties/propertycard";
-import { useCallback, type JSX } from "react";
+import { useCallback, useEffect, type JSX } from "react";
 import { motion } from "framer-motion";
 import { FaWhatsapp } from "react-icons/fa";
 
@@ -70,6 +70,10 @@ function AgentDetails() {
     },
     [navigate]
   );
+
+  useEffect(() => {
+    console.log("Agent Id: ", agent?.agent_Id);
+  }, [agent]);
 
   const properties = houses?.list?.filter(
     (item: any) => item.agent.name === "Mohammed Faizan"

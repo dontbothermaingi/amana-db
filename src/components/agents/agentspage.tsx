@@ -109,13 +109,23 @@ function AgentsOverview() {
               ))}
             </>
           ) : (
-            <div className="space-y-4">
+            <Box
+              display="grid"
+              gridTemplateColumns={{
+                xs: "repeat(2, 1fr)",
+                sm: "1fr",
+                md: "repeat(2, 1fr)",
+                lg: "repeat(3, 1fr)",
+              }}
+              gap={4}
+              className="mt-10 px-3 lg:px-50"
+            >
               {[...Array(10)].map((_, index) => (
                 <div key={index} className="flex flex-col space-y-3">
-                  <Skeleton className="h-[125px] w-full rounded-xl" />
+                  <Skeleton className="h-[370px] w-[400px] rounded-xl" />
                 </div>
               ))}
-            </div>
+            </Box>
           )}
         </Box>
       </div>
