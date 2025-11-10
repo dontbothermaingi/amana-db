@@ -60,74 +60,39 @@ function Agents() {
         </Typography>
       </motion.div>
 
-      {/* Slider for Desktop | Grid for Mobile */}
-      <div className="relative w-full overflow-hidden">
-        {!isMobile && (
-          <div className="visible md:flex slider">
-            <div className="slider-track">
-              {agents?.concat(agents).map((agent: any, index: any) => (
-                <motion.div
-                  key={index}
-                  whileHover={{ scale: 1.05 }}
-                  transition={{ type: "spring", stiffness: 200 }}
-                  className="relative item cursor-pointer"
-                  onClick={() => handleDetails(agent.id)}
-                >
-                  <img
-                    src={agent.img}
-                    alt={agent.name}
-                    loading="lazy"
-                    className="w-full h-95 rounded-2xl object-cover"
-                  />
-                  <div className="absolute bottom-0 w-full bg-gradient-to-t from-black/80 to-transparent p-3">
-                    <Typography fontFamily={"IT Medium"} color="white">
-                      {agent.name}
-                    </Typography>
-                    <Typography
-                      fontFamily={"IT Light"}
-                      color="white"
-                      className="text-sm"
-                    >
-                      {agent.specialty}
-                    </Typography>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Mobile Grid Layout */}
-        <div className="grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-2 gap-5 px-5 md:hidden lg:hidden">
-          {agents?.map((agent: any, index: any) => (
-            <motion.div
-              key={index}
-              whileHover={{ y: -5 }}
-              transition={{ duration: 0.3 }}
-              className="relative rounded-xl overflow-hidden cursor-pointer shadow-lg"
-              onClick={() => handleDetails(agent.id)}
-            >
+      {/* Agents Grid */}
+      <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 px-10">
+        {agents?.map((agent: any, index: number) => (
+          <motion.div
+            key={index}
+            whileHover={{ y: -6, scale: 1.02 }}
+            transition={{ duration: 0.3 }}
+            onClick={() => handleDetails(agent.id)}
+            className="cursor-pointer rounded-2xl overflow-hidden bg-white shadow-sm hover:shadow-lg transition-all duration-300"
+          >
+            <div className="relative w-full h-80">
               <img
                 src={agent.img}
                 alt={agent.name}
                 loading="lazy"
-                className="w-full h-64 object-cover"
+                className="w-full h-full object-cover"
               />
-              <div className="absolute bottom-0 w-full bg-gradient-to-t from-black/80 to-transparent p-3">
-                <Typography fontFamily={"IT Medium"} color="white">
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+              <div className="absolute bottom-4 left-4 text-white">
+                <Typography fontFamily="IT Medium" fontSize="18px">
                   {agent.name}
                 </Typography>
                 <Typography
-                  fontFamily={"IT Light"}
-                  color="white"
-                  className="text-sm"
+                  fontFamily="IT Light"
+                  fontSize="14px"
+                  className="opacity-90"
                 >
-                  {agent.specialty}
+                  {agent.specialization}
                 </Typography>
               </div>
-            </motion.div>
-          ))}
-        </div>
+            </div>
+          </motion.div>
+        ))}
       </div>
 
       {/* CTA Button */}

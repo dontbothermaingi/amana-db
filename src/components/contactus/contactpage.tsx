@@ -1,6 +1,7 @@
 import Form from "@/leads/form";
 import { Box, Typography } from "@mui/material";
 import { Mail, MapPin, Phone } from "lucide-react";
+import { useMemo } from "react";
 
 function ContactUs() {
   const cards = [
@@ -23,6 +24,21 @@ function ContactUs() {
       icon: <Mail className="w-10 h-10 text-[#BA7F55]" />,
     },
   ];
+
+  const iFrame = useMemo(
+    () => (
+      <iframe
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3614.246971355556!2d55.239977576225634!3d25.05961707779983!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3e5f6fd61a1ce523%3A0x57e47863527f05d5!2sAMANA%20HOMES!5e0!3m2!1sen!2sae!4v1754568723339!5m2!1sen!2sae"
+        height="450"
+        style={{ border: 0 }}
+        allowFullScreen
+        loading="lazy"
+        referrerPolicy="no-referrer-when-downgrade"
+        className="w-full rounded-2xl"
+      />
+    ),
+    []
+  );
 
   return (
     <div className="flex flex-col gap-4">
@@ -86,17 +102,7 @@ function ContactUs() {
       </Box>
 
       {/* Map */}
-      <div className="px-4 md:px-10 lg:px-20 pb-10">
-        <iframe
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3614.246971355556!2d55.239977576225634!3d25.05961707779983!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3e5f6fd61a1ce523%3A0x57e47863527f05d5!2sAMANA%20HOMES!5e0!3m2!1sen!2sae!4v1754568723339!5m2!1sen!2sae"
-          height="450"
-          style={{ border: 0 }}
-          allowFullScreen
-          loading="lazy"
-          referrerPolicy="no-referrer-when-downgrade"
-          className="w-full rounded-2xl"
-        />
-      </div>
+      <div className="px-4 md:px-10 lg:px-20 pb-10">{iFrame}</div>
 
       {/* Contact Form */}
       <section className="px-4 md:px-10 lg:px-20 py-10">
