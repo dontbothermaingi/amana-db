@@ -103,7 +103,7 @@ function Form({ propertyId, extraData, formType = "default" }: childProps) {
     // const form_id = crypto.randomUUID();
 
     const dataForm = {
-      formId: "32612aca-087c-4b4c-b754-9cd7d8d83fd0",
+      formId: "4042ac1b-921f-4098-8bf4-01f2f24dc3fa",
       propertyReference: propertyId || "No property reference",
       name: formData?.name || "",
       email: formData?.email || "",
@@ -114,7 +114,7 @@ function Form({ propertyId, extraData, formType = "default" }: childProps) {
           : formData.extraData,
     };
 
-    console.log("Submitting form data:", dataForm);
+    // console.log("Submitting form data:", dataForm);
 
     fetch("https://dataapi.pixxicrm.ae/pixxiapi/webhook/v1/form", {
       method: "POST",
@@ -122,7 +122,7 @@ function Form({ propertyId, extraData, formType = "default" }: childProps) {
         "Content-Type": "application/json",
         "X-PIXXI-TOKEN": access_token,
       },
-      // body: JSON.stringify(dataForm),
+      body: JSON.stringify(dataForm),
     })
       .then((response) => response.json())
       .then((data) => {
