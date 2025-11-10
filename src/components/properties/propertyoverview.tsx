@@ -16,6 +16,7 @@ import MortgageCalculator from "./morgagecalculator";
 import ImageGalleryPreview from "./imagegallery";
 import Form from "@/leads/form";
 import { Card, CardContent } from "../ui/card";
+import { useMemo } from "react";
 
 function PropertyOverview() {
   const { propertyId } = useParams();
@@ -51,29 +52,23 @@ function PropertyOverview() {
     staleTime: 1000 * 60 * 10,
   });
 
-  function handleKeyInfo(item: any) {
-    if (item == "Property Type") {
-      return house?.houseType[0];
-    } else if (item == "Listing Type") {
-      return house?.propertyType;
-    } else if (item == "Furnishing") {
-      return "Not Furnished";
-    } else if (item == "Completion") {
-      return (
+  const keyInfo = useMemo<Record<string, string | undefined>>(() => {
+    if (!house) return {};
+    return {
+      "Property Type": house?.houseType?.[0],
+      "Listing Type": house?.propertyType,
+      Furnishing: "Not Furnished",
+      Completion:
         house?.rentParameter?.buildYear ||
         house?.sellParameter?.buildYear ||
-        house?.newParameter?.handoverTime?.split(" ")[0]
-      );
-    } else if (item == "Parking Availabilty") {
-      return "Yes";
-    } else if (item == "Developer") {
-      return house?.developerName;
-    } else if (item == "Built-up Area") {
-      return `${
+        house?.newParameter?.handoverTime?.split(" ")[0],
+      "Parking Availabilty": "Yes",
+      Developer: house?.developerName,
+      "Built-up Area": `${
         house?.landSqM || house?.size || house?.newParameter?.maxSize
-      } Square Feet`;
-    }
-  }
+      } Sqft`,
+    };
+  }, [house]);
 
   // const { data: developers } = useQuery({
   //   queryKey: ["develope"],
@@ -174,6 +169,15 @@ function PropertyOverview() {
 
     return result;
   }
+
+  const amenityNames = useMemo(() => {
+    return getAmenityNames(
+      house?.newParameter?.amenities ||
+        house?.rentParameter?.amenities ||
+        house?.sellParameter?.amenities,
+      amenity?.data
+    );
+  }, [house, amenity]);
 
   const pp = house?.newParameter?.paymentPlan
     ? JSON.parse(house?.newParameter?.paymentPlan)
@@ -307,7 +311,7 @@ function PropertyOverview() {
                     >
                       <Typography fontFamily={"IT Medium"}>{item}:</Typography>
                       <Typography fontFamily={"IT Light"}>
-                        {handleKeyInfo(item)}
+                        {keyInfo[item]}
                       </Typography>
                     </div>
                   ))}
@@ -503,12 +507,7 @@ function PropertyOverview() {
               </Typography>
 
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-                {getAmenityNames(
-                  house?.newParameter?.amenities ||
-                    house?.rentParameter?.amenities ||
-                    house?.sellParameter?.amenities,
-                  amenity?.data
-                ).map((item, index) => (
+                {amenityNames.map((item, index) => (
                   <Card key={index}>
                     <CardContent style={{ fontFamily: "IT Medium" }}>
                       {item}

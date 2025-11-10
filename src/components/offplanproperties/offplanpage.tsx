@@ -1,20 +1,30 @@
 import { Box, Typography } from "@mui/material";
 import { motion } from "framer-motion";
-import { useRef } from "react";
+import { useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import Form from "@/leads/form";
 import { Skeleton } from "../ui/skeleton";
 
+interface OffPlanItem {
+  id: string;
+  title: string;
+  developer: string;
+  img: string;
+  startingPrice: number;
+  pp: string;
+  handover: string;
+}
+
 function OffPlan() {
   const formRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
-  function scrollToForm() {
+  const scrollToForm = useCallback(() => {
     formRef.current?.scrollIntoView({ behavior: "smooth" });
-  }
+  }, []);
 
-  const { data: stats } = useQuery({
+  const { data: stats } = useQuery<OffPlanItem[]>({
     queryKey: ["project"],
     queryFn: () =>
       fetch(`https://68e7771910e3f82fbf3f4033.mockapi.io/offplan/offplan`).then(
@@ -25,9 +35,12 @@ function OffPlan() {
   // if (isLoading) return <p>Loading...</p>;
   // if (error) return <p>Something went wrong.</p>;
 
-  function handleDetails(propertyId: any) {
-    navigate(`/off-plan/${propertyId}`);
-  }
+  const handleDetails = useCallback(
+    (propertyId: String) => {
+      navigate(`/off-plan/${propertyId}`);
+    },
+    [navigate]
+  );
 
   return (
     <div className="pb-20">

@@ -6,10 +6,17 @@ import { useNavigate } from "react-router-dom";
 import Form from "@/leads/form";
 import { Skeleton } from "../ui/skeleton";
 
+interface AgentsProps {
+  id: string;
+  img: string;
+  name: string;
+  specialization: string;
+}
+
 function AgentsOverview() {
   const navigate = useNavigate();
 
-  const { data: agents } = useQuery({
+  const { data: agents } = useQuery<AgentsProps[]>({
     queryKey: ["agent_new"],
     queryFn: () =>
       fetch("https://db-amana.onrender.com/agents")
@@ -18,7 +25,7 @@ function AgentsOverview() {
     staleTime: 1000 * 60 * 10,
   });
 
-  const handleDetails = useCallback((agentId: any) => {
+  const handleDetails = useCallback((agentId: string) => {
     navigate(`/agent-details/${agentId}`);
   }, []);
 
@@ -95,37 +102,15 @@ function AgentsOverview() {
                           {item.specialization}
                         </Typography>
                       </div>
-
-                      {/* <Divider /> */}
-
-                      {/* <div className="flex gap-4">
-                    <FaWhatsapp className="w-5 h-5 text-black hover:text-[#BA7F55] transition" />
-                    <FaInstagram className="w-5 h-5 text-black hover:text-[#BA7F55] transition" />
-                    <FaLinkedin className="w-5 h-5 text-black hover:text-[#BA7F55] transition" />
-                  </div> */}
                     </div>
                   </div>
                 </div>
               ))}
             </>
           ) : (
-            <Box
-              display="grid"
-              gridTemplateColumns={{
-                xs: "repeat(2, 1fr)",
-                sm: "1fr",
-                md: "repeat(2, 1fr)",
-                lg: "repeat(3, 1fr)",
-              }}
-              gap={4}
-              className="mt-10 px-3 lg:px-50"
-            >
-              {[...Array(10)].map((_, index) => (
-                <div key={index} className="flex flex-col space-y-3">
-                  <Skeleton className="h-[370px] w-[400px] rounded-xl" />
-                </div>
-              ))}
-            </Box>
+            [...Array(6)].map((_, idx) => (
+              <Skeleton key={idx} className="h-[300px] w-full rounded-xl" />
+            ))
           )}
         </Box>
       </div>

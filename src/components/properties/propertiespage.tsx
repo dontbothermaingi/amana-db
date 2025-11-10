@@ -1,35 +1,40 @@
 import { Box, Typography } from "@mui/material";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState, lazy, Suspense } from "react";
 import { useQuery } from "@tanstack/react-query";
 import PropertyFilterBar from "./propertyfilterbar";
 import { useNavigate, useParams } from "react-router-dom";
-import PropertyCard from "./propertycard";
 import { ArrowLeft, ArrowRight } from "lucide-react";
-import MapView from "./mapview";
-import Form from "@/leads/form";
 import { Skeleton } from "../ui/skeleton";
+import PropertyCard from "./propertycard";
+
+// Lazy-loaded heavy components
+const MapView = lazy(() => import("./mapview"));
+const Form = lazy(() => import("@/leads/form"));
+
+type Filters = {
+  reason?: string;
+  location?: string;
+  propertyType?: string;
+  beds?: string;
+  bathrooms?: string;
+  sqftMin?: string;
+  sqftMax?: string;
+  priceMin?: string;
+  priceMax?: string;
+  community?: string;
+};
 
 function PropertiesPage() {
   const navigate = useNavigate();
-  type Filters = {
-    reason?: string;
-    location?: string;
-    propertyType?: string;
-    beds?: string;
-    bathrooms?: string;
-    sqftMin?: string;
-    sqftMax?: string;
-    priceMin?: string;
-    priceMax?: string;
-    community?: string;
-  };
-
-  const [filters, setFilters] = useState<Filters>({});
   const { type } = useParams();
   const itemsPerPage = 12;
+
+  const [filters, setFilters] = useState<Filters>({});
   const [currentPage, setCurrentPage] = useState(1);
+
   const access_token = "gUD5QIKlscK-vPRxPZfDBOfnGuSEyrZl";
 
+  // Fetch properties with caching
   const { data: houses = [] } = useQuery({
     queryKey: ["house", access_token, type],
     queryFn: async () => {
@@ -43,92 +48,96 @@ function PropertiesPage() {
           },
           body: JSON.stringify({
             listingType: type,
-            size: 500,
+            size: 100,
             sort: "ID",
             sortType: "DESC",
           }),
         }
       );
-
       const json = await res.json();
-      // console.log("Raw API response:", json);
       return json?.list || json?.data || json || [];
     },
     staleTime: 1000 * 60 * 10,
   });
 
-  const properties = houses?.list;
+  const properties = houses?.list || [];
 
-  const handleDetails = useCallback((propertyId: any) => {
-    navigate(`/public-listings/${propertyId}`);
-  }, []);
-
+  // Memoized filtered properties (one pass)
   const filteredProperties = useMemo(() => {
-    let filtered = properties || [];
+    if (!properties.length) return [];
 
-    if (filters.reason)
-      filtered = filtered.filter((p: any) => p.listingType === filters.reason);
+    return properties.filter((p: any) => {
+      if (filters.reason && p.listingType !== filters.reason) return false;
+      if (filters.community && p.region !== filters.community) return false;
+      if (filters.location && p.cityName !== filters.location) return false;
+      if (filters.propertyType && p.propertyType[0] !== filters.propertyType)
+        return false;
 
-    if (filters.community)
-      filtered = filtered.filter((p: any) => p.region === filters.community);
+      if (filters.beds) {
+        const beds = filters.beds === "4+" ? 4 : Number(filters.beds);
+        if (p.bedRooms < beds) return false;
+      }
 
-    if (filters.location)
-      filtered = filtered.filter((p: any) => p.cityName === filters.location);
+      if (filters.bathrooms) {
+        const baths =
+          filters.bathrooms === "4+" ? 4 : Number(filters.bathrooms);
+        if (p.bathRooms < baths) return false;
+      }
 
-    if (filters.propertyType)
-      filtered = filtered.filter(
-        (p: any) => p.propertyType[0] === filters.propertyType
-      );
+      if (filters.sqftMin && p.size < Number(filters.sqftMin)) return false;
+      if (filters.sqftMax && p.size > Number(filters.sqftMax)) return false;
+      if (filters.priceMin && p.price < Number(filters.priceMin)) return false;
+      if (filters.priceMax && p.price > Number(filters.priceMax)) return false;
 
-    if (filters.beds) {
-      filtered =
-        filters.beds === "4+"
-          ? filtered.filter((p: any) => p.bedRooms >= 4)
-          : filtered.filter((p: any) => p.bedRooms === Number(filters.beds));
-    }
-
-    if (filters.bathrooms) {
-      filtered =
-        filters.bathrooms === "4+"
-          ? filtered.filter((p: any) => p.bedRooms >= 4)
-          : filtered.filter(
-              (p: any) => p.bedRooms === Number(filters.bathrooms)
-            );
-    }
-
-    if (filters.sqftMin)
-      filtered = filtered.filter((p: any) => p.size >= Number(filters.sqftMin));
-
-    if (filters.sqftMax)
-      filtered = filtered.filter((p: any) => p.size <= Number(filters.sqftMax));
-
-    if (filters.priceMin)
-      filtered = filtered.filter(
-        (p: any) => p.price >= Number(filters.priceMin)
-      );
-
-    if (filters.priceMax)
-      filtered = filtered.filter(
-        (p: any) => p.price <= Number(filters.priceMax)
-      );
-
-    return filtered;
+      return true;
+    });
   }, [filters, properties]);
+
+  // Memoized page title
+  const pageTitle = useMemo(() => {
+    const { propertyType, location, community, reason } = filters;
+
+    if (!location && !community && !propertyType && !reason)
+      return "Properties for Sale in the UAE";
+
+    let title =
+      reason === "RENT"
+        ? propertyType
+          ? `${propertyType}s for Rent`
+          : "Properties for Rent"
+        : propertyType
+        ? `${propertyType}s for Sale`
+        : "Properties for Sale";
+
+    if (location) title += ` in ${location}`;
+    else title += ` in Dubai`;
+
+    if (community) title += `, ${community}`;
+
+    return title;
+  }, [filters]);
 
   const totalPages = Math.ceil(
     (filteredProperties?.length || 0) / itemsPerPage
   );
-
   const startingIndex = (currentPage - 1) * itemsPerPage;
   const currentData = filteredProperties?.slice(
     startingIndex,
     startingIndex + itemsPerPage
   );
 
+  const handleDetails = useCallback(
+    (propertyId: string) => {
+      navigate(`/public-listings/${propertyId}`);
+    },
+    [navigate]
+  );
+
   return (
     <div className="pb-20">
       <div className="w-full flex flex-col gap-3 py-10">
         <div className="lg:px-10 px-3 py-3 h-fit flex flex-col gap-10">
+          {/* Title */}
           <div className="flex justify-center">
             <div className="w-fit lg:w-200">
               <Typography
@@ -136,42 +145,8 @@ function PropertiesPage() {
                 fontSize={{ lg: "40px", xs: "30px" }}
                 textAlign="center"
               >
-                {(() => {
-                  const { propertyType, location, community, reason } = filters;
-
-                  // Case 1: Default title
-                  if (!location && !community && !propertyType && !reason) {
-                    return "Properties for Sale in the UAE";
-                  }
-
-                  // Start building base title
-                  // let title = propertyType
-                  // ? `${propertyType}s for Sale`
-                  // : "Properties for Sale";
-
-                  let title =
-                    reason === "RENT"
-                      ? propertyType
-                        ? `${propertyType}s for Rent`
-                        : "Properties for Rent"
-                      : propertyType
-                      ? `${propertyType}s for Sale`
-                      : "Properties for Sale";
-
-                  if (location) {
-                    title += ` in ${location}`;
-                  } else {
-                    title += ` in Dubai`;
-                  }
-
-                  if (community) {
-                    title += `, ${community}`;
-                  }
-
-                  return title;
-                })()}
+                {pageTitle}
               </Typography>
-
               <Typography
                 fontFamily={"IT Light"}
                 textAlign={"center"}
@@ -184,84 +159,82 @@ function PropertiesPage() {
             </div>
           </div>
 
+          {/* Filter Bar */}
           <div className="z-9991">
             <PropertyFilterBar onFilterChange={setFilters} type={type ?? ""} />
           </div>
 
+          {/* Property Count */}
           <div className="px-1">
             <Typography fontFamily={"IT Medium"} fontSize={{ lg: "20px" }}>
-              {filteredProperties?.length} Properties of {properties?.length}{" "}
+              {filteredProperties?.length} Properties of {properties?.length}
             </Typography>
           </div>
 
+          {/* Properties + Map */}
           <div className="lg:flex-row flex flex-col gap-5 relative">
+            {/* Map */}
             <div className="lg:h-[95vh] lg:w-1/2 lg:sticky lg:top-5 w-full">
-              <MapView listings={filteredProperties} />
+              <Suspense fallback={<Skeleton className="h-full w-full" />}>
+                <MapView listings={filteredProperties} />
+              </Suspense>
             </div>
+
+            {/* Property Cards */}
             <div className="h-full border-black gap-3 justify-between lg:px-1 lg:w-1/2 w-full">
-              {/* <Divider orientation="vertical"/> */}
-
-              <div className="h-full border-black overflow-x-hidden">
-                <Box
-                  display={"grid"}
-                  gridTemplateColumns={{
-                    md: "repeat(2,1fr)",
-                    xs: "repeat(1,1fr)",
-                    lg: "repeat(1,1fr)",
-                  }}
-                  gap={"30px"}
-                >
-                  {properties ? (
-                    <>
-                      {currentData.map((item: any) => (
-                        <PropertyCard
-                          key={item.id}
-                          item={item}
-                          onClick={() => handleDetails(item.propertyId)}
-                        />
-                      ))}
-                    </>
-                  ) : (
-                    <div className="space-y-4">
-                      {[...Array(10)].map((_, index) => (
-                        <div key={index} className="flex flex-col space-y-3">
-                          <Skeleton className="h-[300px] w-full rounded-xl" />
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </Box>
-
-                <div className="flex justify-center items-center gap-5 mt-10 overflow-x-auto">
-                  <div
-                    onClick={() =>
-                      setCurrentPage((prev) => Math.max(prev - 1, 1))
-                    }
-                  >
-                    <ArrowLeft />
-                  </div>
-
-                  <div className="flex flex-wrap gap-3 items-center cursor-pointer">
-                    {[...Array(totalPages)].map((_, index) => (
-                      <div
+              <Box
+                display={"grid"}
+                gridTemplateColumns={{
+                  md: "repeat(2,1fr)",
+                  xs: "repeat(1,1fr)",
+                  lg: "repeat(1,1fr)",
+                }}
+                gap={"30px"}
+              >
+                {properties.length
+                  ? currentData.map((item: any) => (
+                      <PropertyCard
+                        key={item.id}
+                        item={item}
+                        onClick={() => handleDetails(item.propertyId)}
+                      />
+                    ))
+                  : [...Array(itemsPerPage)].map((_, index) => (
+                      <Skeleton
                         key={index}
-                        onClick={() => setCurrentPage(index + 1)}
-                        className={`border border-gray-400 px-3 py-1 rounded-lg hover:bg-gray-200 ${
-                          currentPage === index + 1 ? "bg-gray-300" : ""
-                        }`}
-                      >
-                        {index + 1}
-                      </div>
+                        className="h-[300px] w-full rounded-xl"
+                      />
                     ))}
-                  </div>
+              </Box>
 
-                  <div
-                    onClick={() =>
-                      setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-                    }
-                  >
-                    <ArrowRight />
-                  </div>
+              {/* Pagination */}
+              <div className="flex justify-center items-center gap-5 mt-10 overflow-x-auto">
+                <div
+                  onClick={() =>
+                    setCurrentPage((prev) => Math.max(prev - 1, 1))
+                  }
+                >
+                  <ArrowLeft />
+                </div>
+                <div className="flex flex-wrap gap-3 items-center cursor-pointer">
+                  {[...Array(totalPages)].map((_, index) => (
+                    <div
+                      key={index}
+                      onClick={() => setCurrentPage(index + 1)}
+                      className={`border border-gray-400 px-3 py-1 rounded-lg hover:bg-gray-200 ${
+                        currentPage === index + 1 ? "bg-gray-300" : ""
+                      }`}
+                    >
+                      {index + 1}
+                    </div>
+                  ))}
+                </div>
+                <div
+                  onClick={() =>
+                    setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                  }
+                >
+                  <ArrowRight />
                 </div>
               </div>
             </div>
@@ -269,8 +242,8 @@ function PropertiesPage() {
         </div>
       </div>
 
+      {/* Contact Form */}
       <div className="bg-white shadow-lg border border-gray-200 rounded-3xl px-4 sm:px-8 py-10 flex flex-col items-center max-w-3xl mx-auto mb-1 lg:mb-20">
-        {/* Tagline */}
         <Typography
           fontFamily={"RM Medium"}
           color="#BA7F55"
@@ -279,7 +252,6 @@ function PropertiesPage() {
           [Get In Touch]
         </Typography>
 
-        {/* Heading */}
         <Typography
           fontFamily={"DM Medium"}
           fontSize={{ xs: "24px", lg: "30px" }}
@@ -288,7 +260,6 @@ function PropertiesPage() {
           Let’s Make Your Property Journey Effortless
         </Typography>
 
-        {/* Subheading */}
         <Typography
           fontFamily={"IT Light"}
           className="text-center text-gray-600 leading-relaxed max-w-xl"
@@ -298,12 +269,13 @@ function PropertiesPage() {
           into reality—together.
         </Typography>
 
-        {/* Form */}
-        <Form
-          propertyId={""}
-          extraData={{ property_name: "" }}
-          formType="default"
-        />
+        <Suspense fallback={<Skeleton className="h-96 w-full mt-5" />}>
+          <Form
+            propertyId={""}
+            extraData={{ property_name: "" }}
+            formType="default"
+          />
+        </Suspense>
       </div>
     </div>
   );
