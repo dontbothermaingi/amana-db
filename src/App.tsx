@@ -20,11 +20,18 @@ import ContactUs from "./components/contactus/contactpage";
 import { LoginPage } from "./components/Authentication/loginpage";
 import AdminPage from "./components/admin/page";
 
+const LOADER_KEY = "loadershowdown";
+const LOADER_EXPIRE = 1000 * 60 * 60 * 2;
+
 function App() {
   const [fadeOut, setFadeOut] = useState(false);
   const [loading, setLoading] = useState(() => {
-    // Check if loader has already been shown
-    return !sessionStorage.getItem("loaderShown");
+    const item = localStorage.getItem(LOADER_KEY);
+    if (!item) return true;
+
+    const parsed = JSON.parse(item);
+    const expired = Date.now() - parsed.timestamp > LOADER_EXPIRE;
+    return expired;
   });
 
   useEffect(() => {
@@ -34,7 +41,10 @@ function App() {
       setFadeOut(true);
       setTimeout(() => {
         setLoading(false);
-        sessionStorage.setItem("loaderShown", "true"); // mark loader as shown
+        localStorage.setItem(
+          LOADER_KEY,
+          JSON.stringify({ timestamp: Date.now() })
+        ); // mark loader as shown
       }, 700); // match transition duration
     }, 5000); // loader visible duration
     return () => clearTimeout(timer);
