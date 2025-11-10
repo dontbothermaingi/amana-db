@@ -41,9 +41,9 @@ const PropertyCard = React.memo(function PropertyCard({
             )}
 
             {/* Badge */}
-            <div className="absolute top-4 left-4 bg-purple-600 text-white px-3 py-1 text-sm rounded-full shadow-md">
+            {/* <div className="absolute top-4 left-4 bg-purple-600 text-white px-3 py-1 text-sm rounded-full shadow-md">
               High ROI
-            </div>
+            </div> */}
 
             {/* Gradient Overlay */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent z-10" />

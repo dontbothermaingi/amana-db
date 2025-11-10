@@ -1,6 +1,7 @@
 import { Box, Divider, Typography, Avatar, Tooltip } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "../ui/button";
 import {
   Bed,
@@ -13,7 +14,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import PropertyCard from "../properties/propertycard";
-import { useCallback, useEffect, type JSX } from "react";
+import { useCallback, useEffect, useRef, useState, type JSX } from "react";
 import { motion } from "framer-motion";
 import { FaWhatsapp } from "react-icons/fa";
 
@@ -21,6 +22,12 @@ function AgentDetails() {
   const { agentId } = useParams();
   const access_token = "gUD5QIKlscK-vPRxPZfDBOfnGuSEyrZl";
   const navigate = useNavigate();
+  const [value, setValue] = useState("SELL");
+  const propRef = useRef<HTMLDivElement | null>(null);
+
+  function scrollToProperties() {
+    propRef.current?.scrollIntoView({ behavior: "smooth" });
+  }
 
   const { data: agent } = useQuery({
     queryKey: ["agent", agentId],
@@ -39,7 +46,7 @@ function AgentDetails() {
   });
 
   const { data: houses = [] } = useQuery({
-    queryKey: ["house", access_token],
+    queryKey: ["house", access_token, value],
     queryFn: async () => {
       const res = await fetch(
         "https://dataapi.pixxicrm.ae/pixxiapi/v1/properties",
@@ -50,7 +57,7 @@ function AgentDetails() {
             "X-PIXXI-TOKEN": access_token,
           },
           body: JSON.stringify({
-            listingType: "SELL",
+            listingType: value,
             size: 84,
             sort: "ID",
             sortType: "DESC",
@@ -130,7 +137,10 @@ function AgentDetails() {
                   Whatsapp
                 </Button>
               </a>
-              <Button className="bg-[#BA7F55] hover:bg-[#a36f49] text-white">
+              <Button
+                onClick={scrollToProperties}
+                className="bg-[#BA7F55] hover:bg-[#a36f49] text-white"
+              >
                 View Listed Properties
               </Button>
             </div>
@@ -321,28 +331,45 @@ function AgentDetails() {
       </Section>
 
       {/* Active Listings */}
-      <Section title="Active Listings" color="#0B253F">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
-          {properties?.length ? (
-            properties.map((item: any) => (
-              <motion.div
-                key={item.id}
-                whileHover={{ scale: 1.02 }}
-                transition={{ duration: 0.3 }}
-              >
-                <PropertyCard
-                  item={item}
-                  onClick={() => handleDetails(item.propertyId)}
-                />
-              </motion.div>
-            ))
-          ) : (
-            <Typography color="text.secondary">
-              No listings available for this agent.
-            </Typography>
-          )}
-        </div>
-      </Section>
+      <div ref={propRef}>
+        <Section title="Active Listings" color="#0B253F">
+          <Tabs ref={propRef} defaultValue="account" className="w-[400px] pb-5">
+            <TabsList>
+              <TabsTrigger onClick={() => setValue("SELL")} value="account">
+                For Sale
+              </TabsTrigger>
+              <TabsTrigger onClick={() => setValue("RENT")} value="password">
+                For Rent
+              </TabsTrigger>
+            </TabsList>
+            {/* <TabsContent value="account">
+            Make changes to your account here.
+          </TabsContent>
+          <TabsContent value="password">Change your password here.</TabsContent> */}
+          </Tabs>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+            {properties?.length ? (
+              properties.map((item: any) => (
+                <motion.div
+                  key={item.id}
+                  whileHover={{ scale: 1.02 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <PropertyCard
+                    item={item}
+                    onClick={() => handleDetails(item.propertyId)}
+                  />
+                </motion.div>
+              ))
+            ) : (
+              <Typography color="text.secondary">
+                No listings available for this agent.
+              </Typography>
+            )}
+          </div>
+        </Section>
+      </div>
     </Box>
   );
 }
