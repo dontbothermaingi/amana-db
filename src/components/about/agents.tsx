@@ -3,11 +3,9 @@ import { useQuery } from "@tanstack/react-query";
 import { ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router";
 import { motion } from "framer-motion";
-import { useMediaQuery } from "@mui/system";
 
 function Agents() {
   const navigate = useNavigate();
-  const isMobile = useMediaQuery("(max-width:768px)");
 
   const { data: agents } = useQuery({
     queryKey: ["agent"],

@@ -62,7 +62,7 @@ function AgentsOverview() {
         <Box
           display="grid"
           gridTemplateColumns={{
-            xs: "repeat(2, 1fr)",
+            xs: "repeat(1, 1fr)",
             sm: "1fr",
             md: "repeat(2, 1fr)",
             lg: "repeat(3, 1fr)",
