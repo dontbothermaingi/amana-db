@@ -15,6 +15,7 @@ import { FaWhatsapp } from "react-icons/fa";
 import MortgageCalculator from "./morgagecalculator";
 import ImageGalleryPreview from "./imagegallery";
 import Form from "@/leads/form";
+import { Card, CardContent } from "../ui/card";
 
 function PropertyOverview() {
   const { propertyId } = useParams();
@@ -72,6 +73,106 @@ function PropertyOverview() {
         house?.landSqM || house?.size || house?.newParameter?.maxSize
       } Square Feet`;
     }
+  }
+
+  // const { data: developers } = useQuery({
+  //   queryKey: ["develope"],
+  //   queryFn: async () => {
+  //     const res = await fetch(
+  //       `https://dataapi.pixxicrm.ae/pixxiapi/v1/developer/list`,
+  //       {
+  //         method: "POST",
+  //         headers: {
+  //           "X-PIXXI-TOKEN": access_token,
+  //           "Content-Type": "application/json",
+  //         },
+  //         body: JSON.stringify({
+  //           size: 100,
+  //         }),
+  //       }
+  //     );
+
+  //     const data = await res.json();
+  //     console.log("Raw Developer API response:", data);
+  //     return data; // ✅ Return the data so useQuery can store it
+  //   },
+  // });
+
+  // const { data: areas } = useQuery({
+  //   queryKey: ["communit", house?.regionName],
+  //   queryFn: async () => {
+  //     const res = await fetch(
+  //       `https://dataapi.pixxicrm.ae/pixxiapi/v1/search/${house?.regionName}`,
+  //       {
+  //         method: "POST",
+  //         headers: {
+  //           "X-PIXXI-TOKEN": access_token,
+  //           "Content-Type": "application/json",
+  //         },
+  //         body: JSON.stringify({
+  //           size: 100,
+  //         }),
+  //       }
+  //     );
+
+  //     const data = await res.json();
+  //     console.log("Raw Area API response:", data);
+  //     return data; // ✅ Return the data so useQuery can store it
+  //   },
+  // });
+
+  // const { data: agents } = useQuery({
+  //   queryKey: ["ajent"],
+  //   queryFn: async () => {
+  //     const res = await fetch(
+  //       `https://dataapi.pixxicrm.ae/pixxiapi/v1/agent/list`,
+  //       {
+  //         method: "GET",
+  //         headers: {
+  //           "X-PIXXI-TOKEN": access_token,
+  //         },
+  //       }
+  //     );
+
+  //     const data = await res.json();
+  //     console.log("Raw Agent API response:", data);
+  //     return data; // ✅ Return the data so useQuery can store it
+  //   },
+  // });
+
+  const { data: amenity } = useQuery({
+    queryKey: ["amenity"],
+    queryFn: async () => {
+      const res = await fetch(
+        `https://dataapi.pixxicrm.ae/pixxiapi/v1/amenities`,
+        {
+          method: "GET",
+          headers: {
+            "X-PIXXI-TOKEN": access_token,
+          },
+        }
+      );
+
+      const data = await res.json();
+      // console.log("Raw Amenity API response:", data);
+      return data; // ✅ Return the data so useQuery can store it
+    },
+  });
+
+  function getAmenityNames(codes: string, amenities: any[]) {
+    if (!codes || !amenities) return [];
+
+    const passedArray = codes.split(","); // split string into array
+
+    // map each code to its matching label
+    const result = passedArray
+      .map((code) => {
+        const found = amenities.find((a) => a.code === code);
+        return found ? found.label : null; // return label if found
+      })
+      .filter(Boolean); // remove nulls if any code wasn’t found
+
+    return result;
   }
 
   const pp = house?.newParameter?.paymentPlan
@@ -389,6 +490,31 @@ function PropertyOverview() {
                     <PropertyMap position={house?.communityLocation} />
                   </div>
                 )}
+              </div>
+            </div>
+
+            {/* Amenities */}
+            <div>
+              <Typography
+                fontFamily={"DM Bold"}
+                fontSize={{ xs: "24px", md: "30px" }}
+              >
+                Amenities
+              </Typography>
+
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+                {getAmenityNames(
+                  house?.newParameter?.amenities ||
+                    house?.rentParameter?.amenities ||
+                    house?.sellParameter?.amenities,
+                  amenity?.data
+                ).map((item, index) => (
+                  <Card key={index}>
+                    <CardContent style={{ fontFamily: "IT Medium" }}>
+                      {item}
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
             </div>
 

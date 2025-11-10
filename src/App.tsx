@@ -22,15 +22,23 @@ import AdminPage from "./components/admin/page";
 
 function App() {
   const [fadeOut, setFadeOut] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => {
+    // Check if loader has already been shown
+    return !sessionStorage.getItem("loaderShown");
+  });
 
   useEffect(() => {
+    if (!loading) return;
+
     const timer = setTimeout(() => {
       setFadeOut(true);
-      setTimeout(() => setLoading(false), 700); // match transition duration
-    }, 5000); // loader visible for 2 seconds
+      setTimeout(() => {
+        setLoading(false);
+        sessionStorage.setItem("loaderShown", "true"); // mark loader as shown
+      }, 700); // match transition duration
+    }, 5000); // loader visible duration
     return () => clearTimeout(timer);
-  }, []);
+  }, [loading]);
 
   return (
     <div className="relative h-screen">
