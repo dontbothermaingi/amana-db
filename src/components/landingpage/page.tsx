@@ -15,7 +15,7 @@ const Page = () => {
   const navigate = useNavigate();
 
   // Lazy-load hero image
-  const heroImage = isMobile ? "/l3.jpg" : "/la.jpg"; // Use WebP for better compression
+  const heroImage = isMobile ? "/la.jpg" : "/la.jpg"; // Use WebP for better compression
 
   return (
     <div
