@@ -1,8 +1,15 @@
 import { Box, Typography } from "@mui/material";
-import { useCallback, useMemo, useState, lazy, Suspense } from "react";
+import {
+  useCallback,
+  useMemo,
+  useState,
+  lazy,
+  Suspense,
+  useEffect,
+} from "react";
 import { useQuery } from "@tanstack/react-query";
 import PropertyFilterBar from "./propertyfilterbar";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Skeleton } from "../ui/skeleton";
 import PropertyCard from "./propertycard";
@@ -28,11 +35,19 @@ function PropertiesPage() {
   const navigate = useNavigate();
   const { type } = useParams();
   const itemsPerPage = 12;
+  const location = useLocation();
 
   const [filters, setFilters] = useState<Filters>({});
   const [currentPage, setCurrentPage] = useState(1);
 
   const access_token = "gUD5QIKlscK-vPRxPZfDBOfnGuSEyrZl";
+
+  useEffect(() => {
+    if (location.state?.filters) {
+      setFilters(location.state.filters);
+      setCurrentPage(location.state.currentPage);
+    }
+  }, [location.state]);
 
   // Fetch properties with caching
   const { data: houses = [] } = useQuery({
@@ -55,6 +70,7 @@ function PropertiesPage() {
         }
       );
       const json = await res.json();
+      console.log("Raw API response", json);
       return json?.list || json?.data || json || [];
     },
     staleTime: 1000 * 60 * 10,
@@ -68,8 +84,20 @@ function PropertiesPage() {
 
     return properties.filter((p: any) => {
       if (filters.reason && p.listingType !== filters.reason) return false;
-      if (filters.community && p.region !== filters.community) return false;
-      if (filters.location && p.cityName !== filters.location) return false;
+      if (
+        filters.community &&
+        !p.region.toLowerCase().includes(filters.community.trim().toLowerCase())
+      )
+        return false; // hide non-matching ones
+
+      if (
+        filters.location &&
+        !p.cityName
+          .toLowerCase()
+          .includes(filters.location.trim().toLowerCase())
+      )
+        return false; // hide non-matching ones
+
       if (filters.propertyType && p.propertyType[0] !== filters.propertyType)
         return false;
 
@@ -126,11 +154,14 @@ function PropertiesPage() {
     startingIndex + itemsPerPage
   );
 
+  // In PropertiesPage
   const handleDetails = useCallback(
     (propertyId: string) => {
-      navigate(`/public-listings/${propertyId}`);
+      navigate(`/public-listings/${propertyId}`, {
+        state: { filters, currentPage },
+      });
     },
-    [navigate]
+    [navigate, filters, currentPage]
   );
 
   return (

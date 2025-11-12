@@ -68,7 +68,7 @@ const MapView: React.FC<MapViewProps> = ({ listings }) => {
           if (isNaN(lat) || isNaN(lng)) return null;
 
           return (
-            <Marker key={property.id} position={[lat, lng]}>
+            <Marker key={property.propertyId} position={[lat, lng]}>
               <Popup>
                 {/* <PropertyCard item={property} onClick={""} /> */}
                 <div>

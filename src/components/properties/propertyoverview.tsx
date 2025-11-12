@@ -1,6 +1,7 @@
 import { Divider, Typography } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import {
+  ArrowLeft,
   BadgeCheck,
   Bed,
   Mail,
@@ -9,7 +10,7 @@ import {
   Ruler,
   ShowerHead,
 } from "lucide-react";
-import { useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import PropertyMap from "./propertymap";
 import { FaWhatsapp } from "react-icons/fa";
 import MortgageCalculator from "./morgagecalculator";
@@ -17,10 +18,19 @@ import ImageGalleryPreview from "./imagegallery";
 import Form from "@/leads/form";
 import { Card, CardContent } from "../ui/card";
 import { useMemo } from "react";
+import { Button } from "../ui/button";
 
 function PropertyOverview() {
   const { propertyId } = useParams();
   const access_token = "gUD5QIKlscK-vPRxPZfDBOfnGuSEyrZl";
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const handleGoBack = () => {
+    navigate(`/${house?.propertyType}/public-listings`, {
+      state: location.state,
+    });
+  };
 
   const { data: house } = useQuery({
     queryKey: ["house", propertyId],
@@ -184,7 +194,17 @@ function PropertyOverview() {
     : [];
 
   return (
-    <div className="flex flex-col gap-10">
+    <div className="relative flex flex-col gap-10">
+      <div className="fixed top-8 left-8">
+        <Button
+          style={{ fontFamily: "IT Medium" }}
+          onClick={() => handleGoBack()}
+          className="bg-[#0B253F]"
+        >
+          <ArrowLeft />
+          Back
+        </Button>
+      </div>
       <div className="h-full flex flex-col gap-2 px-4 sm:px-6 md:px-10 lg:px-40 py-1 lg:py-0">
         {/* Hero Image */}
 

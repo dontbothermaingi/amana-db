@@ -53,6 +53,7 @@ function App() {
   return (
     <div className="relative h-screen">
       <ScrollToTop />
+
       {loading && (
         <div
           className={`fixed inset-0 z-99999 transition-opacity duration-700 ${
@@ -62,11 +63,13 @@ function App() {
           <Loader />
         </div>
       )}
-      <div className="fixed top-10 w-full flex flex-col justify-center items-center z-[999]">
+
+      <div className="fixed bottom-10 w-full flex flex-col justify-center items-center z-[999]">
         <div className="w-full">
           <Navbar />
         </div>
       </div>
+
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/admin" element={<AdminPage />} />

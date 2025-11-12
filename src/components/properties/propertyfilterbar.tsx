@@ -97,50 +97,22 @@ function PropertyFilterBar({ onFilterChange, type }: filterProps) {
         onSubmit={(e) => e.preventDefault()}
       >
         {/* Location */}
-        <SelectField
+        <InputField
+          type="text"
           label="Location"
           name="location"
           value={filters.location}
           onChange={handleChange}
-          options={["Dubai", "Sharjah", "Al Ras Khaimah"]}
         />
+
         {/* Community */}
-        {filters.location === "Dubai" && (
-          <SelectField
-            label="Community"
-            name="community"
-            value={filters.community}
-            onChange={handleChange}
-            options={[
-              "Jumeirah Village Circle",
-              "Dubai Land",
-              "Business Bay",
-              "Dubai Science Park",
-              "Jumeirah Village Triangle",
-              "Arjan",
-              "DownTown Dubai",
-              "Dubai Creek Harbour",
-            ]}
-          />
-        )}
-        {filters.location === "Sharjah" && (
-          <SelectField
-            label="Community"
-            name="community"
-            value={filters.community}
-            onChange={handleChange}
-            options={["Masaar Forest Community"]}
-          />
-        )}
-        {filters.location === "Al Ras Khaimah" && (
-          <SelectField
-            label="Community"
-            name="community"
-            value={filters.community}
-            onChange={handleChange}
-            options={["Marjan Island"]}
-          />
-        )}
+        <InputField
+          type="text"
+          label="Community"
+          name="community"
+          value={filters.community}
+          onChange={handleChange}
+        />
 
         {/* Property Type */}
         <SelectField
@@ -168,6 +140,7 @@ function PropertyFilterBar({ onFilterChange, type }: filterProps) {
         />
         {/* SqFt Min */}
         <InputField
+          type="number"
           label="SqFt (Min)"
           name="sqftMin"
           value={filters.sqftMin}
@@ -175,6 +148,7 @@ function PropertyFilterBar({ onFilterChange, type }: filterProps) {
         />
         {/* SqFt Max */}
         <InputField
+          type="number"
           label="SqFt (Max)"
           name="sqftMax"
           value={filters.sqftMax}
@@ -182,6 +156,7 @@ function PropertyFilterBar({ onFilterChange, type }: filterProps) {
         />
         {/* Price Min */}
         <InputField
+          type="number"
           label="Price (Min)"
           name="priceMin"
           value={filters.priceMin}
@@ -189,6 +164,7 @@ function PropertyFilterBar({ onFilterChange, type }: filterProps) {
         />
         {/* Price Max */}
         <InputField
+          type="number"
           label="Price (Max)"
           name="priceMax"
           value={filters.priceMax}
@@ -277,17 +253,18 @@ type inputProps = {
   name: string;
   value: any;
   onChange: any;
+  type: string;
 };
-function InputField({ label, name, value, onChange }: inputProps) {
+function InputField({ label, name, value, onChange, type }: inputProps) {
   return (
     <div className="flex flex-col">
       <label className="mb-1 font-medium">{label}</label>
       <input
-        type="number"
+        type={type}
         name={name}
         value={value}
         onChange={onChange}
-        placeholder="Min"
+        // placeholder="Min"
         className="rounded-md px-3 py-2 text-[#BA7F55] bg-[#152D4A] border border-[#274B7D] focus:outline-none focus:ring-2 focus:ring-[#BA7F55]"
       />
     </div>

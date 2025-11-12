@@ -13,10 +13,15 @@ const PropertyCard = React.memo(function PropertyCard({
   item,
   onClick,
 }: cardProps) {
-  const formatPrice = (value: any) => {
-    if (value >= 1000000) return `AED ${(value / 1000000).toFixed(1)}M`;
-    if (value >= 1000) return `AED ${(value / 1000).toFixed(0)}K`;
-    return `AED ${value}`;
+  const formatPrice = (value: number) => {
+    // if (value >= 1000000) return `AED ${(value / 1000000).toFixed(1)}M`;
+    // if (value >= 1000) return `AED ${(value / 1000).toFixed(0)}K`;
+    return new Intl.NumberFormat("en-AE", {
+      currency: "AED",
+      style: "currency",
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(value);
   };
 
   return (
