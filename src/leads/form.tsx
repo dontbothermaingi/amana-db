@@ -1,25 +1,19 @@
 import { Button } from "@/components/ui/button";
-import {
-  MenuItem,
-  Select,
-  TextField,
-  FormControl,
-  InputLabel,
-  Typography,
-} from "@mui/material";
-import React from "react";
+import { TextField, Typography, Snackbar, Alert } from "@mui/material";
+import React, { useState } from "react";
 import "react-phone-input-2/lib/style.css";
 import PhoneInput from "react-phone-input-2";
+
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { toast } from "sonner";
 
 type FormProps = {
   formId: string; //Required
@@ -75,6 +69,8 @@ function Form({ propertyId, extraData, formType = "default" }: childProps) {
     },
   });
   const access_token = "gUD5QIKlscK-vPRxPZfDBOfnGuSEyrZl";
+  const [openSnackBar, setOpenSnackBar] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   function handleChange(event: any) {
     const target = event && event.target ? event.target : {};
@@ -114,7 +110,7 @@ function Form({ propertyId, extraData, formType = "default" }: childProps) {
           : formData.extraData,
     };
 
-    // console.log("Submitting form data:", dataForm);
+    console.log("Submitting form data:", dataForm);
 
     fetch("https://dataapi.pixxicrm.ae/pixxiapi/webhook/v1/form", {
       method: "POST",
@@ -122,11 +118,13 @@ function Form({ propertyId, extraData, formType = "default" }: childProps) {
         "Content-Type": "application/json",
         "X-PIXXI-TOKEN": access_token,
       },
-      body: JSON.stringify(dataForm),
+      // body: JSON.stringify(dataForm),
     })
       .then((response) => response.json())
       .then((data) => {
         console.log("Success:", data);
+        setOpenSnackBar(true);
+        setErrorMessage("Form Submitted Successfully!");
         setFormData({
           formId: "",
           propertyReference: "",
@@ -154,8 +152,18 @@ function Form({ propertyId, extraData, formType = "default" }: childProps) {
       })
       .catch((error) => {
         console.error("Error:", error);
+        setOpenSnackBar(true);
+        setErrorMessage("Failed to submit the form. Please try again!");
       });
   }
+
+  const handleClose = (reason: any) => {
+    if (reason === "clickaway") {
+      return;
+    }
+
+    setOpenSnackBar(false);
+  };
 
   const PROPERTY_TYPES = [
     "Apartment",
@@ -199,6 +207,20 @@ function Form({ propertyId, extraData, formType = "default" }: childProps) {
 
   return (
     <div>
+      <Snackbar
+        open={openSnackBar}
+        autoHideDuration={3000}
+        onClose={handleClose}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
+          onClose={handleClose}
+          severity={errorMessage.includes("Failed") ? "error" : "success"}
+          sx={{ width: "100%" }}
+        >
+          {errorMessage}
+        </Alert>
+      </Snackbar>
       <form onSubmit={handleSubmit} className="space-y-4">
         {formType === "referral" && (
           <Typography fontFamily={"IT Medium"}>Your Information</Typography>
@@ -245,24 +267,26 @@ function Form({ propertyId, extraData, formType = "default" }: childProps) {
           }}
         />
 
-        <FormControl fullWidth>
-          <InputLabel id="property-type-label">Property Type</InputLabel>
-          <Select
-            labelId="property-type-label"
-            name="propertyType"
-            value={formData?.propertyType || ""}
-            label="Property Type"
-            onChange={handleChange}
-            displayEmpty
-            sx={{ mb: 2 }}
-          >
-            {PROPERTY_TYPES.map((t) => (
-              <MenuItem key={t} value={t}>
-                {t}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+        <Select
+          value={formData.propertyType || ""}
+          onValueChange={(val) =>
+            setFormData((prev) => ({ ...prev, propertyType: val }))
+          }
+        >
+          <SelectTrigger className="w-full mb-2">
+            <SelectValue placeholder="Select Property Type" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <SelectLabel>Property Types</SelectLabel>
+              {PROPERTY_TYPES.map((type) => (
+                <SelectItem key={type} value={type}>
+                  {type}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
 
         {formType === "referral" && (
           <div style={{ marginTop: "1.5rem" }}>
@@ -311,29 +335,68 @@ function Form({ propertyId, extraData, formType = "default" }: childProps) {
               containerStyle={{ marginBottom: "16px" }}
             />
 
-            <FormControl fullWidth sx={{ mb: 2 }}>
-              <InputLabel id="interest-label">Referral’s Interest</InputLabel>
-              <Select
-                labelId="interest-label"
-                label="Referral’s Interest"
-                value={formData.extraData.referalls_interest}
-                onChange={(e) =>
-                  handleExtraDataChange("referalls_interest", e.target.value)
-                }
-              >
-                <MenuItem value="Buying a house">Buying a house</MenuItem>
-                <MenuItem value="Selling a house">Selling a house</MenuItem>
-                <MenuItem value="Renting a property">
-                  Renting a property
-                </MenuItem>
-              </Select>
-            </FormControl>
+            <Select
+              value={formData.extraData.referalls_interest || ""}
+              onValueChange={(val) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  extraData: {
+                    ...prev.extraData,
+                    referalls_interest: val,
+                  },
+                }))
+              }
+            >
+              <SelectTrigger className="w-full mb-2">
+                <SelectValue placeholder="Referral’s Interest" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>Interest</SelectLabel>
+                  <SelectItem value="Buying a house">Buying a house</SelectItem>
+                  <SelectItem value="Selling a house">
+                    Selling a house
+                  </SelectItem>
+                  <SelectItem value="Renting a property">
+                    Renting a property
+                  </SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
           </div>
         )}
 
-        <AlertDialog>
+        <Button
+          onClick={() =>
+            toast("Event has been created", {
+              description: "Sunday, December 03, 2023 at 9:00 AM",
+              action: {
+                label: "Undo",
+                onClick: () => console.log("Undo"),
+              },
+            })
+          }
+          className="bg-[#BA7F55] w-full"
+          type="submit"
+        >
+          Submit
+        </Button>
+
+        {/* <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button className="bg-[#BA7F55] w-full" type="submit">
+            <Button
+              onClick={() =>
+                toast("Event has been created", {
+                  description: "Sunday, December 03, 2023 at 9:00 AM",
+                  action: {
+                    label: "Undo",
+                    onClick: () => console.log("Undo"),
+                  },
+                })
+              }
+              className="bg-[#BA7F55] w-full"
+              type="submit"
+            >
               Submit
             </Button>
           </AlertDialogTrigger>
@@ -354,7 +417,7 @@ function Form({ propertyId, extraData, formType = "default" }: childProps) {
               <AlertDialogAction>Ok</AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
-        </AlertDialog>
+        </AlertDialog> */}
       </form>
     </div>
   );

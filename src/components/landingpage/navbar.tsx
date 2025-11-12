@@ -30,7 +30,7 @@ function Navbar() {
   const location = useLocation();
   const [visible, setVisible] = useState(true);
   const [open, setOpen] = useState(false);
-  const isMobile = useMediaQuery("(max-width: 768px)");
+  const isMobile = useMediaQuery("(max-width: 1080px)");
 
   // Scroll visibility logic
   useEffect(() => {

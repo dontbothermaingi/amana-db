@@ -71,6 +71,46 @@ function PropertyFilterBar({ onFilterChange, type }: filterProps) {
     onFilterChange(initialFilters);
   };
 
+  const PROPERTY_TYPES = [
+    "Apartment",
+    "Villa",
+    "Townhouse",
+    "Penthouse",
+    "Hotel Apartment",
+    "Duplex",
+    "Residential Floor",
+    "Residential Land",
+    "Residential Building",
+    "Bulk Units",
+    "Compound",
+    "Twin House",
+    "Triplex",
+    "Loft",
+    "Loft Apartment",
+    "Duplex Apartment",
+    "Duplex Villa",
+    "Office",
+    "Shop",
+    "Commercial Building",
+    "Commercial Floor",
+    "Commercial Land",
+    "Labor Camp",
+    "Retail",
+    "Showroom",
+    "Staff accommodation",
+    "Commercial Villa",
+    "Warehouse",
+    "Farm",
+    "Factory",
+    "Hotel",
+    "Hospital",
+    "Garage",
+    "Restaurant",
+    "Business Centre",
+    "Co-Working Space",
+    "Other Commercial",
+  ];
+
   const FilterForm = (
     <div className="px-6 py-8 bg-[#0B253F] rounded-3xl shadow-lg">
       {/* Reason Buttons */}
@@ -120,7 +160,7 @@ function PropertyFilterBar({ onFilterChange, type }: filterProps) {
           name="propertyType"
           value={filters.propertyType}
           onChange={handleChange}
-          options={["APARTMENT", "VILLA", "TOWNHOUSE", "STUDIO", "SHOP"]}
+          options={PROPERTY_TYPES}
         />
         {/* Beds */}
         <SelectField

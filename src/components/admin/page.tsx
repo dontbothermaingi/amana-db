@@ -72,6 +72,10 @@ function AdminPage() {
     staleTime: 1000 * 60 * 10,
   });
 
+  useEffect(() => {
+    console.log("Agents Info", agents);
+  }, [agents]);
+
   const handleDetails = useCallback(
     (agentId: any) => navigate(`/agent-details/${agentId}`),
     []
@@ -356,18 +360,25 @@ const PropertyCard = ({ item }: { item: any }) => (
           }}
           fontSize={"100px"}
         >
-          SOLD
+          {item.listing_type === "RENTAL" ? "RENTED" : "SOLD"}
         </Typography>
       </div>
     </div>
     <div className="p-4 flex flex-col gap-2">
-      <Typography fontFamily="IT Bold" className="text-[#BA7F55] text-lg">
+      <Typography
+        fontFamily="IT Bold"
+        className="text-[#BA7F55]"
+        fontSize={{ lg: "25px" }}
+      >
+        {" "}
         {new Intl.NumberFormat("en-AE", {
-          style: "currency",
           currency: "AED",
+          style: "currency",
           minimumFractionDigits: 0,
-        }).format(item.price)}
-      </Typography>
+          maximumFractionDigits: 0,
+        }).format(item?.price)}{" "}
+        {item?.listing_type === "RENTAL" && "/Year"}{" "}
+      </Typography>{" "}
       <Typography fontFamily="IT Medium" className="text-gray-800 text-lg">
         {item.property_type}
       </Typography>

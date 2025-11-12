@@ -14,7 +14,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import PropertyCard from "../properties/propertycard";
-import { useCallback, useEffect, useRef, useState, type JSX } from "react";
+import { useCallback, useRef, useState, type JSX } from "react";
 import { motion } from "framer-motion";
 import { FaWhatsapp } from "react-icons/fa";
 
@@ -78,12 +78,8 @@ function AgentDetails() {
     [navigate]
   );
 
-  useEffect(() => {
-    console.log("Agent Id: ", agent?.agent_Id);
-  }, [agent]);
-
   const properties = houses?.list?.filter(
-    (item: any) => item.agent.name === "Mohammed Faizan"
+    (item: any) => item.portalAgent.brn === agent?.broker_license_number
   );
 
   return (
@@ -181,7 +177,7 @@ function AgentDetails() {
 
       {/* Sold Properties */}
       <Section title="Properties Sold" color="#0B253F">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {soldproperties?.length ? (
             soldproperties?.map((item: any) => (
               <div key={item.id} className="relative group flex flex-col">
@@ -200,8 +196,7 @@ function AgentDetails() {
                     }}
                     fontSize={"100px"}
                   >
-                    {" "}
-                    SOLD{" "}
+                    {item.listing_type === "RENTAL" ? "RENTED" : "SOLD"}
                   </Typography>{" "}
                 </div>{" "}
                 <div
@@ -244,7 +239,7 @@ function AgentDetails() {
                           minimumFractionDigits: 0,
                           maximumFractionDigits: 0,
                         }).format(item?.price)}{" "}
-                        {item?.listingType === "RENT" && "/Year"}{" "}
+                        {item?.listing_type === "RENTAL" && "/Year"}{" "}
                       </Typography>{" "}
                       <Typography
                         fontFamily="IT Medium"

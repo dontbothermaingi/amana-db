@@ -15,6 +15,7 @@ function AgentSoldProperties() {
     city: "",
     country: "",
     agent_Id: "",
+    listing_type: "",
   });
 
   const [preview, setPreview] = useState<string | null>(null);
@@ -59,6 +60,7 @@ function AgentSoldProperties() {
       data.append("city", formData.city);
       data.append("community", formData.community);
       data.append("country", formData.country);
+      data.append("listing_type", formData.listing_type);
       data.append("property_Id", nanoid());
 
       if (formData.photo != null) {
@@ -140,6 +142,16 @@ function AgentSoldProperties() {
           variant="outlined"
           onChange={handleChange}
           name="property_type"
+          fullWidth
+        />
+
+        <TextField
+          value={formData.listing_type}
+          type="text"
+          label="LIsting Type (sold, rented)"
+          variant="outlined"
+          onChange={handleChange}
+          name="listing_type"
           fullWidth
         />
 

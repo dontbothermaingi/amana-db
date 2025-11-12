@@ -1,4 +1,4 @@
-import { Divider, Typography } from "@mui/material";
+import { Divider, Typography, useMediaQuery } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import {
   ArrowLeft,
@@ -17,7 +17,7 @@ import MortgageCalculator from "./morgagecalculator";
 import ImageGalleryPreview from "./imagegallery";
 import Form from "@/leads/form";
 import { Card, CardContent } from "../ui/card";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { Button } from "../ui/button";
 
 function PropertyOverview() {
@@ -25,6 +25,7 @@ function PropertyOverview() {
   const access_token = "gUD5QIKlscK-vPRxPZfDBOfnGuSEyrZl";
   const navigate = useNavigate();
   const location = useLocation();
+  const isMobile = useMediaQuery("(max-width:768px)");
 
   const handleGoBack = () => {
     navigate(`/${house?.propertyType}/public-listings`, {
@@ -56,6 +57,7 @@ function PropertyOverview() {
         throw new Error(json.message || "Failed to fetch property");
       }
 
+      // console.log("Raw API Response", json);
       return json?.list || json?.data || json || [];
     },
     enabled: !!propertyId, // don't run unless propertyId is defined
@@ -145,6 +147,31 @@ function PropertyOverview() {
   //   },
   // });
 
+  const { data: agents } = useQuery({
+    queryKey: ["agent_new"],
+    queryFn: () =>
+      fetch("https://db-amana.onrender.com/agents")
+        .then((res) => res.json())
+        .catch((err) => console.error("Error fetching agents:", err)),
+    staleTime: 1000 * 60 * 10,
+  });
+
+  const handleDetails = useCallback(() => {
+    const agent = agents?.find(
+      (item: any) =>
+        item.name.toLowerCase().trim() ===
+        house?.propertyFinderPortalAgentName.toLowerCase().trim()
+    );
+
+    console.log("Agent", agent);
+
+    if (agent) {
+      navigate(`/agent-details/${agent.id}`, { state: { agent } });
+    } else {
+      console.warn("Agent not found");
+    }
+  }, [agents, house, navigate]);
+
   const { data: amenity } = useQuery({
     queryKey: ["amenity"],
     queryFn: async () => {
@@ -195,16 +222,29 @@ function PropertyOverview() {
 
   return (
     <div className="relative flex flex-col gap-10">
-      <div className="fixed top-8 left-8">
-        <Button
-          style={{ fontFamily: "IT Medium" }}
-          onClick={() => handleGoBack()}
-          className="bg-[#0B253F]"
-        >
-          <ArrowLeft />
-          Back
-        </Button>
-      </div>
+      {isMobile ? (
+        <div className="fixed top-3 left-3">
+          <div
+            style={{ fontFamily: "IT Medium" }}
+            onClick={() => handleGoBack()}
+            className="bg-[#BA7F55] text-[#0B253F] rounded-full p-2"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </div>
+        </div>
+      ) : (
+        <div className="fixed top-8 left-8">
+          <Button
+            style={{ fontFamily: "IT Medium" }}
+            onClick={() => handleGoBack()}
+            className="bg-[#0B253F]"
+          >
+            <ArrowLeft />
+            Back
+          </Button>
+        </div>
+      )}
+
       <div className="h-full flex flex-col gap-2 px-4 sm:px-6 md:px-10 lg:px-40 py-1 lg:py-0">
         {/* Hero Image */}
 
@@ -585,25 +625,26 @@ function PropertyOverview() {
           </div>
 
           {/* Right Sidebar */}
-          <div className="sticky top-0 self-start w-full md:w-full py-0 lg:py-5">
+          <div
+            className="sticky top-0 self-start w-full md:w-full py-0 lg:py-5 cursor-pointer"
+            onClick={handleDetails}
+          >
             <div className="w-full flex flex-col items-center gap-5 justify-center">
               {/* Agent Information */}
               <div className="w-full lg:w-[350px] py-5">
                 <div className="border border-gray-200 px-6 py-6 rounded-2xl shadow-lg bg-white flex flex-col gap-5">
                   {/* Agent Profile */}
-                  {house?.agentName ? (
+                  {house?.propertyFinderPortalAgentName ? (
                     <div className="flex items-center gap-4">
                       <div
                         style={{
-                          backgroundImage: `url('${
-                            "https://pixxicrm.ae/api" + house?.agentAvatar
-                          }')`,
+                          backgroundImage: `url('${house?.propertyFinderPortalAgentAvatar}')`,
                         }}
                         className="bg-cover bg-top rounded-full h-16 w-16 sm:h-20 sm:w-20"
                       />
                       <div>
                         <Typography fontFamily="IT Medium" className="text-lg">
-                          {house?.agentName}{" "}
+                          {house?.propertyFinderPortalAgentName}{" "}
                           <BadgeCheck className="inline text-[#0B253F]" />
                         </Typography>
                         <Typography

@@ -70,7 +70,7 @@ function PropertiesPage() {
         }
       );
       const json = await res.json();
-      console.log("Raw API response", json);
+      // console.log("Raw API response", json);
       return json?.list || json?.data || json || [];
     },
     staleTime: 1000 * 60 * 10,
@@ -98,7 +98,10 @@ function PropertiesPage() {
       )
         return false; // hide non-matching ones
 
-      if (filters.propertyType && p.propertyType[0] !== filters.propertyType)
+      if (
+        filters.propertyType &&
+        p.propertyType[0].toLowerCase() !== filters.propertyType.toLowerCase()
+      )
         return false;
 
       if (filters.beds) {
@@ -203,16 +206,16 @@ function PropertiesPage() {
           </div>
 
           {/* Properties + Map */}
-          <div className="lg:flex-row flex flex-col gap-5 relative">
+          <div className="xl:flex-row flex flex-col gap-5 relative">
             {/* Map */}
-            <div className="lg:h-[95vh] lg:w-1/2 lg:sticky lg:top-5 w-full">
+            <div className="lg:h-[95vh] xl:w-1/2 xl:sticky xl:top-5 w-full">
               <Suspense fallback={<Skeleton className="h-full w-full" />}>
                 <MapView listings={filteredProperties} />
               </Suspense>
             </div>
 
             {/* Property Cards */}
-            <div className="h-full border-black gap-3 justify-between lg:px-1 lg:w-1/2 w-full">
+            <div className="h-full border-black gap-3 justify-between lg:px-1 xl:w-1/2 w-full">
               <Box
                 display={"grid"}
                 gridTemplateColumns={{

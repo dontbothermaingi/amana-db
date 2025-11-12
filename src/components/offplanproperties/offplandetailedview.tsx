@@ -1,10 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
 import MortgageCalculator from "../properties/morgagecalculator";
-import { Dialog, Typography } from "@mui/material";
-import { useState } from "react";
+import { Typography } from "@mui/material";
 import Form from "@/leads/form";
-import { X } from "lucide-react";
 import {
   Carousel,
   CarouselContent,
@@ -12,10 +10,17 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../ui/dialog";
 
 function OffPlanDetails() {
   const { propertyId } = useParams();
-  const [open, setOpen] = useState(false);
 
   const {
     data: project,
@@ -53,22 +58,58 @@ function OffPlanDetails() {
         </section>
 
         {/* CTA */}
-        <section className="text-center space-y-4 flex flex-col lg:flex-row">
-          <a
-            href={project.cta.brochure}
-            className="px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold"
-            style={{ fontFamily: "IT Medium" }}
-          >
-            Download Brochure
-          </a>
-          <a
-            onClick={() => setOpen(true)}
-            className="px-6 py-3 bg-green-600 text-white rounded-lg font-semibold"
-            style={{ fontFamily: "IT Medium" }}
-          >
-            Enquire Now
-          </a>
+        <section className="text-center space-y-4 flex flex-col lg:flex-row justify-center items-center">
+          <Dialog>
+            <DialogTrigger
+              className="px-6 py-3 bg-green-600 text-white rounded-lg font-semibold"
+              style={{ fontFamily: "IT Medium" }}
+            >
+              Enquire Now
+            </DialogTrigger>
+            <DialogHeader className="hidden">
+              <DialogTitle>Edit Profile</DialogTitle>
+              <DialogDescription>
+                Make changes to your profile here. Click save when you're done.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogContent>
+              <div className="bg-white px-4 sm:px-8 py-5 flex flex-col items-center max-w-3xl mx-auto">
+                <Typography
+                  fontFamily={"RM Medium"}
+                  color="#BA7F55"
+                  className="uppercase tracking-wide text-sm mb-2"
+                >
+                  [Get In Touch]
+                </Typography>
+
+                <Typography
+                  fontFamily={"DM Medium"}
+                  fontSize={{ xs: "24px", lg: "30px" }}
+                  className="text-center mb-4"
+                >
+                  Let’s Make Your Property Journey Effortless
+                </Typography>
+
+                <Typography
+                  fontFamily={"IT Light"}
+                  className="text-center text-gray-600 leading-relaxed max-w-xl"
+                >
+                  Whether you're buying, renting, or investing, our expert team
+                  is here to guide you every step of the way. Let's turn your
+                  property goals into reality—together.
+                </Typography>
+
+                <Form
+                  propertyId={project.title}
+                  extraData={{ property_name: project.title }}
+                  formType="default"
+                />
+              </div>
+            </DialogContent>
+          </Dialog>
         </section>
+
+        {/* Dialog Form */}
 
         {/* Overview */}
         <section>
@@ -222,50 +263,6 @@ function OffPlanDetails() {
           </div>
         </section>
       </div>
-
-      <Dialog open={open} className="relative p-4">
-        <X
-          onClick={() => setOpen(false)}
-          className="cursor-pointer absolute top-4 right-4 text-gray-600 hover:text-gray-900 transition"
-        />
-        {/* Form */}
-        <div className="bg-white px-4 sm:px-8 py-10 flex flex-col items-center max-w-3xl mx-auto mb-1 lg:mb-20">
-          {/* Tagline */}
-          <Typography
-            fontFamily={"RM Medium"}
-            color="#BA7F55"
-            className="uppercase tracking-wide text-sm mb-2"
-          >
-            [Get In Touch]
-          </Typography>
-
-          {/* Heading */}
-          <Typography
-            fontFamily={"DM Medium"}
-            fontSize={{ xs: "24px", lg: "30px" }}
-            className="text-center mb-4"
-          >
-            Let’s Make Your Property Journey Effortless
-          </Typography>
-
-          {/* Subheading */}
-          <Typography
-            fontFamily={"IT Light"}
-            className="text-center text-gray-600 leading-relaxed max-w-xl"
-          >
-            Whether you're buying, renting, or investing, our expert team is
-            here to guide you every step of the way. Let's turn your property
-            goals into reality—together.
-          </Typography>
-
-          {/* Form */}
-          <Form
-            propertyId={project.title}
-            extraData={{ property_name: project.title }}
-            formType="default"
-          />
-        </div>
-      </Dialog>
     </div>
   );
 }
