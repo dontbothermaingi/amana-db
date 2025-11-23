@@ -148,7 +148,7 @@ function AgentSoldProperties() {
         <TextField
           value={formData.listing_type}
           type="text"
-          label="LIsting Type (sold, rented)"
+          label="Listing Type (sold, rented)"
           variant="outlined"
           onChange={handleChange}
           name="listing_type"

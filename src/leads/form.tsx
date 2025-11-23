@@ -379,7 +379,7 @@ function Form({ propertyId, extraData, formType = "default" }: childProps) {
           className="bg-[#BA7F55] w-full"
           type="submit"
         >
-          Submit
+          Confirm
         </Button>
 
         {/* <AlertDialog>

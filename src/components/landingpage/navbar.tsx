@@ -48,17 +48,17 @@ function Navbar() {
     { label: "Home", path: "/", icon: <Home size={20} /> },
     {
       label: "For Sale",
-      path: "/SELL/public-listings",
+      path: "/sale/public-listings",
       icon: <ShoppingBag size={20} />,
     },
     {
       label: "For Rent",
-      path: "/RENT/public-listings",
+      path: "/rent/public-listings",
       icon: <Key size={20} />,
     },
     { label: "Off-Plan", path: "/off-plan", icon: <Calendar size={20} /> },
     { label: "About", path: "/about-us", icon: <Info size={20} /> },
-    { label: "Agents", path: "/agents", icon: <Users size={20} /> },
+    { label: "The Team", path: "/amana-team", icon: <Users size={20} /> },
     { label: "Connect & Earn", path: "/earn", icon: <Gift size={20} /> },
     {
       label: "Renovations",

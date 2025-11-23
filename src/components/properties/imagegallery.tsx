@@ -32,7 +32,7 @@ const ImageGalleryPreview = ({ images = [] }) => {
           onClick={() => openPreview(0)}
         >
           <img
-            src={"https://pixxicrm.ae/api" + mainImage}
+            src={mainImage}
             alt="Main"
             className="w-full h-full lg:h-126 object-cover rounded-2xl shadow"
           />
@@ -61,7 +61,7 @@ const ImageGalleryPreview = ({ images = [] }) => {
               onClick={() => openPreview(index + 1)}
             >
               <img
-                src={"https://pixxicrm.ae/api" + img || img}
+                src={img || img}
                 alt={`Preview ${index}`}
                 className="w-full lg:h-62 h-31 object-cover rounded-2xl shadow"
               />
@@ -97,7 +97,7 @@ const ImageGalleryPreview = ({ images = [] }) => {
           </IconButton>
 
           <img
-            src={"https://pixxicrm.ae/api" + images[currentIndex]}
+            src={images[currentIndex]}
             alt={`Preview ${currentIndex}`}
             className="max-h-[90vh] max-w-[90vw] object-contain rounded-xl shadow-lg transition-transform"
           />

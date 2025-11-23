@@ -1,34 +1,38 @@
-import { Box, Divider, Typography, Avatar, Tooltip } from "@mui/material";
+import { useRef, useState, useCallback } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { useNavigate, useParams } from "react-router";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "../ui/button";
-import {
-  Bed,
-  Mail,
-  MapPin,
-  Phone,
-  Ruler,
-  ShowerHead,
-  User,
-  ShieldCheck,
-} from "lucide-react";
 import PropertyCard from "../properties/propertycard";
-import { useCallback, useRef, useState, type JSX } from "react";
 import { motion } from "framer-motion";
 import { FaWhatsapp } from "react-icons/fa";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Mail, Phone, MapPin, User, ShieldCheck } from "lucide-react";
+import { Skeleton } from "../ui/skeleton";
 
+// ------------------ Mapping Listings -------------------
+const mapProperty = (item: any) => ({
+  listingType: item.offering_type || item.listing_type || "",
+  community: item.community || item.sub_community || "",
+  location: item.city || "",
+  propertyType: item.property_type || "",
+  region: item.community || "",
+  title: item.title_en || "High Rental Yield | Smart Investment",
+  photos: Array.isArray(item.images) ? item.images : item.photo || [],
+  portalAgent: item.agent || null,
+  propertyId: item.reference_number || item.property_Id,
+  bedrooms: Number(item.bedroom || item.beds || 0),
+  bathrooms: Number(item.bathroom || item.baths || 0),
+  size: Number(item.size || item.sqft || 0),
+  price: Number(item.price || 0),
+});
+
+// ------------------ MAIN COMPONENT -------------------
 function AgentDetails() {
   const { agentId } = useParams();
-  const access_token = "gUD5QIKlscK-vPRxPZfDBOfnGuSEyrZl";
   const navigate = useNavigate();
-  const [value, setValue] = useState("SELL");
-  const propRef = useRef<HTMLDivElement | null>(null);
+  const [value, setValue] = useState<"sale" | "rent">("sale");
+  const listRef = useRef<HTMLDivElement | null>(null);
 
-  function scrollToProperties() {
-    propRef.current?.scrollIntoView({ behavior: "smooth" });
-  }
-
+  // Fetch Agent
   const { data: agent } = useQuery({
     queryKey: ["agent", agentId],
     queryFn: () =>
@@ -37,387 +41,239 @@ function AgentDetails() {
       ),
   });
 
-  const { data: soldproperties } = useQuery({
-    queryKey: ["property_sold", agentId],
-    queryFn: () =>
-      fetch(`https://db-amana.onrender.com/properties/${agentId}`, {
-        method: "GET",
-      }).then((res) => res.json()),
-  });
-
-  const { data: houses = [] } = useQuery({
-    queryKey: ["house", access_token, value],
+  // Fetch Listings
+  const { data: combinedListings = [] } = useQuery({
+    queryKey: ["agentListings", agentId, value],
+    enabled: !!agent,
     queryFn: async () => {
-      const res = await fetch(
-        "https://dataapi.pixxicrm.ae/pixxiapi/v1/properties",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-PIXXI-TOKEN": access_token,
-          },
-          body: JSON.stringify({
-            listingType: value,
-            size: 84,
-            sort: "ID",
-            sortType: "DESC",
-          }),
-        }
+      const [crmRes, soldRes] = await Promise.all([
+        fetch("https://db-amana.onrender.com/crm-data"),
+        fetch(`https://db-amana.onrender.com/properties/${agentId}`),
+      ]);
+
+      const crmData = (await crmRes.json())?.properties || [];
+      const soldData = await soldRes.json();
+
+      const crmFiltered = crmData.filter(
+        (p: any) =>
+          p?.agent?.email === agent?.email &&
+          p?.offering_type?.toLowerCase() == value
       );
 
-      const json = await res.json();
-      return json?.list || json?.data || json || [];
+      const soldFiltered = soldData.filter(
+        (p: any) => p?.listing_type?.toLowerCase() == value
+      );
+
+      return [...crmFiltered, ...soldFiltered]
+        .map(mapProperty)
+        .sort((a, b) => a.price - b.price);
     },
-    staleTime: 1000 * 60 * 10,
   });
 
+  const scrollToListings = () =>
+    listRef.current?.scrollIntoView({ behavior: "smooth" });
+
   const handleDetails = useCallback(
-    (propertyId: any) => {
-      navigate(`/public-listings/${propertyId}`);
-    },
+    (id: string) => navigate(`/public-listings/${id}`),
     [navigate]
   );
 
-  const properties = houses?.list?.filter(
-    (item: any) => item.portalAgent.brn === agent?.broker_license_number
-  );
+  if (!agent) return <p className="text-center py-20">Loading...</p>;
+
+  const details = [
+    { label: "Email", value: agent.email, icon: <Mail /> },
+    { label: "Phone", value: agent.phone_number, icon: <Phone /> },
+    { label: "Specialization", value: agent.specialization, icon: <MapPin /> },
+    {
+      label: "Experience",
+      value: `${agent.work_experience} Years`,
+      icon: <User />,
+    },
+  ];
 
   return (
-    <Box
-      sx={{
-        minHeight: "100vh",
-        backgroundColor: "#F8F9FB",
-        paddingBottom: "5px",
-      }}
-    >
-      {/* Hero Section */}
-      <div className="relative w-full h-full py-10 lg:h-[450px] bg-gradient-to-r from-[#0B253F] via-[#1a385c] to-[#24456c] flex items-end justify-start px-6 lg:px-20 pb-12">
-        <div className="relative flex flex-col lg:flex-row items-center gap-8 z-10">
-          <Avatar
-            src={agent?.img}
-            sx={{
-              width: 180,
-              height: 180,
-              border: "5px solid white",
-              boxShadow: "0 4px 30px rgba(0,0,0,0.2)",
-            }}
-          />
-          <div className="text-white flex flex-col gap-2">
-            <Typography
-              fontFamily="DM Medium"
-              fontSize={{ xs: 32, lg: 48 }}
-              className="font-bold tracking-tight"
-            >
-              {agent?.name}
-            </Typography>
-            <div className="flex items-center gap-3">
-              <ShieldCheck className="text-green-400 w-5 h-5" />
-              <Typography fontFamily="IT Regular" color="#BA7F55">
+    <div className="">
+      <div className="lg:px-40 mx-auto py-10 lg:py-16 px-5">
+        {/* ---------- HERO SECTION (Same as Offplan) ---------- */}
+        <div className="grid lg:grid-cols-2 gap-10 items-center">
+          <div className="max-w-2xl">
+            <div className="flex items-center gap-3 mb-4">
+              <ShieldCheck className="text-green-500 w-6 h-6" />
+              <p
+                style={{ fontFamily: "IT Medium" }}
+                className="uppercase text-sm text-gray-600"
+              >
                 Verified Agent
-              </Typography>
+              </p>
             </div>
-            <Typography
-              fontFamily="IT Regular"
-              className="text-gray-200 max-w-2xl"
+
+            <h1
+              className="text-4xl lg:text-5xl leading-tight mb-4"
+              style={{ fontFamily: "GT Bold" }}
             >
-              {agent?.about}
-            </Typography>
-            <div className="flex gap-4 mt-4">
+              {agent.name}
+            </h1>
+
+            <p
+              className="text-gray-700 leading-relaxed mb-6 lg:text-lg"
+              style={{ fontFamily: "IT Regular" }}
+            >
+              {agent.about}
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 mb-6">
               <a
-                href={`https://wa.me/${agent?.phone_number}`}
+                href={`https://wa.me/${agent.phone_number}`}
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <Button className="bg-[#25D366] hover:bg-[#20b85c] flex gap-2 text-white">
-                  <FaWhatsapp className="w-4 h-4" />
-                  Whatsapp
-                </Button>
+                <button
+                  className="px-6 py-3 bg-green-600 text-white rounded-md lg:text-lg flex items-center gap-2"
+                  style={{ fontFamily: "IT Medium" }}
+                >
+                  <FaWhatsapp className="w-5 h-5" /> Chat on WhatsApp
+                </button>
               </a>
-              <Button
-                onClick={scrollToProperties}
-                className="bg-[#BA7F55] hover:bg-[#a36f49] text-white"
+
+              <button
+                onClick={scrollToListings}
+                className="px-6 py-3 bg-black text-white rounded-md lg:text-lg"
+                style={{ fontFamily: "IT Medium" }}
               >
-                View Listed Properties
-              </Button>
+                View Listings
+              </button>
             </div>
           </div>
-        </div>
-      </div>
 
-      {/* Personal Info Card */}
-      <Box
-        className="mx-auto -mt-16 mb-10 w-[90%] lg:w-[80%] bg-white rounded-3xl shadow-xl p-8"
-        sx={{ backdropFilter: "blur(8px)" }}
-      >
-        <Typography
-          fontFamily="DM Medium"
-          fontSize={{ lg: 28, xs: 22 }}
-          color="#0B253F"
-          mb={2}
-        >
-          Personal Information
-        </Typography>
-        <Divider sx={{ mb: 3 }} />
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <InfoRow icon={<Mail />} label="Email" value={agent?.email} />
-          <InfoRow icon={<Phone />} label="Phone" value={agent?.phone_number} />
-          <InfoRow
-            icon={<MapPin />}
-            label="Specialization"
-            value={agent?.specialization}
-          />
-          <InfoRow
-            icon={<User />}
-            label="Experience"
-            value={`${agent?.work_experience} Years`}
-          />
-        </div>
-      </Box>
-
-      {/* Sold Properties */}
-      <Section title="Properties Sold" color="#0B253F">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {soldproperties?.length ? (
-            soldproperties?.map((item: any) => (
-              <div key={item.id} className="relative group flex flex-col">
-                {" "}
-                {/* SOLD Overlay */}{" "}
-                <div className="absolute inset-0 z-50 flex pt-10 justify-center rounded-2xl overflow-hidden pointer-events-none">
-                  {" "}
-                  <div className="absolute inset-0 bg-gradient-to-b from-black/10 to-black/10 rounded-2xl" />{" "}
-                  <Typography
-                    fontFamily="IT Bold"
-                    className="text-white font-extrabold tracking-widest opacity-90 select-none"
-                    style={{
-                      textShadow: "0 4px 15px rgba(0,0,0,0.3)",
-                      letterSpacing: "0.1em",
-                      position: "absolute",
-                    }}
-                    fontSize={"100px"}
-                  >
-                    {item.listing_type === "RENTAL" ? "RENTED" : "SOLD"}
-                  </Typography>{" "}
-                </div>{" "}
-                <div
-                  key={item.id}
-                  className="flex flex-col gap-4 border border-gray-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 cursor-pointer bg-white lg:h-120"
-                >
-                  {" "}
-                  <div className="flex lg:flex-col md:flex-col flex-col">
-                    {" "}
-                    {/* Image Section */}{" "}
-                    <div className="relative h-48 sm:h-60 lg:h-60 w-full overflow-hidden">
-                      {" "}
-                      <img
-                        src={item.photo}
-                        alt="Property"
-                        loading="lazy"
-                        className="absolute inset-0 object-cover w-full h-full transition-transform duration-500 ease-in-out group-hover:scale-110"
-                      />{" "}
-                      {/* Badge */}{" "}
-                      <div className="absolute top-4 left-4 bg-purple-600 text-white px-3 py-1 text-sm rounded-full shadow-md">
-                        {" "}
-                        High ROI{" "}
-                      </div>{" "}
-                      {/* Gradient Overlay */}{" "}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent z-10" />{" "}
-                    </div>{" "}
-                    {/* Property Details */}{" "}
-                    <div className="relative z-20 bg-[#FDFDFD] rounded-t-2xl p-5 flex flex-col justify-between gap-4 ">
-                      {" "}
-                      {/* Property Type + Price */}{" "}
-                      <Typography
-                        fontFamily="IT Bold"
-                        className="text-[#BA7F55]"
-                        fontSize={{ lg: "25px" }}
-                      >
-                        {" "}
-                        {new Intl.NumberFormat("en-AE", {
-                          currency: "AED",
-                          style: "currency",
-                          minimumFractionDigits: 0,
-                          maximumFractionDigits: 0,
-                        }).format(item?.price)}{" "}
-                        {item?.listing_type === "RENTAL" && "/Year"}{" "}
-                      </Typography>{" "}
-                      <Typography
-                        fontFamily="IT Medium"
-                        className="text-lg sm:text-xl lg:text-2xl font-semibold text-gray-800"
-                      >
-                        {" "}
-                        {item?.property_type}{" "}
-                      </Typography>{" "}
-                      {/* Location */}{" "}
-                      <div className="flex items-center gap-2 text-gray-500">
-                        {" "}
-                        <MapPin className="w-4 h-4 text-slate-400" />{" "}
-                        <Typography
-                          fontFamily="IT Light"
-                          className="text-xs sm:text-sm lg:text-base"
-                        >
-                          {" "}
-                          {item?.community} {item?.community && ","}{" "}
-                          {item?.city} {item?.cityName}{" "}
-                        </Typography>{" "}
-                      </div>{" "}
-                      {/* Emotional Caption */}{" "}
-                      <Typography
-                        fontFamily="IT Medium"
-                        className="text-sm sm:text-base italic text-gray-600"
-                      >
-                        {" "}
-                        {item?.title}{" "}
-                      </Typography>{" "}
-                      {/* Amenities */}{" "}
-                      <div className="flex flex-wrap gap-4 mt-2 text-gray-600 text-xs sm:text-sm">
-                        {" "}
-                        <div className="flex items-center gap-2">
-                          {" "}
-                          <Bed className="w-4 h-4 lg:w-5 lg:h-5 text-slate-400" />{" "}
-                          <Typography className="text-xs sm:text-sm lg:text-base">
-                            {" "}
-                            {item?.beds || item?.newParam?.bedroomMax} Beds{" "}
-                          </Typography>{" "}
-                        </div>{" "}
-                        <Divider
-                          orientation="vertical"
-                          flexItem
-                          className="hidden sm:block"
-                        />{" "}
-                        <div className="flex items-center gap-2">
-                          {" "}
-                          <ShowerHead className="w-4 h-4 lg:w-5 lg:h-5 text-slate-400" />{" "}
-                          <Typography className="text-xs sm:text-sm lg:text-base">
-                            {" "}
-                            {item?.baths ||
-                              item?.newParam?.bedroomMax} Baths{" "}
-                          </Typography>{" "}
-                        </div>{" "}
-                        <Divider
-                          orientation="vertical"
-                          flexItem
-                          className="hidden sm:block"
-                        />{" "}
-                        <div className="flex items-center gap-2">
-                          {" "}
-                          <Ruler className="w-4 h-4 lg:w-5 lg:h-5 text-slate-400" />{" "}
-                          <Typography className="text-xs sm:text-sm lg:text-base">
-                            {" "}
-                            {item?.sqft} {item?.newParam?.minSize}{" "}
-                            {item?.newParam?.minSize && " - "}{" "}
-                            {item?.newParam?.minSize &&
-                              new Intl.NumberFormat().format(
-                                item?.newParam?.maxSize
-                              )}{" "}
-                            Sqft{" "}
-                          </Typography>{" "}
-                        </div>{" "}
-                      </div>{" "}
-                    </div>{" "}
-                  </div>{" "}
-                </div>{" "}
-              </div>
-            ))
-          ) : (
-            <Typography>No sold properties found.</Typography>
-          )}
-        </div>
-      </Section>
-
-      {/* Active Listings */}
-      <div ref={propRef}>
-        <Section title="Active Listings" color="#0B253F">
-          <Tabs ref={propRef} defaultValue="account" className="w-[400px] pb-5">
-            <TabsList>
-              <TabsTrigger onClick={() => setValue("SELL")} value="account">
-                For Sale
-              </TabsTrigger>
-              <TabsTrigger onClick={() => setValue("RENT")} value="password">
-                For Rent
-              </TabsTrigger>
-            </TabsList>
-            {/* <TabsContent value="account">
-            Make changes to your account here.
-          </TabsContent>
-          <TabsContent value="password">Change your password here.</TabsContent> */}
-          </Tabs>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
-            {properties?.length ? (
-              properties.map((item: any) => (
-                <motion.div
-                  key={item.id}
-                  whileHover={{ scale: 1.02 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <PropertyCard
-                    item={item}
-                    onClick={() => handleDetails(item.propertyId)}
-                  />
-                </motion.div>
-              ))
-            ) : (
-              <Typography color="text.secondary">
-                No listings available for this agent.
-              </Typography>
-            )}
+          {/* Right HERO IMAGE */}
+          <div className="relative w-full h-[520px] rounded-2xl overflow-hidden shadow-lg">
+            <img
+              src={agent.img}
+              alt={agent.name}
+              className="w-full h-full object-cover"
+            />
           </div>
-        </Section>
+        </div>
+
+        {/* ----------  MAIN CONTENT GRID ---------- */}
+        <div className="mt-10 gap-10">
+          {/* LEFT MAIN CONTENT */}
+          <div className="w-full space-y-10">
+            {/* Agent Info */}
+            <section>
+              <h3
+                className="text-2xl font-semibold mb-4"
+                style={{ fontFamily: "IT Bold" }}
+              >
+                Personal Information
+              </h3>
+
+              <div className="grid sm:grid-cols-2 gap-4">
+                {details.map((i, idx) => (
+                  <div
+                    key={idx}
+                    className="p-4 border rounded-lg bg-gray-50 flex gap-3 items-center"
+                  >
+                    <div className="text-[#BA7F55]">{i.icon}</div>
+                    <div>
+                      <p
+                        className="text-xs uppercase text-gray-500"
+                        style={{ fontFamily: "IT Light" }}
+                      >
+                        {i.label}
+                      </p>
+                      <p style={{ fontFamily: "IT Medium" }}>{i.value}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* ACTIVE LISTINGS */}
+            <section ref={listRef}>
+              <h3
+                className="text-2xl font-semibold mb-4"
+                style={{ fontFamily: "IT Bold" }}
+              >
+                Active Listings
+              </h3>
+
+              <Tabs defaultValue="sale" className="mb-6">
+                <TabsList>
+                  <TabsTrigger value="sale" onClick={() => setValue("sale")}>
+                    For Sale
+                  </TabsTrigger>
+                  <TabsTrigger value="rent" onClick={() => setValue("rent")}>
+                    For Rent
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+                {combinedListings.length
+                  ? combinedListings.map((item) => (
+                      <motion.div
+                        key={item.propertyId}
+                        whileHover={{ scale: 1.02 }}
+                      >
+                        <PropertyCard
+                          item={item}
+                          onClick={() => handleDetails(item.propertyId)}
+                        />
+                      </motion.div>
+                    ))
+                  : [...Array(10)].map((_, idx) => (
+                      <Skeleton key={idx} className="h-94 w-full rounded-xl" />
+                    ))}
+              </div>
+            </section>
+          </div>
+
+          {/* ---------- STICKY SIDEBAR ---------- */}
+          {/* <aside className="sticky top-10 self-start space-y-6">
+            <div className="bg-white border rounded-xl p-5 shadow-sm">
+              <h4
+                className="text-xl text-gray-700 mb-2"
+                style={{ fontFamily: "IT Medium" }}
+              >
+                Contact Agent
+              </h4>
+
+              <Dialog>
+                <DialogTrigger
+                  className="w-full px-4 py-3 bg-[#BA7F55] text-white rounded-md font-semibold"
+                  style={{ fontFamily: "IT Medium" }}
+                >
+                  Send Enquiry
+                </DialogTrigger>
+                <DialogHeader className="hidden">
+                  <DialogTitle>Contact</DialogTitle>
+                </DialogHeader>
+
+                <DialogContent>
+                  <div className="bg-white px-4 sm:px-8 py-6 flex flex-col items-center max-w-md mx-auto">
+                    <Form
+                      propertyId={agent.name}
+                      extraData={{ agent_name: agent.name }}
+                      formType="default"
+                    />
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
+
+            <div className="bg-white border rounded-xl p-4 shadow-sm">
+              <h4 className="text-md text-gray-500 mb-2">
+                Agent Quick Contact
+              </h4>
+              <p className="text-gray-700 mb-1">{agent.email}</p>
+              <p className="text-gray-700">{agent.phone_number}</p>
+            </div>
+          </aside> */}
+        </div>
       </div>
-    </Box>
+    </div>
   );
 }
 
 export default AgentDetails;
-
-/* ------------------------ Reusable Components ------------------------ */
-
-const InfoRow = ({
-  icon,
-  label,
-  value,
-}: {
-  icon: JSX.Element;
-  label: string;
-  value: string;
-}) => (
-  <div className="flex items-center gap-3 p-3 bg-[#F8F9FB] rounded-xl hover:bg-[#f1f2f5] transition">
-    <Tooltip title={label}>
-      <span className="text-[#BA7F55]">{icon}</span>
-    </Tooltip>
-    <div>
-      <Typography
-        fontFamily="IT Regular"
-        className="text-sm text-gray-500 uppercase tracking-wider"
-      >
-        {label}
-      </Typography>
-      <Typography fontFamily="IT Medium" color="#0B253F">
-        {value}
-      </Typography>
-    </div>
-  </div>
-);
-
-const Section = ({
-  title,
-  children,
-  color,
-}: {
-  title: string;
-  children: React.ReactNode;
-  color: string;
-}) => (
-  <Box className="mx-auto w-[90%] lg:w-[80%] mb-14">
-    <Typography
-      fontFamily="DM Medium"
-      fontSize={{ xs: 26, lg: 30 }}
-      color={color}
-      mb={3}
-    >
-      {title}
-    </Typography>
-    {children}
-  </Box>
-);

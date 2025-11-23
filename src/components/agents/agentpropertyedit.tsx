@@ -13,7 +13,8 @@ interface Property {
   community: string;
   city: string;
   country: string;
-  agent_Id: string;
+  agent_id: string;
+  listing_type: string;
 }
 
 interface PropertyEditProps {
@@ -25,6 +26,7 @@ function AgentPropertyEdit({ property }: PropertyEditProps) {
     photo: null,
     price: "",
     property_type: "",
+    listing_type: "",
     beds: "",
     baths: "",
     sqft: "",
@@ -48,7 +50,8 @@ function AgentPropertyEdit({ property }: PropertyEditProps) {
         community: property.community || "",
         city: property.city || "",
         country: property.country || "",
-        agent_Id: property.agent_Id || "",
+        agent_Id: property.agent_id || "",
+        listing_type: property.listing_type || "",
       });
 
       if (formData.photo == null) {
@@ -97,6 +100,7 @@ function AgentPropertyEdit({ property }: PropertyEditProps) {
       data.append("city", formData.city);
       data.append("community", formData.community);
       data.append("country", formData.country);
+      data.append("listing_type", formData.listing_type);
 
       if (formData.photo != null) {
         data.append("photo", formData.photo);
@@ -207,6 +211,16 @@ function AgentPropertyEdit({ property }: PropertyEditProps) {
           variant="outlined"
           onChange={handleChange}
           name="sqft"
+          fullWidth
+        />
+
+        <TextField
+          value={formData.listing_type}
+          type="text"
+          label="Listing Type"
+          variant="outlined"
+          onChange={handleChange}
+          name="listing_type"
           fullWidth
         />
 

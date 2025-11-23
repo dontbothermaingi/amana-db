@@ -29,7 +29,7 @@ export default function Renovation(): JSX.Element {
   }
 
   return (
-    <div className="bg-white text-[#0B253F] overflow-hidden">
+    <div className="text-[#0B253F] overflow-hidden">
       {/* Hero */}
       <div className="relative bg-[url('/renovate3.jpg')] lg:bg-[url('/INT1.jpg')] bg-cover bg-bottom lg:bg-center h-screen">
         <div className="absolute inset-0 bg-gradient-to-t lg:bg-gradient-to-r from-black/85 via-black/40 lg:via-black/20 to-transparent h-full w-full" />

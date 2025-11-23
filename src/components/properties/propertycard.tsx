@@ -1,7 +1,6 @@
-import { Typography, Divider } from "@mui/material";
+import { Typography } from "@mui/material";
 import { Bed, MapPin, Ruler, ShowerHead } from "lucide-react";
 import React from "react";
-import { FaWhatsapp } from "react-icons/fa";
 
 type cardProps = {
   item: any;
@@ -21,145 +20,105 @@ const PropertyCard = React.memo(function PropertyCard({
     }).format(value);
   };
 
+  // New: detect whether photos is an array with elements
+  const hasPhotosArray = Array.isArray(item?.photos) && item.photos.length > 0;
+  const mainPhoto =
+    hasPhotosArray && item.photos.length > 0 ? item.photos[0] : item?.photos;
+
+  // Determine status label
+  const statusLabel =
+    item?.listingType === "RENT"
+      ? "RENTED"
+      : item?.listingType === "SALE"
+      ? "SOLD"
+      : "";
+
   return (
-    <div className="group flex flex-col">
-      <div
-        key={item.id}
-        className="flex flex-col gap-4 border border-gray-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 cursor-pointer bg-white"
-      >
-        {/* Layout: column below 1280px, row above */}
+    <div
+      key={item.id}
+      className={`group relative rounded-xl overflow-hidden shadow-md ${
+        hasPhotosArray ? "hover:shadow-xl cursor-pointer" : "cursor-default"
+      }transition-all duration-500 cursor-pointer`}
+      onClick={() => hasPhotosArray && onClick(item.id)}
+    >
+      {/* --- Image --- */}
+      <img
+        src={mainPhoto}
+        alt="Property"
+        loading="lazy"
+        className="w-full h-96 object-cover transition-transform duration-500 group-hover:scale-110"
+      />
+
+      {/* --- Full Card Gradient Overlay --- */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80  to-transparent z-10" />
+
+      {/* --- Top Info Overlay (on top of gradient) --- */}
+      <div className="absolute top-2 right-2 text-base opacity-90">
         <div
-          onClick={() => onClick(item.id)}
-          className="flex flex-col xl:flex-row"
+          style={{ fontFamily: "IT Medium" }}
+          className="bg-white px-2 py-1 rounded-md text-sm"
         >
-          {/* --- Image Section --- */}
-          <div
-            className={`relative w-full xl:w-1/2 
-              h-64 sm:h-80 md:h-96 xl:h-auto overflow-hidden`}
-          >
-            {item?.photos?.length > 0 && (
-              <img
-                src={item.photos[0]}
-                alt="Property"
-                loading="lazy"
-                className="absolute inset-0 object-cover w-full h-full transition-transform duration-500 ease-in-out group-hover:scale-110"
-              />
-            )}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent z-10" />
-          </div>
-
-          {/* --- Details Section --- */}
-          <div className="relative z-20 bg-[#FDFDFD] rounded-t-2xl p-5 flex flex-col justify-between gap-4 xl:w-1/2">
-            {/* Price */}
-            <Typography
-              fontFamily="IT Bold"
-              className="text-[#BA7F55]"
-              fontSize={{ lg: "25px" }}
-            >
-              {formatPrice(item?.price)}{" "}
-              {item?.listingType === "RENT" && "/Year"}
-            </Typography>
-
-            {/* Property Type */}
-            <Typography
-              fontFamily="IT Medium"
-              className="text-lg sm:text-xl xl:text-2xl font-semibold text-gray-800"
-            >
-              {item?.propertyType}
-            </Typography>
-
-            {/* Location */}
-            <div className="flex items-center gap-2 text-gray-500">
-              <MapPin className="w-4 h-4 text-slate-400" />
-              <Typography
-                fontFamily="IT Light"
-                className="text-xs sm:text-sm xl:text-base"
-              >
-                {item?.community} {item?.community && ","} {item?.region},{" "}
-                {item?.cityName}
-              </Typography>
-            </div>
-
-            {/* Emotional Caption */}
-            <Typography
-              fontFamily="IT Medium"
-              className="text-sm sm:text-base italic text-gray-600"
-            >
-              {item?.title}
-            </Typography>
-
-            {/* --- Amenities --- */}
-            <div className="flex flex-wrap gap-4 mt-2 text-gray-600 text-xs sm:text-sm">
-              <div className="flex items-center gap-2">
-                <Bed className="w-4 h-4 xl:w-5 xl:h-5 text-slate-400" />
-                <Typography className="text-xs sm:text-sm xl:text-base">
-                  {item?.bedRooms || item?.newParam?.bedroomMax} Beds
-                </Typography>
-              </div>
-
-              <Divider
-                orientation="vertical"
-                flexItem
-                className="hidden sm:block"
-              />
-
-              <div className="flex items-center gap-2">
-                <ShowerHead className="w-4 h-4 xl:w-5 xl:h-5 text-slate-400" />
-                <Typography className="text-xs sm:text-sm xl:text-base">
-                  {item?.bathRooms || item?.newParam?.bathroomMax} Baths
-                </Typography>
-              </div>
-
-              <Divider
-                orientation="vertical"
-                flexItem
-                className="hidden sm:block"
-              />
-
-              <div className="flex items-center gap-2">
-                <Ruler className="w-4 h-4 xl:w-5 xl:h-5 text-slate-400" />
-                <Typography className="text-xs sm:text-sm xl:text-base">
-                  {new Intl.NumberFormat().format(item?.size)} Sqft
-                </Typography>
-              </div>
-            </div>
-
-            {/* --- Agent + CTAs --- */}
-            <div className="flex justify-between items-center pt-4">
-              <div className="flex items-center gap-3">
-                <img
-                  src={
-                    item?.portalAgent?.originalAvatar ||
-                    item?.portalAgent?.avatar
-                  }
-                  alt="agent"
-                  loading="lazy"
-                  className="w-12 h-12 rounded-full object-cover"
-                />
-                <div>
-                  <Typography className="text-sm font-semibold text-gray-800">
-                    {item?.portalAgent?.name}
-                  </Typography>
-                  <Typography className="text-xs text-gray-500">
-                    Verified Agent
-                  </Typography>
-                </div>
-              </div>
-
-              <a
-                href={`https://wa.me/${item?.portalAgent?.phone}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <div className="bg-[#25D366] rounded-lg px-3 py-2 flex items-center gap-2 text-white text-sm font-semibold shadow-md hover:scale-105 transition">
-                  <FaWhatsapp className="w-4 h-4" />
-                  Whatsapp
-                </div>
-              </a>
-            </div>
-          </div>
+          {item?.propertyType}
         </div>
       </div>
+
+      {/* --- Bottom Info Overlay (on top of gradient) --- */}
+      <div className="absolute bottom-0 left-0 right-0 p-5 text-white z-20">
+        <div style={{ fontFamily: "IT Medium" }} className="font-bold text-2xl">
+          {formatPrice(item?.price)}
+          {item?.listingType.toLowerCase() == "rent" && "/yr"}
+        </div>
+        <div style={{ fontFamily: "IT Medium" }} className="text-sm opacity-80">
+          <MapPin className="inline-block w-4 h-4 mr-1 mb-0.5" />
+          {item?.community || item?.location}
+        </div>
+      </div>
+
+      {/* --- Hover Extra Info --- */}
+      {hasPhotosArray && (
+        <div className="absolute inset-0 z-20 bg-black/100 opacity-0 group-hover:opacity-100 transition duration-500 p-6 text-white flex flex-col justify-end gap-4">
+          <div className="flex items-center gap-3 text-base">
+            <Bed className="w-5 h-5" /> {item?.bedrooms} Beds
+          </div>
+
+          <div className="flex items-center gap-3 text-base">
+            <ShowerHead className="w-5 h-5" /> {item?.bathrooms} Baths
+          </div>
+
+          <div className="flex items-center gap-3 text-base">
+            <Ruler className="w-5 h-5" /> {item?.size} Sqft
+          </div>
+
+          {item?.portalAgent && (
+            <div className="flex items-center gap-4 border-t border-white/30 pt-4 mt-2">
+              <img
+                src={item.portalAgent.photo}
+                className="w-10 h-10 rounded-full object-cover"
+              />
+              <div className="text-sm">
+                <div className="font-semibold text-base">
+                  {item.portalAgent.name}
+                </div>
+                <div className="opacity-70">Verified Agent</div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* --- Status Label if Sold/Rented --- */}
+      {!hasPhotosArray && statusLabel && (
+        <div className="absolute inset-0 bg-black/40 flex items-center justify-center z-20">
+          <Typography
+            fontFamily="IT Bold"
+            className="text-white font-extrabold tracking-widest select-none"
+            style={{ textShadow: "0 4px 15px rgba(0,0,0,0.3)" }}
+            fontSize={40}
+          >
+            {statusLabel}
+          </Typography>
+        </div>
+      )}
     </div>
   );
 });

@@ -1,0 +1,7 @@
+:root {
+  --bg: #faf7f2; /* or your chosen warm white */
+}
+
+body {
+  background-color: var(--bg);
+}

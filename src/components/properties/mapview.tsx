@@ -7,13 +7,12 @@ import { useNavigate } from "react-router";
 
 export interface Property {
   photos: any;
-  id: number;
+  id?: string;
   community: string;
   title: string;
   propertyType: string;
-  price: string;
+  price: number | string;
   location: string;
-  image: string;
   latitude?: string;
   longitude?: string;
   newParameter?: { position?: string };

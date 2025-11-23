@@ -18,9 +18,6 @@ import { Button } from "../ui/button";
 import AgentEdit from "../agents/agentedit";
 import AgentPropertyEdit from "../agents/agentpropertyedit";
 
-/* ======================================================
-   MAIN ADMIN DASHBOARD
-====================================================== */
 function AdminPage() {
   const navigate = useNavigate();
   const auth_token = localStorage.getItem("auth_token");
@@ -360,7 +357,7 @@ const PropertyCard = ({ item }: { item: any }) => (
           }}
           fontSize={"100px"}
         >
-          {item.listing_type === "RENTAL" ? "RENTED" : "SOLD"}
+          {item.listing_type === "RENT" ? "RENTED" : "SOLD"}
         </Typography>
       </div>
     </div>

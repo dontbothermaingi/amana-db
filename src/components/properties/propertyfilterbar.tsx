@@ -2,14 +2,13 @@ import { useEffect, useState } from "react";
 import { useMediaQuery } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
-type filterProps = {
+type FilterProps = {
   onFilterChange: any;
   type: string;
 };
 
-function PropertyFilterBar({ onFilterChange, type }: filterProps) {
+function PropertyFilterBar({ onFilterChange, type }: FilterProps) {
   const initialFilters = {
-    location: "",
     community: "",
     propertyType: "",
     beds: "",
@@ -29,41 +28,27 @@ function PropertyFilterBar({ onFilterChange, type }: filterProps) {
 
   const handleChange = (e: any) => {
     const { name, value } = e.target;
-
-    let newFilters = { ...filters, [name]: value };
-
-    // If location is reset to "", also reset community
-    if (name === "location") {
-      newFilters = { ...newFilters, community: "" };
-    }
-
-    setFilters(newFilters);
-    onFilterChange(newFilters);
+    setFilters((prev) => {
+      const updated = { ...prev, [name]: value };
+      onFilterChange(updated);
+      return updated;
+    });
   };
 
   useEffect(() => {
-    // keep state in sync if URL changes externally
-    let reason2 = type;
-    if (type === "NEW") {
-      reason2 = "OFF-PLAN";
-    }
-
-    setActiveReason(reason2);
+    const reason = type === "NEW" ? "OFF-PLAN" : type;
+    setActiveReason(reason);
     setFilters((prev) => ({ ...prev, reason: type }));
     onFilterChange((prev: any) => ({ ...prev, reason: type }));
   }, [type]);
 
   const handleReasonClick = (reason: any) => {
-    let reason2 = reason;
-    if (reason === "OFF-PLAN") {
-      reason2 = "NEW";
-    }
+    const reasonMapped = reason === "OFF-PLAN" ? "NEW" : reason;
     setActiveReason(reason);
     const updatedFilters = { ...filters, reason };
     setFilters(updatedFilters);
     onFilterChange(updatedFilters);
-
-    navigate(`/${reason2}/public-listings`);
+    navigate(`/${reasonMapped}/public-listings`);
   };
 
   const handleReset = () => {
@@ -112,132 +97,108 @@ function PropertyFilterBar({ onFilterChange, type }: filterProps) {
   ];
 
   const FilterForm = (
-    <div className="px-6 py-8 bg-[#0B253F] rounded-3xl shadow-lg">
-      {/* Reason Buttons */}
-      <div className="flex justify-center mb-8 space-x-6">
-        {["SELL", "RENT", "OFF-PLAN"].map((item) => (
-          <button
-            key={item}
-            onClick={() => handleReasonClick(item)}
-            className={`px-6 py-3 rounded-full text-lg font-semibold transition-colors duration-300
-              ${
-                activeReason === item
-                  ? "bg-white text-[#BA7F55] shadow-md"
-                  : "bg-transparent text-white border border-white hover:bg-white hover:text-[#BA7F55]"
-              }`}
-          >
-            {item}
-          </button>
-        ))}
-      </div>
-
-      {/* Filters Grid */}
-      <form
-        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 text-white"
-        onSubmit={(e) => e.preventDefault()}
-      >
-        {/* Location */}
-        <InputField
+    <form
+      className="bg-[#0B253F] flex flex-wrap gap-4 items-end"
+      onSubmit={(e) => e.preventDefault()}
+    >
+      {/* Community Search - biggest */}
+      <div className={`flex flex-col min-w-[120px]`}>
+        <label className="mb-1 font-medium text-white">Community</label>
+        <input
           type="text"
-          label="Location"
-          name="location"
-          value={filters.location}
-          onChange={handleChange}
-        />
-
-        {/* Community */}
-        <InputField
-          type="text"
-          label="Community"
           name="community"
           value={filters.community}
           onChange={handleChange}
+          className="rounded-md px-3 py-2 text-[#BA7F55] bg-[#152D4A] border border-[#274B7D] focus:outline-none focus:ring-2 focus:ring-[#BA7F55]"
         />
+      </div>
 
-        {/* Property Type */}
-        <SelectField
-          label="Property Type"
-          name="propertyType"
-          value={filters.propertyType}
-          onChange={handleChange}
-          options={PROPERTY_TYPES}
-        />
-        {/* Beds */}
-        <SelectField
-          label="Beds"
-          name="beds"
-          value={filters.beds}
-          onChange={handleChange}
-          options={["1", "2", "3", "4+"]}
-        />
-        {/* Bathrooms */}
-        <SelectField
-          label="Bathrooms"
-          name="bathrooms"
-          value={filters.bathrooms}
-          onChange={handleChange}
-          options={["1", "2", "3", "4+"]}
-        />
-        {/* SqFt Min */}
-        <InputField
-          type="number"
-          label="SqFt (Min)"
-          name="sqftMin"
-          value={filters.sqftMin}
-          onChange={handleChange}
-        />
-        {/* SqFt Max */}
-        <InputField
-          type="number"
-          label="SqFt (Max)"
-          name="sqftMax"
-          value={filters.sqftMax}
-          onChange={handleChange}
-        />
-        {/* Price Min */}
-        <InputField
-          type="number"
-          label="Price (Min)"
-          name="priceMin"
-          value={filters.priceMin}
-          onChange={handleChange}
-        />
-        {/* Price Max */}
-        <InputField
-          type="number"
-          label="Price (Max)"
-          name="priceMax"
-          value={filters.priceMax}
-          onChange={handleChange}
-        />
+      {/* Listing Type */}
+      <SelectField
+        label="Listing Type"
+        name="reason"
+        value={activeReason}
+        onChange={(e: any) => handleReasonClick(e.target.value)}
+        options={["sale", "rent"]}
+        flex="1"
+      />
 
-        {/* Reset Button */}
-        <div className="flex items-end">
-          <button
-            type="button"
-            onClick={handleReset}
-            className="w-full bg-transparent border border-[#BA7F55] text-[#BA7F55] hover:bg-[#BA7F55] hover:text-white transition-colors duration-300 rounded-md py-2 font-semibold"
-          >
-            Reset Filters
-          </button>
-        </div>
-      </form>
-    </div>
+      {/* Property Type */}
+      <SelectField
+        label="Property Type"
+        name="propertyType"
+        value={filters.propertyType}
+        onChange={handleChange}
+        options={PROPERTY_TYPES}
+        flex="1"
+      />
+
+      {/* Beds */}
+      <SelectField
+        label="Beds"
+        name="beds"
+        value={filters.beds}
+        onChange={handleChange}
+        options={["1", "2", "3", "4+"]}
+        flex="1"
+      />
+
+      {/* Bathrooms */}
+      <SelectField
+        label="Bathrooms"
+        name="bathrooms"
+        value={filters.bathrooms}
+        onChange={handleChange}
+        options={["1", "2", "3", "4+"]}
+        flex="1"
+      />
+
+      {/* SqFt Min & Max - smaller */}
+      <InputField
+        type="number"
+        label="Min SqFt"
+        name="sqftMin"
+        value={filters.sqftMin}
+        onChange={handleChange}
+        flex="1"
+      />
+
+      {/* Price Min & Max - smaller */}
+      <InputField
+        type="number"
+        label="Min Price"
+        name="priceMin"
+        value={filters.priceMin}
+        onChange={handleChange}
+        flex="1"
+      />
+
+      {/* Reset Button */}
+      <button
+        type="button"
+        onClick={handleReset}
+        className="bg-transparent border border-[#BA7F55] text-[#BA7F55] hover:bg-[#BA7F55] hover:text-white transition-colors rounded-md py-2 px-4 font-semibold"
+      >
+        Reset
+      </button>
+    </form>
   );
 
   return (
     <>
       {isMobile ? (
         <>
-          <button
-            className="w-full bg-[#0B253F] text-white py-3 rounded-xl font-semibold"
-            onClick={() => setOpenMobileFilters(true)}
-          >
-            Open Filters
-          </button>
+          <div className="sticky top-0 z-40 bg-[#0B253F] border-b border-[#274B7D]">
+            <button
+              className="w-full py-3 font-semibold text-white"
+              onClick={() => setOpenMobileFilters(true)}
+            >
+              Open Filters
+            </button>
+          </div>
 
           {openMobileFilters && (
-            <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex flex-col">
+            <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex flex-col">
               <div className="bg-[#0B253F] overflow-auto h-full p-4">
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="text-white text-xl font-semibold">Filters</h2>
@@ -254,23 +215,37 @@ function PropertyFilterBar({ onFilterChange, type }: filterProps) {
           )}
         </>
       ) : (
-        <div className="max-w-7xl mx-auto">{FilterForm}</div>
+        <div
+          style={{ fontFamily: "IT Medium" }}
+          className="z-40 w-full bg-[#0B253F] p-5 rounded-2xl"
+        >
+          <div className="w-full">{FilterForm}</div>
+        </div>
       )}
     </>
   );
 }
 
-type selectProps = {
+// Select Field with flexible width
+type SelectProps = {
   label: string;
   name: string;
   value: any;
   onChange: any;
   options: any;
+  flex?: string;
 };
-function SelectField({ label, name, value, onChange, options }: selectProps) {
+function SelectField({
+  label,
+  name,
+  value,
+  onChange,
+  options,
+  flex = "1",
+}: SelectProps) {
   return (
-    <div className="flex flex-col">
-      <label className="mb-1 font-medium">{label}</label>
+    <div className={`flex flex-col flex-[${flex}] min-w-[120px]`}>
+      <label className="mb-1 font-medium text-white">{label}</label>
       <select
         name={name}
         value={value}
@@ -288,23 +263,31 @@ function SelectField({ label, name, value, onChange, options }: selectProps) {
   );
 }
 
-type inputProps = {
+// Input Field with flexible width
+type InputProps = {
   label: string;
   name: string;
   value: any;
   onChange: any;
   type: string;
+  flex?: string;
 };
-function InputField({ label, name, value, onChange, type }: inputProps) {
+function InputField({
+  label,
+  name,
+  value,
+  onChange,
+  type,
+  flex = "1",
+}: InputProps) {
   return (
-    <div className="flex flex-col">
-      <label className="mb-1 font-medium">{label}</label>
+    <div className={`flex flex-col flex-[${flex}] max-w-[120px]`}>
+      <label className="mb-1 font-medium text-white">{label}</label>
       <input
         type={type}
         name={name}
         value={value}
         onChange={onChange}
-        // placeholder="Min"
         className="rounded-md px-3 py-2 text-[#BA7F55] bg-[#152D4A] border border-[#274B7D] focus:outline-none focus:ring-2 focus:ring-[#BA7F55]"
       />
     </div>

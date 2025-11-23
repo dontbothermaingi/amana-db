@@ -15,7 +15,7 @@ function ConnectAndEarn() {
   }
 
   return (
-    <div className="text-[#0B253F] bg-[#F9FAFB] pb-10">
+    <div className="text-[#0B253F] pb-10">
       {/* NAVBAR + HERO SECTION */}
       <div
         className={`relative ${

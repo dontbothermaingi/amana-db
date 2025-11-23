@@ -1,12 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { Box, Typography } from "@mui/material";
-// import { FaInstagram, FaLinkedin, FaWhatsapp } from "react-icons/fa";
 import { useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import Form from "@/leads/form";
 import { Skeleton } from "../ui/skeleton";
+// Assuming Form component path is correct
+import Form from "@/leads/form";
 
-interface AgentsProps {
+interface AgentData {
   id: string;
   img: string;
   name: string;
@@ -16,7 +16,7 @@ interface AgentsProps {
 function AgentsOverview() {
   const navigate = useNavigate();
 
-  const { data: agents } = useQuery<AgentsProps[]>({
+  const { data: fetchedAgents, isLoading } = useQuery<AgentData[]>({
     queryKey: ["agent_new"],
     queryFn: () =>
       fetch("https://db-amana.onrender.com/agents")
@@ -25,13 +25,16 @@ function AgentsOverview() {
     staleTime: 1000 * 60 * 10,
   });
 
-  const handleDetails = useCallback((agentId: string) => {
-    navigate(`/agent-details/${agentId}`);
-  }, []);
+  const handleDetails = useCallback(
+    (agentId: string) => {
+      navigate(`/agent-details/${agentId}`);
+    },
+    [navigate]
+  );
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Header */}
+      {/* GLOBAL HEADER */}
       <div className="px-4">
         <div className="flex flex-col items-center justify-center py-10 px-6 text-center max-w-6xl mx-auto">
           <Typography
@@ -39,86 +42,88 @@ function AgentsOverview() {
             color="#BA7F55"
             className="uppercase tracking-widest mb-2"
           >
-            meet our experts
+            meet the people who make it happen
           </Typography>
           <Typography
             fontFamily="IT Medium"
             fontSize={{ lg: "50px", xs: "34px" }}
-            className="mb-4"
+            className="mb-4 text-gray-900"
           >
-            Top Real Estate Agents in Dubai
+            The Amana Team
           </Typography>
           <Typography
             fontFamily="IT Light"
             className="text-gray-600 leading-relaxed"
           >
-            Connect with trusted real estate agents in Dubai at Amana Homes. Our
-            team of licensed property consultants helps you buy, sell, or rent
-            villas, apartments, and off-plan properties with confidence.
+            From the visionary leadership to the dedicated support specialists,
+            discover the talent guiding your journey.
           </Typography>
         </div>
 
-        {/* Agents Grid */}
-        <Box
-          display="grid"
-          gridTemplateColumns={{
-            xs: "repeat(1, 1fr)",
-            sm: "1fr",
-            md: "repeat(2, 1fr)",
-            lg: "repeat(3, 1fr)",
-          }}
-          gap={4}
-          className="mt-10 px-3 lg:px-50"
-        >
-          {agents ? (
-            <>
-              {agents?.map((item: any, index: any) => (
+        {/* --- TEAM SECTIONS --- */}
+        <div className="px-3 lg:px-30 mx-auto">
+          {isLoading ? (
+            <Box display="grid" gridTemplateColumns="repeat(3, 1fr)" gap={4}>
+              {[...Array(6)].map((_, idx) => (
+                <Skeleton key={idx} className="h-[350px] w-full rounded-xl" />
+              ))}
+            </Box>
+          ) : (
+            <Box
+              display="grid"
+              sx={{ mt: "20px" }}
+              gridTemplateColumns={{
+                xs: "repeat(1, 1fr)",
+                sm: "repeat(2, 1fr)",
+                lg: `repeat(3, 1fr)`, // Dynamic columns based on category importance
+              }}
+              gap={5}
+            >
+              {fetchedAgents?.map((item) => (
                 <div
-                  key={index}
-                  onClick={() => handleDetails(item.id)}
-                  className="cursor-pointer"
+                  key={item.id}
+                  onClick={
+                    item.specialization == "Property Advisor"
+                      ? () => handleDetails(item.id)
+                      : undefined
+                  }
+                  className={`group ${
+                    item.specialization == "Property Advisor"
+                      ? "cursor-pointer"
+                      : ""
+                  }`}
                 >
                   <div
-                    className="relative h-[300px] lg:h-150 w-full bg-cover bg-center rounded-xl hover:grayscale transition-all"
-                    style={{ backgroundImage: `url(${item.img})` }}
-                    aria-label={`Agent ${item.name}`}
+                    className="relative h-[350px] w-full bg-cover bg-center rounded-xl overflow-hidden shadow-lg group-hover:shadow-2xl transition-all duration-300"
+                    style={{
+                      backgroundImage: item.img.startsWith("url(")
+                        ? item.img
+                        : `url(${item.img})`,
+                    }}
+                    aria-label={`Team member ${item.name}`}
                   >
-                    <div className="absolute bg-gradient-to-t from-black/60 to-black/20 h-full w-full rounded-xl" />
+                    <div className="absolute bg-gradient-to-t from-black/70 to-transparent h-full w-full" />
 
-                    <div className="absolute bottom-3 left-3 right-3 rounded-md py-3 px-4 flex flex-col gap-3">
-                      <div>
-                        <Typography
-                          fontFamily={"IT Medium"}
-                          fontSize={{ lg: "30px", xs: "14px" }}
-                          color="white"
-                        >
-                          {item.name}
-                        </Typography>
-                        <Typography
-                          fontSize={{ lg: "17px", xs: "14px" }}
-                          fontFamily={"IT Light"}
-                          color="white"
-                        >
-                          {item.specialization}
-                        </Typography>
-                      </div>
+                    <div className="absolute bottom-4 left-4 right-4 text-white">
+                      <Typography fontFamily={"IT Medium"} fontSize="20px">
+                        {item.name}
+                      </Typography>
+                      <Typography fontSize="16px" fontFamily={"IT Light"}>
+                        {item.specialization}
+                      </Typography>
                     </div>
                   </div>
                 </div>
               ))}
-            </>
-          ) : (
-            [...Array(6)].map((_, idx) => (
-              <Skeleton key={idx} className="h-[300px] w-full rounded-xl" />
-            ))
+            </Box>
           )}
-        </Box>
+        </div>
       </div>
 
       {/* Contact Form */}
       <div className="px-5 py-5">
         <div className="bg-white shadow-lg border border-gray-200 rounded-3xl px-4 sm:px-8 py-10 flex flex-col items-center max-w-3xl mx-auto mb-1 lg:mb-20">
-          {/* Tagline */}
+          {/* Tagline, Heading, Subheading, and Form */}
           <Typography
             fontFamily={"RM Medium"}
             color="#BA7F55"
@@ -127,7 +132,6 @@ function AgentsOverview() {
             [Get In Touch]
           </Typography>
 
-          {/* Heading */}
           <Typography
             fontFamily={"DM Medium"}
             fontSize={{ xs: "24px", lg: "30px" }}
@@ -136,7 +140,6 @@ function AgentsOverview() {
             Let’s Make Your Property Journey Effortless
           </Typography>
 
-          {/* Subheading */}
           <Typography
             fontFamily={"IT Light"}
             className="text-center text-gray-600 leading-relaxed max-w-xl"
@@ -146,7 +149,6 @@ function AgentsOverview() {
             goals into reality—together.
           </Typography>
 
-          {/* Form */}
           <Form
             propertyId={""}
             extraData={{ reason: "Submitted at the agents page" }}

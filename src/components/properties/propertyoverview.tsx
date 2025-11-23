@@ -11,7 +11,6 @@ import {
   ShowerHead,
 } from "lucide-react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import PropertyMap from "./propertymap";
 import { FaWhatsapp } from "react-icons/fa";
 import MortgageCalculator from "./morgagecalculator";
 import ImageGalleryPreview from "./imagegallery";
@@ -22,13 +21,12 @@ import { Button } from "../ui/button";
 
 function PropertyOverview() {
   const { propertyId } = useParams();
-  const access_token = "gUD5QIKlscK-vPRxPZfDBOfnGuSEyrZl";
   const navigate = useNavigate();
   const location = useLocation();
   const isMobile = useMediaQuery("(max-width:768px)");
 
   const handleGoBack = () => {
-    navigate(`/${house?.propertyType}/public-listings`, {
+    navigate(`/${house?.offering_type}/public-listings`, {
       state: location.state,
     });
   };
@@ -36,116 +34,31 @@ function PropertyOverview() {
   const { data: house } = useQuery({
     queryKey: ["house", propertyId],
     queryFn: async () => {
-      if (!propertyId) {
-        throw new Error("No propertyId provided");
-      }
+      if (!propertyId) throw new Error("No propertyId provided");
 
       const res = await fetch(
-        `https://dataapi.pixxicrm.ae/pixxiapi/v1/${propertyId}`,
-        {
-          method: "GET",
-          headers: {
-            "X-PIXXI-TOKEN": access_token,
-          },
-        }
+        `https://db-amana.onrender.com/crm-data/${propertyId}`
       );
-
       const json = await res.json();
-      // console.log("Raw API response:", json);
 
-      if (!res.ok) {
-        throw new Error(json.message || "Failed to fetch property");
-      }
-
-      // console.log("Raw API Response", json);
-      return json?.list || json?.data || json || [];
+      if (!res.ok) throw new Error(json.message || "Failed to fetch property");
+      console.log("Raw Property API response:", json);
+      return json; // backend already returns a single property
     },
-    enabled: !!propertyId, // don't run unless propertyId is defined
-    staleTime: 1000 * 60 * 10,
+    enabled: !!propertyId,
+    staleTime: 1000 * 60 * 10, // 10 minutes
   });
 
   const keyInfo = useMemo<Record<string, string | undefined>>(() => {
     if (!house) return {};
     return {
-      "Property Type": house?.houseType?.[0],
-      "Listing Type": house?.propertyType,
+      "Property Type": house?.property_type,
+      "Listing Type": house?.offering_type == "Sale" ? "For Sale" : "For Rent",
       Furnishing: "Not Furnished",
-      Completion:
-        house?.rentParameter?.buildYear ||
-        house?.sellParameter?.buildYear ||
-        house?.newParameter?.handoverTime?.split(" ")[0],
+      "Property Name": house?.property_name,
       "Parking Availabilty": "Yes",
-      Developer: house?.developerName,
-      "Built-up Area": `${
-        house?.landSqM || house?.size || house?.newParameter?.maxSize
-      } Sqft`,
     };
   }, [house]);
-
-  // const { data: developers } = useQuery({
-  //   queryKey: ["develope"],
-  //   queryFn: async () => {
-  //     const res = await fetch(
-  //       `https://dataapi.pixxicrm.ae/pixxiapi/v1/developer/list`,
-  //       {
-  //         method: "POST",
-  //         headers: {
-  //           "X-PIXXI-TOKEN": access_token,
-  //           "Content-Type": "application/json",
-  //         },
-  //         body: JSON.stringify({
-  //           size: 100,
-  //         }),
-  //       }
-  //     );
-
-  //     const data = await res.json();
-  //     console.log("Raw Developer API response:", data);
-  //     return data; // ✅ Return the data so useQuery can store it
-  //   },
-  // });
-
-  // const { data: areas } = useQuery({
-  //   queryKey: ["communit", house?.regionName],
-  //   queryFn: async () => {
-  //     const res = await fetch(
-  //       `https://dataapi.pixxicrm.ae/pixxiapi/v1/search/${house?.regionName}`,
-  //       {
-  //         method: "POST",
-  //         headers: {
-  //           "X-PIXXI-TOKEN": access_token,
-  //           "Content-Type": "application/json",
-  //         },
-  //         body: JSON.stringify({
-  //           size: 100,
-  //         }),
-  //       }
-  //     );
-
-  //     const data = await res.json();
-  //     console.log("Raw Area API response:", data);
-  //     return data; // ✅ Return the data so useQuery can store it
-  //   },
-  // });
-
-  // const { data: agents } = useQuery({
-  //   queryKey: ["ajent"],
-  //   queryFn: async () => {
-  //     const res = await fetch(
-  //       `https://dataapi.pixxicrm.ae/pixxiapi/v1/agent/list`,
-  //       {
-  //         method: "GET",
-  //         headers: {
-  //           "X-PIXXI-TOKEN": access_token,
-  //         },
-  //       }
-  //     );
-
-  //     const data = await res.json();
-  //     console.log("Raw Agent API response:", data);
-  //     return data; // ✅ Return the data so useQuery can store it
-  //   },
-  // });
 
   const { data: agents } = useQuery({
     queryKey: ["agent_new"],
@@ -171,50 +84,6 @@ function PropertyOverview() {
       console.warn("Agent not found");
     }
   }, [agents, house, navigate]);
-
-  const { data: amenity } = useQuery({
-    queryKey: ["amenity"],
-    queryFn: async () => {
-      const res = await fetch(
-        `https://dataapi.pixxicrm.ae/pixxiapi/v1/amenities`,
-        {
-          method: "GET",
-          headers: {
-            "X-PIXXI-TOKEN": access_token,
-          },
-        }
-      );
-
-      const data = await res.json();
-      // console.log("Raw Amenity API response:", data);
-      return data; // ✅ Return the data so useQuery can store it
-    },
-  });
-
-  function getAmenityNames(codes: string, amenities: any[]) {
-    if (!codes || !amenities) return [];
-
-    const passedArray = codes.split(","); // split string into array
-
-    // map each code to its matching label
-    const result = passedArray
-      .map((code) => {
-        const found = amenities.find((a) => a.code === code);
-        return found ? found.label : null; // return label if found
-      })
-      .filter(Boolean); // remove nulls if any code wasn’t found
-
-    return result;
-  }
-
-  const amenityNames = useMemo(() => {
-    return getAmenityNames(
-      house?.newParameter?.amenities ||
-        house?.rentParameter?.amenities ||
-        house?.sellParameter?.amenities,
-      amenity?.data
-    );
-  }, [house, amenity]);
 
   const pp = house?.newParameter?.paymentPlan
     ? JSON.parse(house?.newParameter?.paymentPlan)
@@ -254,19 +123,19 @@ function PropertyOverview() {
             color="#BA7F55"
             className="uppercase tracking-widest mb-2"
           >
-            {house?.regionName}, {house?.cityName || ""}
+            {house?.community}, {house?.emirate || ""}
           </Typography>
           <Typography
             fontFamily="IT Medium"
             fontSize={{ lg: "50px", xs: "34px" }}
             className="mb-4"
           >
-            {house?.communityName || house?.name}
+            {house?.property_name || house?.name}
           </Typography>
         </div>
 
         <div className="lg:h-126 h-full">
-          <ImageGalleryPreview images={house?.photos} />
+          <ImageGalleryPreview images={house?.images} />
         </div>
 
         {/* Main Content: flex-row on md+, column on smaller */}
@@ -288,8 +157,7 @@ function PropertyOverview() {
                     style: "currency",
                     currency: "AED",
                   }).format(house?.price)}
-                  {house?.rentParameter?.priceType && "/"}{" "}
-                  {house?.rentParameter?.priceType}
+                  {house?.offering_type.toLowerCase() == "rent" && "/yr"}
                 </Typography>
                 <div className="flex gap-1 items-center">
                   <MapPin className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -297,7 +165,7 @@ function PropertyOverview() {
                     fontFamily={"IT Regular"}
                     fontSize={{ lg: "18px" }}
                   >
-                    {house?.regionName}, {house?.cityName}
+                    {house?.community}, {house?.emirate}
                   </Typography>
                 </div>
 
@@ -305,16 +173,17 @@ function PropertyOverview() {
 
                 {/* Property Detail */}
                 <div className="flex gap-3 h-10 items-center flex-wrap sm:flex-nowrap py-10">
-                  <div className="flex items-center gap-2">
-                    <Bed className="w-4 h-4 lg:w-5 lg:h-5 text-slate-400" />
-                    <Typography
-                      fontFamily={"IT Medium"}
-                      fontSize={{ lg: "18px" }}
-                    >
-                      {house?.newParameter?.bedroomMax || house?.bedRoomNum}{" "}
-                      Beds
-                    </Typography>
-                  </div>
+                  {house?.bedroom && (
+                    <div className="flex items-center gap-2">
+                      <Bed className="w-4 h-4 lg:w-5 lg:h-5 text-slate-400" />
+                      <Typography
+                        fontFamily={"IT Medium"}
+                        fontSize={{ lg: "18px" }}
+                      >
+                        {house?.bedroom} Beds
+                      </Typography>
+                    </div>
+                  )}
 
                   <Divider
                     orientation="vertical"
@@ -322,18 +191,17 @@ function PropertyOverview() {
                     className="hidden sm:block"
                   />
 
-                  <div className="flex items-center gap-2">
-                    <ShowerHead className="w-4 h-4 text-slate-400 lg:w-5 lg:h-5" />
-                    <Typography
-                      fontFamily={"IT Medium"}
-                      fontSize={{ lg: "18px" }}
-                    >
-                      {house?.bathrooms ||
-                        house?.newParameter?.bedroomMax ||
-                        house?.bedRoomNum}{" "}
-                      Bathrooms
-                    </Typography>
-                  </div>
+                  {house?.bathroom && (
+                    <div className="flex items-center gap-2">
+                      <ShowerHead className="w-4 h-4 text-slate-400 lg:w-5 lg:h-5" />
+                      <Typography
+                        fontFamily={"IT Medium"}
+                        fontSize={{ lg: "18px" }}
+                      >
+                        {house?.bathroom} Bathrooms
+                      </Typography>
+                    </div>
+                  )}
 
                   <Divider
                     orientation="vertical"
@@ -344,7 +212,7 @@ function PropertyOverview() {
                   <div className="flex items-center gap-2">
                     <Ruler className="w-4 h-4 text-slate-400 lg:w-5 lg:h-5" />
                     <Typography fontFamily={"IT Medium"}>
-                      {house?.newParameter?.maxSize || house?.size} Sqft
+                      {new Intl.NumberFormat().format(house?.size)} Sqft
                     </Typography>
                   </div>
                 </div>
@@ -360,10 +228,8 @@ function PropertyOverview() {
                     "Property Type",
                     "Listing Type",
                     "Furnishing",
-                    "Completion",
+                    "Property Name",
                     "Parking Availabilty",
-                    "Developer",
-                    "Built-up Area",
                   ].map((item, index) => (
                     <div
                       key={index}
@@ -516,8 +382,19 @@ function PropertyOverview() {
               </div>
             )}
 
-            {/* Location Map */}
+            {/* Title */}
             <div>
+              <Typography
+                fontFamily={"IT Regular"}
+                fontSize={{ lg: "30px" }}
+                className="italic"
+              >
+                {house?.title_en}
+              </Typography>
+            </div>
+
+            {/* Location Map */}
+            {/* <div>
               <div className="px-2 py-1">
                 {house?.newParameter?.position && (
                   <div>
@@ -555,30 +432,34 @@ function PropertyOverview() {
                   </div>
                 )}
               </div>
-            </div>
+            </div> */}
 
             {/* Amenities */}
-            <div>
-              <Typography
-                fontFamily={"DM Bold"}
-                fontSize={{ xs: "24px", md: "30px" }}
-              >
-                Amenities
-              </Typography>
+            {house?.commercial_amenities && (
+              <div>
+                <Typography
+                  fontFamily={"DM Bold"}
+                  fontSize={{ xs: "24px", md: "30px" }}
+                >
+                  Amenities
+                </Typography>
 
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-                {amenityNames.map((item, index) => (
-                  <Card key={index}>
-                    <CardContent style={{ fontFamily: "IT Medium" }}>
-                      {item}
-                    </CardContent>
-                  </Card>
-                ))}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+                  {house?.commercial_amenities?.map(
+                    (item: any, index: number) => (
+                      <Card key={index}>
+                        <CardContent style={{ fontFamily: "IT Medium" }}>
+                          {item}
+                        </CardContent>
+                      </Card>
+                    )
+                  )}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Overview */}
-            <div className="overview">
+            <div className="">
               <Typography
                 fontSize={{ lg: "30px", xs: "24px" }}
                 fontFamily="DM Bold"
@@ -589,7 +470,7 @@ function PropertyOverview() {
                 fontFamily={"IT Regular"}
                 style={{ whiteSpace: "pre-line" }}
               >
-                {house?.description}
+                {house?.description_en}
               </Typography>
             </div>
 
@@ -616,8 +497,6 @@ function PropertyOverview() {
               </div>
             )}
 
-            {/* Community Info */}
-
             {/* Morgage Calculator */}
             <div>
               <MortgageCalculator totalPrice={house?.price} />
@@ -634,17 +513,17 @@ function PropertyOverview() {
               <div className="w-full lg:w-[350px] py-5">
                 <div className="border border-gray-200 px-6 py-6 rounded-2xl shadow-lg bg-white flex flex-col gap-5">
                   {/* Agent Profile */}
-                  {house?.propertyFinderPortalAgentName ? (
+                  {house?.agent ? (
                     <div className="flex items-center gap-4">
                       <div
                         style={{
-                          backgroundImage: `url('${house?.propertyFinderPortalAgentAvatar}')`,
+                          backgroundImage: `url('${house?.agent.photo}')`,
                         }}
                         className="bg-cover bg-top rounded-full h-16 w-16 sm:h-20 sm:w-20"
                       />
                       <div>
                         <Typography fontFamily="IT Medium" className="text-lg">
-                          {house?.propertyFinderPortalAgentName}{" "}
+                          {house?.agent.name}{" "}
                           <BadgeCheck className="inline text-[#0B253F]" />
                         </Typography>
                         <Typography
@@ -664,42 +543,33 @@ function PropertyOverview() {
                     Book a Viewing Today
                   </Typography> */}
                   <div className="flex flex-col gap-3">
-                    <a>
-                      <button
-                        style={{ fontFamily: "GT Bold" }}
-                        className="mt-3 bg-[#0B253F] text-white px-4 py-2 rounded-lg text-md w-full"
-                      >
-                        Book A Viewing
-                      </button>
-                    </a>
-
-                    <a href={`https://wa.me/${house?.agentPhone}`}>
+                    <a href={`https://wa.me/${house?.agent.phone}`}>
                       <button
                         style={{ fontFamily: "GT Bold" }}
                         className="bg-green-500 px-4 py-3 flex items-center gap-3 rounded-md text-white justify-center w-full"
                       >
-                        <FaWhatsapp /> Whatsapp Agent
+                        <FaWhatsapp /> Whatsapp Amana
                       </button>
                     </a>
 
-                    <a href={`tel:‎${house?.agentPhone}`}>
+                    <a href={`tel:‎${house?.agent.phone}`}>
                       <button
                         style={{ fontFamily: "GT Bold" }}
                         className="bg-[#FF9800] px-4 py-3 flex items-center gap-3 rounded-md text-white justify-center w-full"
                       >
-                        <Phone /> Call Agent
+                        <Phone /> Call Amana
                       </button>
                     </a>
 
                     <a
-                      href={`https://mail.google.com/mail/?view=cm&fs=1&to=${house?.agentEmail}`}
+                      href={`https://mail.google.com/mail/?view=cm&fs=1&to=${house?.agent.email}`}
                       target="_blank"
                     >
                       <button
                         style={{ fontFamily: "GT Bold" }}
                         className="bg-[#EA4335] px-4 py-3 flex items-center gap-3 rounded-md text-white justify-center w-full"
                       >
-                        <Mail /> Email Agent
+                        <Mail /> Email Amana
                       </button>
                     </a>
                   </div>
@@ -707,46 +577,13 @@ function PropertyOverview() {
                     fontFamily="IT Light"
                     className="text-xs text-gray-500 text-center"
                   >
-                    No obligation. Agent will contact you within 1h.
+                    No obligation. Amana will contact you within 1h.
                   </Typography>
                 </div>
               </div>
             </div>
           </div>
         </div>
-
-        {/* Browse More Properties */}
-        {/* <div className="py-0">
-          <div className="flex justify-between items-center py-10 flex-col sm:flex-row gap-4 sm:gap-0">
-            <Typography
-              fontFamily={"IT Medium"}
-              fontSize={{ xs: "28px", lg: "35px" }}
-            >
-              Similar Properties
-            </Typography>
-            <button
-              className="bg-[#0B253F] px-4 py-2 sm:px-5 sm:py-3 rounded-xl w-full sm:w-auto"
-              onClick={handleProperties}
-            >
-              <span
-                className="text-white text-base sm:text-[16px]"
-                style={{ fontFamily: "MT Medium" }}
-              >
-                All Properties
-              </span>
-            </button>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            {randomProperties?.map((item, index) => (
-              <PropertyCard
-                key={index}
-                item={item}
-                onClick={() => handleDetails(item.propertyId)}
-              />
-            ))}
-          </div>
-        </div> */}
 
         {/* Contact Form */}
         <div className="bg-white shadow-lg border border-gray-200 rounded-3xl px-4 sm:px-8 py-10 flex flex-col items-center max-w-3xl mx-auto mb-1 lg:mb-20">
