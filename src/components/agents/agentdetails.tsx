@@ -93,7 +93,7 @@ function AgentDetails() {
 
   return (
     <div className="">
-      <div className="lg:px-40 mx-auto py-10 lg:py-16 px-5">
+      <div className="lg:px-20 xl:px-40 mx-auto py-10 lg:py-16 px-5">
         {/* ---------- HERO SECTION (Same as Offplan) ---------- */}
         <div className="grid lg:grid-cols-2 gap-10 items-center">
           <div className="max-w-2xl">
@@ -209,7 +209,7 @@ function AgentDetails() {
                 </TabsList>
               </Tabs>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6">
                 {combinedListings.length
                   ? combinedListings.map((item) => (
                       <motion.div

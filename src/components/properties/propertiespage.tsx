@@ -81,7 +81,7 @@ const transformProperties = (items: any[]): Listing[] => {
 function PropertiesPage() {
   const navigate = useNavigate();
   const { type } = useParams();
-  const itemsPerPage = 12;
+  const itemsPerPage = 15;
   const location = useLocation();
 
   const [filters, setFilters] = useState<Filters>({});

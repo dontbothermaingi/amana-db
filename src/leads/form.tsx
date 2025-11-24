@@ -22,6 +22,7 @@ type FormProps = {
   email: string; // Required
   phone: string; // Required
   nationality: string;
+  description: string;
   budget: string;
   preferredSize: string;
   propertyType: string;
@@ -58,6 +59,7 @@ function Form({ propertyId, extraData, formType = "default" }: childProps) {
     projectType: "",
     bedrooms: "",
     paymentMethod: "",
+    description: "",
     buyerType: "",
     gender: "",
     preferredDeveloper: "",
@@ -68,7 +70,6 @@ function Form({ propertyId, extraData, formType = "default" }: childProps) {
       referalls_interest: "",
     },
   });
-  const access_token = "gUD5QIKlscK-vPRxPZfDBOfnGuSEyrZl";
   const [openSnackBar, setOpenSnackBar] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -99,11 +100,13 @@ function Form({ propertyId, extraData, formType = "default" }: childProps) {
     // const form_id = crypto.randomUUID();
 
     const dataForm = {
-      formId: "4042ac1b-921f-4098-8bf4-01f2f24dc3fa",
+      // formId: "4042ac1b-921f-4098-8bf4-01f2f24dc3fa",
       propertyReference: propertyId || "No property reference",
       name: formData?.name || "",
       email: formData?.email || "",
       phone: formData?.phone || "",
+      description: formData?.description || "",
+      propertyType: formData?.propertyType || "",
       extraData:
         extraData && Object.keys(extraData).length > 0
           ? extraData
@@ -112,13 +115,12 @@ function Form({ propertyId, extraData, formType = "default" }: childProps) {
 
     console.log("Submitting form data:", dataForm);
 
-    fetch("https://dataapi.pixxicrm.ae/pixxiapi/webhook/v1/form", {
+    fetch("https://db-amana.onrender.com/send-email", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-PIXXI-TOKEN": access_token,
       },
-      // body: JSON.stringify(dataForm),
+      body: JSON.stringify(dataForm),
     })
       .then((response) => response.json())
       .then((data) => {
@@ -136,6 +138,7 @@ function Form({ propertyId, extraData, formType = "default" }: childProps) {
           preferredSize: "",
           propertyType: "",
           furnishing: "",
+          description: "",
           projectType: "",
           bedrooms: "",
           paymentMethod: "",
@@ -365,6 +368,20 @@ function Form({ propertyId, extraData, formType = "default" }: childProps) {
             </Select>
           </div>
         )}
+
+        <TextField
+          fullWidth
+          type="text"
+          value={formData?.description || ""}
+          onChange={handleChange}
+          name="description"
+          placeholder="Message"
+          variant="outlined"
+          multiline
+          minRows={5}
+          maxRows={20}
+          sx={{ mb: 2 }}
+        />
 
         <Button
           onClick={() =>

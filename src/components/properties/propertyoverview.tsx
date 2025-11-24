@@ -72,8 +72,8 @@ function PropertyOverview() {
   const handleDetails = useCallback(() => {
     const agent = agents?.find(
       (item: any) =>
-        item.name.toLowerCase().trim() ===
-        house?.propertyFinderPortalAgentName.toLowerCase().trim()
+        item.email.toLowerCase().trim() ===
+        house?.agent.email.toLowerCase().trim()
     );
 
     console.log("Agent", agent);
@@ -89,6 +89,39 @@ function PropertyOverview() {
     ? JSON.parse(house?.newParameter?.paymentPlan)
     : [];
 
+  function setPicture(agent: any) {
+    let pic = "";
+    switch (agent.email) {
+      case "Guergana@amanahomes.ae":
+        pic = "/GG.JPG";
+        break;
+      case "attique@amanahomes.ae":
+        pic = "/ATTIQUE.JPG";
+        break;
+      case "charlotte@amanahomes.ae":
+        pic = "/CHARL.JPG";
+        break;
+      case "mohamedfahmy@amanahomes.ae":
+        pic = "/MO.JPG";
+        break;
+      case "fatima@amanahomes.ae":
+        pic = "/FATIMA.JPG";
+        break;
+      case "faizan@amanahomes.ae":
+        pic = "/FAIZAN.JPG";
+        break;
+      case "muhammadanas@amanahomes.ae":
+        pic = "/ANAS.JPG";
+        break;
+      case "mark@amanahomes.ae":
+        pic = "/MARK.JPG";
+        break;
+      default:
+        pic = "/amana-logo.png";
+    }
+
+    return pic;
+  }
   return (
     <div className="relative flex flex-col gap-10">
       {isMobile ? (
@@ -503,82 +536,122 @@ function PropertyOverview() {
             </div>
           </div>
 
-          {/* Right Sidebar */}
-          <div
-            className="sticky top-0 self-start w-full md:w-full py-0 lg:py-5 cursor-pointer"
-            onClick={handleDetails}
-          >
+          {/* Right Sidebar - Full Image Overlay Version */}
+          <div className="sticky top-24 self-start w-full md:w-full py-0 lg:py-5">
             <div className="w-full flex flex-col items-center gap-5 justify-center">
-              {/* Agent Information */}
-              <div className="w-full lg:w-[350px] py-5">
-                <div className="border border-gray-200 px-6 py-6 rounded-2xl shadow-lg bg-white flex flex-col gap-5">
-                  {/* Agent Profile */}
-                  {house?.agent ? (
-                    <div className="flex items-center gap-4">
-                      <div
-                        style={{
-                          backgroundImage: `url('${house?.agent.photo}')`,
-                        }}
-                        className="bg-cover bg-top rounded-full h-16 w-16 sm:h-20 sm:w-20"
-                      />
-                      <div>
-                        <Typography fontFamily="IT Medium" className="text-lg">
-                          {house?.agent.name}{" "}
-                          <BadgeCheck className="inline text-[#0B253F]" />
-                        </Typography>
-                        <Typography
-                          fontFamily="IT Regular"
-                          className="text-sm text-gray-500"
-                        >
-                          Verified Agent
-                        </Typography>
-                      </div>
-                    </div>
-                  ) : (
-                    <Typography>Loading agent info...</Typography>
-                  )}
+              {/* Agent Card Container */}
+              <div
+                className="relative w-full lg:w-[500px] h-[600px] rounded-3xl overflow-hidden shadow-2xl group cursor-pointer"
+                onClick={handleDetails}
+              >
+                {/* 1. Background ImageLayer */}
+                {house?.agent ? (
+                  <div
+                    className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
+                    style={{
+                      backgroundImage: `url('${setPicture(house.agent)}')`,
+                    }}
+                  />
+                ) : (
+                  <div className="absolute inset-0 bg-gray-200 animate-pulse" />
+                )}
 
-                  {/* Contact CTA
-                  <Typography fontFamily="MT Medium" className="text-center">
-                    Book a Viewing Today
-                  </Typography> */}
-                  <div className="flex flex-col gap-3">
-                    <a href={`https://wa.me/${house?.agent.phone}`}>
-                      <button
-                        style={{ fontFamily: "GT Bold" }}
-                        className="bg-green-500 px-4 py-3 flex items-center gap-3 rounded-md text-white justify-center w-full"
-                      >
-                        <FaWhatsapp /> Whatsapp Amana
-                      </button>
-                    </a>
+                {/* 2. Dark Gradient Overlay Layer */}
+                {/* This ensures text legibility. It fades from solid navy at the bottom to transparent at the top. */}
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0B253F] via-[#0B253F]/80 to-transparent opacity-95"></div>
 
-                    <a href={`tel:‎${house?.agent.phone}`}>
-                      <button
-                        style={{ fontFamily: "GT Bold" }}
-                        className="bg-[#FF9800] px-4 py-3 flex items-center gap-3 rounded-md text-white justify-center w-full"
-                      >
-                        <Phone /> Call Amana
-                      </button>
-                    </a>
-
-                    <a
-                      href={`https://mail.google.com/mail/?view=cm&fs=1&to=${house?.agent.email}`}
-                      target="_blank"
+                {/* 3. Content Layer (Pushed to bottom) */}
+                <div className="relative z-10 h-full flex flex-col justify-end p-8 text-white">
+                  {/* Verified Badge & Name */}
+                  <div className="mb-6">
+                    <div
+                      style={{ fontFamily: "IT Medium" }}
+                      className="flex items-center gap-2 mb-2 text-[#BA7F55]"
                     >
-                      <button
-                        style={{ fontFamily: "GT Bold" }}
-                        className="bg-[#EA4335] px-4 py-3 flex items-center gap-3 rounded-md text-white justify-center w-full"
+                      <BadgeCheck className="w-5 h-5" />
+                      <Typography
+                        fontFamily="IT Bold"
+                        className="uppercase tracking-wider"
+                        fontSize={{ xs: "14px" }}
                       >
-                        <Mail /> Email Amana
-                      </button>
-                    </a>
+                        Verified Agent
+                      </Typography>
+                    </div>
+                    <Typography
+                      fontFamily="DM Bold"
+                      fontSize={{ xs: "25px", lg: "32px" }}
+                      className="leading-tight"
+                    >
+                      {house?.agent?.name || "Loading..."}
+                    </Typography>
+                    <Typography
+                      fontFamily="IT Light"
+                      className="text-gray-300 text-lg mt-1"
+                    >
+                      Senior Property Consultant
+                    </Typography>
                   </div>
-                  <Typography
-                    fontFamily="IT Light"
-                    className="text-xs text-gray-500 text-center"
-                  >
-                    No obligation. Amana will contact you within 1h.
-                  </Typography>
+
+                  {/* Action Buttons */}
+                  <div className="flex flex-col gap-3">
+                    {/* Primary Action: WhatsApp */}
+                    <a
+                      href={`https://wa.me/${house?.agent?.phone}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      onClick={(e) => e.stopPropagation()} // Prevents triggering the card click
+                    >
+                      <Button
+                        className="w-full bg-[#25D366] hover:bg-[#1ebd59] text-white py-5 lg:py-0 lg:h-14 lg:text-lg shadow-lg"
+                        style={{ fontFamily: "GT Bold" }}
+                      >
+                        <FaWhatsapp className="w-6 h-6 mr-3" />
+                        WhatsApp Amana
+                      </Button>
+                    </a>
+
+                    {/* Secondary Actions Grid */}
+                    <div className="grid grid-cols-2 gap-3">
+                      <a
+                        href={`tel:${house?.agent?.phone}`}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <Button
+                          variant="outline"
+                          // Glassmorphism style button
+                          className="w-full border-white/30 bg-white/10 text-white hover:bg-white hover:text-[#0B253F] h-12 transition-all backdrop-blur-md"
+                          style={{ fontFamily: "IT Medium" }}
+                        >
+                          <Phone className="w-4 h-4 mr-2" />
+                          Call
+                        </Button>
+                      </a>
+                      <a
+                        href={`mailto:${house?.agent?.email}`}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <Button
+                          variant="outline"
+                          className="w-full border-white/30 bg-white/10 text-white hover:bg-[#BA7F55] hover:border-[#BA7F55] h-12 transition-all backdrop-blur-md"
+                          style={{ fontFamily: "IT Medium" }}
+                        >
+                          <Mail className="w-4 h-4 mr-2" />
+                          Email
+                        </Button>
+                      </a>
+                    </div>
+                  </div>
+
+                  {/* Subtle "View Profile" hint */}
+                  {/* <div className="mt-6 text-center opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
+                    <Typography
+                      fontFamily="IT Regular"
+                      className="text-sm text-[#BA7F55] flex items-center justify-center gap-2"
+                    >
+                      View Full Profile{" "}
+                      <ArrowLeft className="w-4 h-4 rotate-180" />
+                    </Typography>
+                  </div> */}
                 </div>
               </div>
             </div>
@@ -617,7 +690,7 @@ function PropertyOverview() {
 
           {/* Form */}
           <Form
-            propertyId={house?.propertyId || ""}
+            propertyId={house?.reference_number || ""}
             extraData={{ property_name: house?.communityName || house?.name }}
             formType="default"
           />

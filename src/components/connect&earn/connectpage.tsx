@@ -26,7 +26,7 @@ function ConnectAndEarn() {
           className={`absolute h-full w-full ${
             isMobile
               ? "bg-gradient-to-t from-black/90 to-black/10"
-              : "bg-gradient-to-r from-black/90 to-black/20"
+              : "bg-gradient-to-r from-black/80 to-transparent"
           }`}
         />
 
