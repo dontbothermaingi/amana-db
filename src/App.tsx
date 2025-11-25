@@ -2,7 +2,7 @@ import { Route, Routes } from "react-router-dom";
 import "./App.css";
 import Page from "./components/landingpage/page";
 import PropertiesPage from "./components/properties/propertiespage";
-import Navbar from "./components/landingpage/navbar";
+// import Navbar from "./components/landingpage/navbar";
 import "leaflet/dist/leaflet.css";
 import PropertyOverview from "./components/properties/propertyoverview";
 import OffPlan from "./components/offplanproperties/offplanpage";
@@ -19,6 +19,7 @@ import ScrollToTop from "./ScrollTop";
 import ContactUs from "./components/contactus/contactpage";
 import { LoginPage } from "./components/Authentication/loginpage";
 import AdminPage from "./components/admin/page";
+import StaggeredMenu from "./components/ui/StaggeredMenu";
 
 const LOADER_KEY = "loadershowdown";
 const LOADER_EXPIRE = 1000 * 60 * 60 * 2;
@@ -59,13 +60,51 @@ function App() {
     return () => clearTimeout(fadeOutTimer);
   }, [loading]);
 
+  const menuItems = [
+    { label: "Home", ariaLabel: "Go to home page", link: "/" },
+    {
+      label: "For Sale",
+      ariaLabel: "Learn about us",
+      link: "/sale/public-listings",
+    },
+    {
+      label: "For Rent",
+      ariaLabel: "View our services",
+      link: "/rent/public-listings",
+    },
+    { label: "OffPlan", ariaLabel: "Get in touch", link: "/off-plan" },
+    { label: "About Us", ariaLabel: "Learn about us", link: "/about-us" },
+    { label: "The Team", ariaLabel: "View our team", link: "/amana-team" },
+    { label: "Connect & Earn", ariaLabel: "Connect and earn", link: "/earn" },
+    {
+      label: "Renovations",
+      ariaLabel: "View renovation services",
+      link: "/luxury-renovations-dubai",
+    },
+    { label: "Contact Us", ariaLabel: "Get in touch", link: "/contact-us" },
+  ];
+
+  const socialItems = [
+    { label: "Twitter", link: "https://x.com/amanahomesllc" },
+    {
+      label: "Instagram",
+      link: " https://www.instagram.com/amanahomes_realestate",
+    },
+    { label: "TikTok", link: "https://www.tiktok.com/@amanahomesrealestate" },
+    { label: "YouTube", link: "https://www.youtube.com/@AmanaHomesRealEstate" },
+    {
+      label: "Facebook",
+      link: "https://www.facebook.com/amanahomesrealestate/",
+    },
+  ];
+
   return (
     <div className="relative h-screen">
       <ScrollToTop />
 
       {loading && (
         <div
-          className={`fixed inset-0 z-[99999] transition-opacity duration-[${FADE_DURATION_MS}ms] ${
+          className={`fixed inset-0 transition-opacity duration-[${FADE_DURATION_MS}ms] ${
             fadeOut ? "opacity-0" : "opacity-100"
           }`}
         >
@@ -80,11 +119,33 @@ function App() {
           loading && !fadeOut ? "opacity-0" : "opacity-100"
         }`}
       >
-        <div className="fixed bottom-10 w-full flex flex-col justify-center items-center z-[999]">
+        {/* <div className="fixed bottom-10 w-full flex flex-col justify-center items-center z-[999]">
           <div className="w-full">
             <Navbar />
           </div>
-        </div>
+        </div> */}
+
+        {/* <div
+          style={{ height: "100vh", background: "" }}
+          className="fixed inset-0 top-0 left-0 overflow-hidden"
+        > */}
+        <StaggeredMenu
+          position="right"
+          items={menuItems}
+          socialItems={socialItems}
+          displaySocials={true}
+          displayItemNumbering={true}
+          menuButtonColor="white"
+          openMenuButtonColor="white"
+          changeMenuColorOnOpen={true}
+          colors={["#B19EEF", "#5227FF"]}
+          logoUrl="/amana.svg"
+          accentColor="#ff6b6b"
+          onMenuOpen={() => console.log("Menu opened")}
+          onMenuClose={() => console.log("Menu closed")}
+          isFixed={true}
+        />
+        {/* </div> */}
 
         <Routes>
           <Route path="/login" element={<LoginPage />} />

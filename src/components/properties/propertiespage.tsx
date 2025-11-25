@@ -263,7 +263,7 @@ function PropertiesPage() {
           <Divider className="my-3" />
 
           {/* Sticky Filter Bar */}
-          <div className="sticky top-0 z-[9999] shadow-md shadow-black/10">
+          <div className="shadow-md shadow-black/10">
             <PropertyFilterBar onFilterChange={setFilters} type={type ?? ""} />
           </div>
 

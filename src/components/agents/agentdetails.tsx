@@ -93,7 +93,7 @@ function AgentDetails() {
 
   return (
     <div className="">
-      <div className="lg:px-20 xl:px-40 mx-auto py-10 lg:py-16 px-5">
+      <div className="lg:px-20 xl:px-20 mx-auto py-10 lg:py-16 px-5">
         {/* ---------- HERO SECTION (Same as Offplan) ---------- */}
         <div className="grid lg:grid-cols-2 gap-10 items-center">
           <div className="max-w-2xl">
@@ -195,7 +195,7 @@ function AgentDetails() {
                 className="text-2xl font-semibold mb-4 pt-5"
                 style={{ fontFamily: "IT Bold" }}
               >
-                Listings
+                Properties
               </h3>
 
               <Tabs defaultValue="sale" className="mb-6">

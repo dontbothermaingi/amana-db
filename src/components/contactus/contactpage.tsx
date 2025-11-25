@@ -1,29 +1,15 @@
 import Form from "@/leads/form";
-import { Box, Typography } from "@mui/material";
-import { Mail, MapPin, Phone } from "lucide-react";
+import { WhatsApp } from "@mui/icons-material";
+import { Typography } from "@mui/material";
+import { Mail, Phone } from "lucide-react";
 import { useMemo } from "react";
 
 function ContactUs() {
-  const cards = [
-    {
-      id: 1,
-      title: "Address",
-      desc: "104, The Offices, 22nd street - 3rd - Arjan - Al Barsha South - Dubai",
-      icon: <MapPin className="w-10 h-10 text-[#BA7F55]" />,
-    },
-    {
-      id: 2,
-      title: "Phone",
-      desc: "+971529512700",
-      icon: <Phone className="w-10 h-10 text-[#BA7F55]" />,
-    },
-    {
-      id: 3,
-      title: "Email",
-      desc: "info@amanahomes.ae",
-      icon: <Mail className="w-10 h-10 text-[#BA7F55]" />,
-    },
-  ];
+  const contactDetails = {
+    whatsapp: "971529512700", // Format: CountryCode+Number (No + sign)
+    phone: "+971529512700",
+    email: "info@amanahomes.ae",
+  };
 
   const iFrame = useMemo(
     () => (
@@ -42,67 +28,86 @@ function ContactUs() {
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Header */}
-      <div className="flex flex-col items-center justify-center py-10 px-6 text-center max-w-6xl mx-auto">
-        <Typography
-          fontFamily="IT Medium"
-          color="#BA7F55"
-          className="uppercase tracking-widest mb-2"
-        >
-          Contact us
-        </Typography>
-        <Typography
-          fontFamily="IT Medium"
-          fontSize={{ lg: "50px", xs: "34px" }}
-          className="mb-4"
-        >
-          Get in Touch With Us
-        </Typography>
-        <Typography
-          fontFamily="IT Light"
-          className="text-gray-600 leading-relaxed"
-        >
-          Our Dubai real estate team is here to answer your questions, explore
-          investment opportunities, and help you find the right property.
-        </Typography>
-      </div>
+      {/* Hero */}
+      <div className="relative bg-[url('/GG.jpg')] lg:bg-[url('/FATIMA.JPG')] bg-cover bg-right lg:bg-top h-screen">
+        <div className="absolute inset-0 bg-gradient-to-t lg:bg-gradient-to-r from-black/85 via-black/40 lg:via-black/20 to-transparent h-full w-full" />
+        <div className="absolute inset-x-4 lg:inset-x-20 bottom-24 lg:bottom-28 text-left z-20">
+          <div className="max-w-3xl">
+            <Typography
+              component="h3"
+              fontFamily="IT Medium"
+              color="#BA7F55"
+              className="uppercase tracking-widest mb-3 text-sm lg:text-base"
+            >
+              Contact Us
+            </Typography>
 
-      {/* Info Cards */}
-      <Box
-        className="px-4 md:px-10 lg:px-20 py-0 lg:py-1"
-        display="grid"
-        gridTemplateColumns={{
-          xs: "1fr",
-          sm: "repeat(2, 1fr)",
-          md: "repeat(3, 1fr)",
-        }}
-        gap={4}
-      >
-        {cards.map((card) => (
-          <div
-            key={card.id}
-            className="bg-[#0B253F] flex flex-col gap-3 p-6 rounded-xl h-full"
-          >
-            {card.icon}
-            <div>
-              <Typography
-                color="#BA7F55"
-                fontFamily={"IT Medium"}
-                fontSize="24px"
-                className="mb-1 pt-20"
+            <Typography
+              component="h1"
+              fontFamily="IT Medium"
+              color="white"
+              sx={{ fontSize: { xs: "34px", md: "48px", lg: "64px" } }}
+              className="leading-tight mb-4"
+              lineHeight={1.1}
+            >
+              Get In Touch With Us
+            </Typography>
+
+            <Typography
+              fontFamily="IT Light"
+              className="text-gray-100 leading-relaxed max-w-2xl mb-6 text-sm lg:text-lg"
+            >
+              Our team is dedicated to earning your trust whether you’re buying,
+              selling, renting, or investing by focusing on your unique
+              priorities and helping you navigate the complexity of the market
+              to find the perfect property match.
+            </Typography>
+
+            <div className="mt-8 flex flex-wrap gap-4">
+              {/* WhatsApp Button */}
+              <a
+                href={`https://wa.me/${contactDetails.whatsapp}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex items-center gap-3 px-6 py-3 rounded-2xl bg-[#25D366] text-white hover:bg-[#1ebc57] transition-all duration-300 shadow-lg hover:shadow-green-500/30 hover:-translate-y-1"
               >
-                {card.title}
-              </Typography>
-              <Typography color="white" fontFamily={"DM Light"}>
-                {card.desc}
-              </Typography>
+                <WhatsApp className="w-5 h-5" />
+                <span className="font-medium">WhatsApp</span>
+              </a>
+
+              {/* Call Button */}
+              <a
+                href={`tel:${contactDetails.phone.replace(/\s/g, "")}`}
+                className="group flex items-center gap-3 px-6 py-3 rounded-2xl bg-[#0B253F] border border-white/20 text-white hover:bg-[#163a5e] transition-all duration-300 shadow-lg hover:shadow-blue-500/30 hover:-translate-y-1"
+              >
+                <Phone className="w-5 h-5" />
+                <span className="font-medium">Call Us</span>
+              </a>
+
+              {/* Email Button */}
+              <a
+                href={`mailto:${contactDetails.email}`}
+                className="group flex items-center gap-3 px-6 py-3 rounded-2xl bg-[#BA7F55] text-white hover:bg-[#a66f48] transition-all duration-300 shadow-lg hover:shadow-orange-500/30 hover:-translate-y-1"
+              >
+                <Mail className="w-5 h-5" />
+                <span className="font-medium">Email</span>
+              </a>
             </div>
           </div>
-        ))}
-      </Box>
+        </div>
+      </div>
 
       {/* Map */}
-      <div className="px-4 md:px-10 lg:px-20 pb-10">{iFrame}</div>
+      <div className="px-4 md:px-10 lg:px-20 pb-10 mt-10">
+        <Typography
+          fontFamily={"IT Bold"}
+          fontSize={{ lg: "30px" }}
+          sx={{ pb: "10px" }}
+        >
+          Location
+        </Typography>
+        {iFrame}
+      </div>
 
       {/* Contact Form */}
       <section className="px-4 md:px-10 lg:px-20 py-10">

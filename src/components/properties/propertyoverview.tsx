@@ -125,7 +125,7 @@ function PropertyOverview() {
   return (
     <div className="relative flex flex-col gap-10">
       {isMobile ? (
-        <div className="fixed top-3 left-3">
+        <div className="fixed top-3 left-3 z-[999999999999999999999999999999999999999999999]">
           <div
             style={{ fontFamily: "IT Medium" }}
             onClick={() => handleGoBack()}

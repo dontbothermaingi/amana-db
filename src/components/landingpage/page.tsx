@@ -2,6 +2,7 @@ import { Typography, useMediaQuery } from "@mui/material";
 import { Button } from "../ui/button";
 import { useNavigate } from "react-router";
 import { memo } from "react";
+// import Magnet from "../ui/Magnet";
 
 // Predefine text constants
 const MOBILE_TEXT =
@@ -56,13 +57,17 @@ const Page = () => {
             {isMobile ? MOBILE_TEXT : DESKTOP_TEXT}
           </Typography>
 
-          {isMobile && (
+          {!isMobile && (
+            // <Magnet padding={50} disabled={false} magnetStrength={1}>
             <Button
-              onClick={() => navigate("/SELL/public-listings")}
-              className="flex items-center mt-5 gap-2 px-4 py-2 rounded-2xl border border-white/30 bg-white/10 text-white hover:bg-white hover:text-[#0B253F] transition"
+              onClick={() => navigate("/sale/public-listings")}
+              style={{ fontFamily: "IT Bold" }}
+              className="flex items-center mt-10 gap-2 px-4 py-2 lg:px-5 lg:py-5 lg:text-lg rounded-2xl border border-white/30 bg-white hover:bg-white text-[#0B253F] transition z-[999] cursor-pointer"
             >
               Explore Properties
             </Button>
+            //{" "}
+            // </Magnet>
           )}
         </div>
       </div>
