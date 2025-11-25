@@ -121,132 +121,132 @@
 
 @font-face {
   font-family: "DM Bold";
-  src: url("/src/components/fonts/DMSans-Bold.ttf");
+  src: url("/fonts/DMSans-Bold.ttf");
 }
 
 @font-face {
   font-family: "DM SemiBold";
-  src: url("./components/fonts/DMSans-SemiBold.ttf");
+  src: url("/fonts/DMSans-SemiBold.ttf");
 }
 
 @font-face {
   font-family: "DM Medium";
-  src: url("./components/fonts/DMSans-Medium.ttf");
+  src: url("/fonts/DMSans-Medium.ttf");
 }
 
 @font-face {
   font-family: "DM Regular";
-  src: url("./components/fonts/DMSans-Regular.ttf");
+  src: url("/fonts/DMSans-Regular.ttf");
 }
 
 @font-face {
   font-family: "DM Light";
-  src: url("./components/fonts/DMSans-Light.ttf");
+  src: url("/fonts/DMSans-Light.ttf");
 }
 
 @font-face {
   font-family: "DM Thin";
-  src: url("./components/fonts/DMSans-Thin.ttf");
+  src: url("/fonts/DMSans-Thin.ttf");
 }
 
 @font-face {
   font-family: "GT Bold";
-  src: url("./components/fonts/GTWalsheimPro-Bold.ttf");
+  src: url("/fonts/GTWalsheimPro-Bold.ttf");
 }
 
 @font-face {
   font-family: "GT Medium";
-  src: url("./components/fonts/GTWalsheimPro-Medium.ttf");
+  src: url("/fonts/GTWalsheimPro-Medium.ttf");
 }
 
 @font-face {
   font-family: "GT Regular";
-  src: url("./components/fonts/GTWalsheimPro-Regular.ttf");
+  src: url("/fonts/GTWalsheimPro-Regular.ttf");
 }
 
 @font-face {
   font-family: "GT Light";
-  src: url("./components/fonts/GTWalsheimPro-Light.ttf");
+  src: url("/fonts/GTWalsheimPro-Light.ttf");
 }
 
 @font-face {
   font-family: "RM Bold";
-  src: url("./components/fonts/RobotoMono-Bold.ttf");
+  src: url("/fonts/RobotoMono-Bold.ttf");
 }
 
 @font-face {
   font-family: "RM ExtraLight";
-  src: url("./components/fonts/RobotoMono-ExtraLight.ttf");
+  src: url("/fonts/RobotoMono-ExtraLight.ttf");
 }
 
 @font-face {
   font-family: "RM Regular";
-  src: url("./components/fonts/RobotoMono-Regular.ttf");
+  src: url("/fonts/RobotoMono-Regular.ttf");
 }
 
 @font-face {
   font-family: "RM Light";
-  src: url("./components/fonts/RobotoMono-Light.ttf");
+  src: url("/fonts/RobotoMono-Light.ttf");
 }
 
 @font-face {
   font-family: "RM Medium";
-  src: url("./components/fonts/RobotoMono-Medium.ttf");
+  src: url("/fonts/RobotoMono-Medium.ttf");
 }
 
 @font-face {
   font-family: "MT Regular";
-  src: url("./components/fonts/Montserrat-Regular.ttf");
+  src: url("/fonts/Montserrat-Regular.ttf");
 }
 
 @font-face {
   font-family: "MT Medium";
-  src: url("./components/fonts/Montserrat-Medium.ttf");
+  src: url("/fonts/Montserrat-Medium.ttf");
 }
 
 @font-face {
   font-family: "IT Bold";
-  src: url("./components/fonts/Inter_18pt-Bold.ttf");
+  src: url("/fonts/Inter_18pt-Bold.ttf");
 }
 
 @font-face {
   font-family: "IT Medium";
-  src: url("./components/fonts/Inter_18pt-Medium.ttf");
+  src: url("/fonts/Inter_18pt-Medium.ttf");
 }
 
 @font-face {
   font-family: "IT Regular";
-  src: url("./components/fonts/Inter_18pt-Regular.ttf");
+  src: url("/fonts/Inter_18pt-Regular.ttf");
 }
 
 @font-face {
   font-family: "IT Light";
-  src: url("./components/fonts/Inter_18pt-Light.ttf");
+  src: url("/fonts/Inter_18pt-Light.ttf");
 }
 
 @font-face {
   font-family: "MT Bold";
-  src: url("./components/fonts/Montserrat-Bold.ttf");
+  src: url("/fonts/Montserrat-Bold.ttf");
 }
 
 @font-face {
   font-family: "MH Bold";
-  src: url("./components/fonts/MozillaHeadline-Bold.ttf");
+  src: url("/fonts/MozillaHeadline-Bold.ttf");
 }
 
 @font-face {
   font-family: "MH SemiBold";
-  src: url("./components/fonts/MozillaHeadline_Condensed-SemiBold.ttf");
+  src: url("/fonts/MozillaHeadline_Condensed-SemiBold.ttf");
 }
 
 @font-face {
   font-family: "MH Medium";
-  src: url("./components/fonts/MozillaHeadline_Condensed-Medium.ttf");
+  src: url("/fonts/MozillaHeadline_Condensed-Medium.ttf");
 }
 
 @font-face {
   font-family: "PT Regular";
-  src: url("./components/fonts/PTSansNarrow-Regular.ttf");
+  src: url("/fonts/PTSansNarrow-Regular.ttf");
 }
 
 .animate-fade-in {

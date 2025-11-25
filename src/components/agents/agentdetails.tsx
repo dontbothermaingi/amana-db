@@ -192,10 +192,10 @@ function AgentDetails() {
             {/* ACTIVE LISTINGS */}
             <section ref={listRef}>
               <h3
-                className="text-2xl font-semibold mb-4"
+                className="text-2xl font-semibold mb-4 pt-5"
                 style={{ fontFamily: "IT Bold" }}
               >
-                Active Listings
+                Listings
               </h3>
 
               <Tabs defaultValue="sale" className="mb-6">

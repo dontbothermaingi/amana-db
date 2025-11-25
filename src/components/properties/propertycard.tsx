@@ -25,6 +25,40 @@ const PropertyCard = React.memo(function PropertyCard({
   const mainPhoto =
     hasPhotosArray && item.photos.length > 0 ? item.photos[0] : item?.photos;
 
+  function setPicture(agent: any) {
+    let pic = "";
+    switch (agent.email) {
+      case "Guergana@amanahomes.ae":
+        pic = "/GG.JPG";
+        break;
+      case "attique@amanahomes.ae":
+        pic = "/ATTIQUE.JPG";
+        break;
+      case "charlotte@amanahomes.ae":
+        pic = "/CHARL.JPG";
+        break;
+      case "mohamedfahmy@amanahomes.ae":
+        pic = "/MO.JPG";
+        break;
+      case "fatima@amanahomes.ae":
+        pic = "/FATIMA.JPG";
+        break;
+      case "faizan@amanahomes.ae":
+        pic = "/FAIZAN.JPG";
+        break;
+      case "muhammadanas@amanahomes.ae":
+        pic = "/ANAS.JPG";
+        break;
+      case "mark@amanahomes.ae":
+        pic = "/MARK.JPG";
+        break;
+      default:
+        pic = "/amana-logo.png";
+    }
+
+    return pic;
+  }
+
   // Determine status label
   const statusLabel =
     item?.listingType === "RENT"
@@ -92,7 +126,7 @@ const PropertyCard = React.memo(function PropertyCard({
           {item?.portalAgent && (
             <div className="flex items-center gap-4 border-t border-white/30 pt-4 mt-2">
               <img
-                src={item.portalAgent.photo}
+                src={setPicture(item.portalAgent)}
                 className="w-10 h-10 rounded-full object-cover"
               />
               <div className="text-sm">
