@@ -42,10 +42,10 @@ function OffPlanDetails() {
   if (!project) return <p className="text-center py-20">Project not found.</p>;
 
   // safe values & fallbacks
-  const heroImage =
-    project?.images && project.images.length > 0
-      ? project.images[Math.min(3, project.images.length - 1)]
-      : project?.images?.[0] ?? HERO_FALLBACK;
+  // const heroImage =
+  //   project?.images && project.images.length > 0
+  //     ? project.images[Math.min(3, project.images.length - 1)]
+  //     : project?.images?.[0] ?? HERO_FALLBACK;
 
   return (
     <div className="bg-white">
