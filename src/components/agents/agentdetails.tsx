@@ -23,6 +23,8 @@ const mapProperty = (item: any) => ({
   bathrooms: Number(item.bathroom || item.baths || 0),
   size: Number(item.size || item.sqft || 0),
   price: Number(item.price || 0),
+  // Helper to check agent email match safely
+  agentEmail: item.agent?.email || "",
 });
 
 // ------------------ MAIN COMPONENT -------------------
@@ -42,33 +44,65 @@ function AgentDetails() {
   });
 
   // Fetch Listings
-  const { data: combinedListings = [] } = useQuery({
-    queryKey: ["agentListings", agentId, value],
-    enabled: !!agent,
-    queryFn: async () => {
-      const [crmRes, soldRes] = await Promise.all([
-        fetch("https://db-amana.onrender.com/crm-data"),
-        fetch(`https://db-amana.onrender.com/properties/${agentId}`),
-      ]);
+  const { data: combinedListings = [], isLoading: isListingsLoading } =
+    useQuery({
+      // Included 'value' in queryKey so it refetches/re-filters when tab changes
+      queryKey: ["agentListings", agentId, value],
+      enabled: !!agent,
+      queryFn: async () => {
+        const [crmRes, soldRes] = await Promise.all([
+          fetch("https://db-amana.onrender.com/crm-data"),
+          fetch(`https://db-amana.onrender.com/properties/${agentId}`),
+        ]);
 
-      const crmData = (await crmRes.json())?.properties || [];
-      const soldData = await soldRes.json();
+        const crmDataRaw = (await crmRes.json())?.properties || [];
+        const soldDataRaw = await soldRes.json();
 
-      const crmFiltered = crmData.filter(
-        (p: any) =>
-          p?.agent?.email === agent?.email &&
-          p?.offering_type?.toLowerCase() == value
-      );
+        // 1. Combine raw data arrays first
+        const allRawData = [...crmDataRaw, ...soldDataRaw];
 
-      const soldFiltered = soldData.filter(
-        (p: any) => p?.listing_type?.toLowerCase() == value
-      );
+        // 2. Map everything to a unified structure
+        const mappedAll = allRawData.map(mapProperty);
 
-      return [...crmFiltered, ...soldFiltered]
-        .map(mapProperty)
-        .sort((a, b) => a.price - b.price);
-    },
-  });
+        // 3. Filter strictly
+        const filtered = mappedAll.filter((p) => {
+          // Check if listing type matches current tab (Sale/Rent)
+          const typeMatch =
+            p.listingType?.toLowerCase() === value.toLowerCase();
+
+          // Check if agent matches (some APIs return all props, some return specific)
+          // We compare the property's agent email to the current agent's email
+          // OR if the source was the specific agent endpoint (implied by context,
+          // but explicit checking is safer if data is mixed).
+          const agentMatch =
+            p.agentEmail && agent?.email
+              ? p.agentEmail.toLowerCase().trim() ===
+                agent.email.toLowerCase().trim()
+              : true; // Fallback: if data came from agent endpoint it might lack email field, assuming valid.
+
+          // Note: You might need to adjust agentMatch logic depending on exactly what properties/${agentId} returns
+          // If properties/${agentId} is TRUSTED to only be that agent's, you can skip strict email check for those items.
+          // But simpler here:
+
+          return typeMatch && agentMatch;
+        });
+
+        // 4. DEDUPLICATE based on unique propertyId
+        // We use a Map: keys are propertyIds, values are the property objects.
+        // This automatically overwrites duplicates, keeping the last one found.
+        const uniqueMap = new Map();
+        filtered.forEach((item) => {
+          if (item.propertyId) {
+            uniqueMap.set(item.propertyId, item);
+          }
+        });
+
+        // Convert back to array and sort
+        return Array.from(uniqueMap.values()).sort(
+          (a: any, b: any) => a.price - b.price
+        );
+      },
+    });
 
   const scrollToListings = () =>
     listRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -94,7 +128,7 @@ function AgentDetails() {
   return (
     <div className="">
       <div className="lg:px-20 xl:px-20 mx-auto py-10 lg:py-16 px-5">
-        {/* ---------- HERO SECTION (Same as Offplan) ---------- */}
+        {/* ---------- HERO SECTION ---------- */}
         <div className="grid lg:grid-cols-2 gap-10 items-center">
           <div className="max-w-2xl">
             <div className="flex items-center gap-3 mb-4">
@@ -210,66 +244,38 @@ function AgentDetails() {
               </Tabs>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-                {combinedListings.length
-                  ? combinedListings.map((item) => (
-                      <motion.div
-                        key={item.propertyId}
-                        whileHover={{ scale: 1.02 }}
-                      >
-                        <PropertyCard
-                          item={item}
-                          onClick={() => handleDetails(item.propertyId)}
-                        />
-                      </motion.div>
-                    ))
-                  : [...Array(10)].map((_, idx) => (
-                      <Skeleton key={idx} className="h-94 w-full rounded-xl" />
-                    ))}
+                {isListingsLoading ? (
+                  // Show skeletons while fetching new data for the tab
+                  [...Array(10)].map((_, idx) => (
+                    <Skeleton key={idx} className="h-94 w-full rounded-xl" />
+                  ))
+                ) : combinedListings.length > 0 ? (
+                  combinedListings.map((item: any) => (
+                    <motion.div
+                      key={item.propertyId}
+                      whileHover={{ scale: 1.02 }}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                    >
+                      <PropertyCard
+                        item={item}
+                        onClick={() => handleDetails(item.propertyId)}
+                      />
+                    </motion.div>
+                  ))
+                ) : (
+                  <div className="col-span-full py-10 text-center">
+                    <p
+                      style={{ fontFamily: "IT Regular" }}
+                      className="text-gray-500"
+                    >
+                      No properties found for {value}.
+                    </p>
+                  </div>
+                )}
               </div>
             </section>
           </div>
-
-          {/* ---------- STICKY SIDEBAR ---------- */}
-          {/* <aside className="sticky top-10 self-start space-y-6">
-            <div className="bg-white border rounded-xl p-5 shadow-sm">
-              <h4
-                className="text-xl text-gray-700 mb-2"
-                style={{ fontFamily: "IT Medium" }}
-              >
-                Contact Agent
-              </h4>
-
-              <Dialog>
-                <DialogTrigger
-                  className="w-full px-4 py-3 bg-[#BA7F55] text-white rounded-md font-semibold"
-                  style={{ fontFamily: "IT Medium" }}
-                >
-                  Send Enquiry
-                </DialogTrigger>
-                <DialogHeader className="hidden">
-                  <DialogTitle>Contact</DialogTitle>
-                </DialogHeader>
-
-                <DialogContent>
-                  <div className="bg-white px-4 sm:px-8 py-6 flex flex-col items-center max-w-md mx-auto">
-                    <Form
-                      propertyId={agent.name}
-                      extraData={{ agent_name: agent.name }}
-                      formType="default"
-                    />
-                  </div>
-                </DialogContent>
-              </Dialog>
-            </div>
-
-            <div className="bg-white border rounded-xl p-4 shadow-sm">
-              <h4 className="text-md text-gray-500 mb-2">
-                Agent Quick Contact
-              </h4>
-              <p className="text-gray-700 mb-1">{agent.email}</p>
-              <p className="text-gray-700">{agent.phone_number}</p>
-            </div>
-          </aside> */}
         </div>
       </div>
     </div>

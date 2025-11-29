@@ -92,64 +92,25 @@ function OffPlanDetails() {
                 </button>
               </a>
             </div>
-
-            <div className="border-t pt-6 mt-6">
-              <div className="flex gap-6 text-sm text-gray-600">
-                <div className="flex-1">
-                  <div
-                    style={{ fontFamily: "IT Medium" }}
-                    className="text-lg uppercase text-gray-500"
-                  >
-                    Since
-                  </div>
-                  <div
-                    style={{ fontFamily: "IT Regular" }}
-                    className="lg:text-lg mt-1"
-                  >
-                    {project?.since ?? "2024"}
-                  </div>
-                </div>
-
-                <div className="flex-1">
-                  <div
-                    style={{ fontFamily: "IT Medium" }}
-                    className="text-lg uppercase text-gray-500"
-                  >
-                    Type
-                  </div>
-                  <div
-                    style={{ fontFamily: "IT Regular" }}
-                    className="lg:text-lg mt-1"
-                  >
-                    {project?.type ?? "Off-plan"}
-                  </div>
-                </div>
-
-                <div className="flex-1">
-                  <div
-                    style={{ fontFamily: "IT Medium" }}
-                    className="text-lg uppercase text-gray-500"
-                  >
-                    Status
-                  </div>
-                  <div
-                    style={{ fontFamily: "IT Regular" }}
-                    className="lg:text-lg mt-1"
-                  >
-                    {project?.status ?? "TBC"}
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
 
           {/* Right: Tall hero image */}
           <div className="relative w-full h-[520px] rounded-2xl overflow-hidden shadow-lg">
-            <img
+            {/* <img
               src={heroImage}
               alt={project?.title}
               className="w-full h-full object-cover"
-            />
+            /> */}
+            <iframe
+              width="100%"
+              height="520"
+              src="https://www.youtube.com/embed/-q66T2dNml0?si=djBXJDHzCynGNBTk"
+              title="YouTube video player"
+              // frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              // referrerpolicy="strict-origin-when-cross-origin"
+              // allowfullscreen
+            ></iframe>
           </div>
         </div>
 
