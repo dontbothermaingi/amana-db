@@ -1,8 +1,16 @@
-import { nanoid } from "nanoid";
 import React, { useState, type FormEvent } from "react";
-import { X, UploadCloud, Image as ImageIcon, Video } from "lucide-react";
-// 1. IMPORT THE LIBRARY
+import {
+  X,
+  UploadCloud,
+  Image as ImageIcon,
+  Video,
+  Save,
+  ArrowLeft,
+} from "lucide-react";
 import imageCompression from "browser-image-compression";
+
+// Placeholder image URL
+const PLACEHOLDER_IMAGE = "https://placehold.co/600x400?text=No+Floor+Plan";
 
 interface OffplanUnitData {
   unit_type: string;
@@ -12,7 +20,8 @@ interface OffplanUnitData {
   sqft: string;
   unit_Id: string;
   starting_price: number;
-  floor_plan_img: File | null;
+  // In Edit mode, this can be a URL (string) or a new File, or null
+  floor_plan_img: File | string | null;
   floor_plan_preview: string | null;
 }
 
@@ -30,60 +39,77 @@ interface OffplanFormData {
   status: string;
 }
 
-const API_URL = "https://db-amana.onrender.com/offplans";
+// Props: expecting the property object to edit
+interface OffPlanEditProps {
+  property: any;
+  onCancel?: () => void;
+  onSuccess?: () => void;
+}
 
-const OffplanUpload: React.FC = () => {
-  // ... (State definitions remain the same)
+const OffPlanEdit: React.FC<OffPlanEditProps> = ({
+  property,
+  onCancel,
+  onSuccess,
+}) => {
+  const API_URL = `https://db-amana.onrender.com/offplans/${property.offplan_Id}`;
+
+  // --- 1. INITIALIZE STATE WITH EXISTING DATA ---
   const [formData, setFormData] = useState<OffplanFormData>({
-    project_name: "",
-    developer: "",
-    location: "",
-    starting_price: "",
-    handover: "",
-    offplan_Id: nanoid(6),
-    payment_plan: "",
-    location_map: "",
-    video_url: "",
-    description: "",
-    status: "",
+    project_name: property.project_name || "",
+    developer: property.developer || "",
+    location: property.location || "",
+    starting_price: property.starting_price || "",
+    handover: property.handover || "",
+    offplan_Id: property.offplan_Id || "",
+    payment_plan: property.payment_plan || "",
+    location_map: property.location_map || "",
+    video_url: property.video_url || "",
+    description: property.description || "",
+    status: property.status || "Available",
   });
 
-  const [photos, setPhotos] = useState<File[]>([]);
-  const [photoPreviews, setPhotoPreviews] = useState<string[]>([]);
-  const [amenitiesList, setAmenitiesList] = useState<string[]>([]);
+  // Separate Existing URLs from New Uploads
+  const [existingPhotos, setExistingPhotos] = useState<string[]>(
+    property.photos || []
+  );
+  const [newPhotos, setNewPhotos] = useState<File[]>([]);
+  const [newPhotoPreviews, setNewPhotoPreviews] = useState<string[]>([]);
+
+  // Amenities
+  const [amenitiesList, setAmenitiesList] = useState<string[]>(
+    Array.isArray(property.amenities) ? property.amenities : []
+  );
   const [amenityInput, setAmenityInput] = useState<string>("");
+
   const [loading, setLoading] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
   const [isError, setIsError] = useState<boolean>(false);
 
-  const [units, setUnits] = useState<OffplanUnitData[]>([
-    {
-      unit_type: "",
-      price: "",
-      beds: 0,
-      baths: 0,
-      sqft: "",
-      unit_Id: nanoid(),
-      starting_price: 0,
-      floor_plan_img: null,
-      floor_plan_preview: null,
-    },
-  ]);
+  // Initialize Units
+  const [units, setUnits] = useState<OffplanUnitData[]>(() => {
+    if (property.units && property.units.length > 0) {
+      return property.units.map((u: any) => ({
+        ...u,
+        // Ensure floor_plan_img is treated as string if it exists from DB
+        floor_plan_img: u.floor_plan_img || null,
+        floor_plan_preview: u.floor_plan_img || null,
+      }));
+    }
+    return [];
+  });
 
-  // --- 2. COMPRESSION HELPER FUNCTION ---
+  // --- 2. COMPRESSION HELPER ---
   async function compressFile(file: File): Promise<File> {
     const options = {
-      maxSizeMB: 5, // Compress to ~5MB (Safe buffer under 10MB)
-      maxWidthOrHeight: 1920, // Resize to max 1920px (Good for web)
-      useWebWorker: true, // Runs in background, doesn't freeze UI
+      maxSizeMB: 5,
+      maxWidthOrHeight: 1920,
+      useWebWorker: true,
     };
-
     try {
-      const compressedFile = await imageCompression(file, options);
-      return compressedFile;
+      return await imageCompression(file, options);
     } catch (error) {
       console.error("Compression failed:", error);
-      return file; // If compression fails, return original
+      return file;
     }
   }
 
@@ -98,34 +124,43 @@ const OffplanUpload: React.FC = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // --- 3. UPDATED PHOTO HANDLER ---
-  const handleAddPhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  // --- PHOTO HANDLERS (New vs Existing) ---
+
+  // Add NEW Photo
+  const handleAddNewPhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const originalFile = e.target.files[0];
-
-      // Compress immediately
       const compressedFile = await compressFile(originalFile);
 
-      // Save the COMPRESSED file to state
-      setPhotos([...photos, compressedFile]);
-      setPhotoPreviews([...photoPreviews, URL.createObjectURL(compressedFile)]);
+      setNewPhotos([...newPhotos, compressedFile]);
+      setNewPhotoPreviews([
+        ...newPhotoPreviews,
+        URL.createObjectURL(compressedFile),
+      ]);
     }
     e.target.value = "";
   };
 
-  const removePhoto = (index: number) => {
-    const newPhotos = [...photos];
-    const newPreviews = [...photoPreviews];
-    newPhotos.splice(index, 1);
-    newPreviews.splice(index, 1);
-    setPhotos(newPhotos);
-    setPhotoPreviews(newPreviews);
+  // Remove NEW Photo
+  const removeNewPhoto = (index: number) => {
+    const _photos = [...newPhotos];
+    const _previews = [...newPhotoPreviews];
+    _photos.splice(index, 1);
+    _previews.splice(index, 1);
+    setNewPhotos(_photos);
+    setNewPhotoPreviews(_previews);
   };
 
-  // ... (Amenities handlers remain the same) ...
-  const handleAmenityInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setAmenityInput(e.target.value);
+  // Remove EXISTING Photo
+  const removeExistingPhoto = (index: number) => {
+    const _photos = [...existingPhotos];
+    _photos.splice(index, 1);
+    setExistingPhotos(_photos);
   };
+
+  // --- AMENITIES ---
+  const handleAmenityInput = (e: React.ChangeEvent<HTMLInputElement>) =>
+    setAmenityInput(e.target.value);
   const addAmenity = () => {
     const trimmed = amenityInput.trim();
     if (trimmed && !amenitiesList.includes(trimmed))
@@ -133,10 +168,12 @@ const OffplanUpload: React.FC = () => {
     setAmenityInput("");
   };
   const removeAmenity = (index: number) => {
-    const newList = [...amenitiesList];
-    newList.splice(index, 1);
-    setAmenitiesList(newList);
+    const list = [...amenitiesList];
+    list.splice(index, 1);
+    setAmenitiesList(list);
   };
+
+  // --- UNIT HANDLERS ---
 
   const handleUnitChange = (
     index: number,
@@ -149,21 +186,18 @@ const OffplanUpload: React.FC = () => {
     setUnits(newUnits);
   };
 
-  // --- 4. UPDATED FLOOR PLAN HANDLER ---
   const handleUnitFloorPlanChange = async (
     index: number,
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
     if (e.target.files && e.target.files[0]) {
       const originalFile = e.target.files[0];
-
-      // Compress immediately
       const compressedFile = await compressFile(originalFile);
 
       const newUnits = [...units];
       newUnits[index] = {
         ...newUnits[index],
-        floor_plan_img: compressedFile, // Store compressed file
+        floor_plan_img: compressedFile, // This is now a File
         floor_plan_preview: URL.createObjectURL(compressedFile),
       };
       setUnits(newUnits);
@@ -171,6 +205,8 @@ const OffplanUpload: React.FC = () => {
   };
 
   const addUnit = () => {
+    // Generate a temporary random ID for new units
+    const tempId = Math.random().toString(36).substr(2, 9);
     setUnits([
       ...units,
       {
@@ -179,7 +215,7 @@ const OffplanUpload: React.FC = () => {
         beds: 0,
         baths: 0,
         sqft: "",
-        unit_Id: nanoid(),
+        unit_Id: tempId,
         starting_price: 0,
         floor_plan_img: null,
         floor_plan_preview: null,
@@ -191,33 +227,29 @@ const OffplanUpload: React.FC = () => {
     setUnits(units.filter((_, i) => i !== index));
   };
 
-  // ... (handleSubmit and JSX remain exactly the same) ...
-
+  // --- SUBMIT ---
   const handleSubmit = async (e: FormEvent) => {
-    // (Your existing submit logic handles the files correctly
-    // because they are now already compressed in the state)
     e.preventDefault();
     setLoading(true);
     setMessage("");
     setIsError(false);
 
     const data = new FormData();
-    // ... append all fields ...
-    data.append("project_name", formData.project_name);
-    data.append("developer", formData.developer);
-    data.append("location", formData.location);
-    data.append("starting_price", formData.starting_price);
-    data.append("handover", formData.handover);
-    data.append("offplan_Id", formData.offplan_Id);
-    data.append("payment_plan", formData.payment_plan);
-    data.append("location_map", formData.location_map);
-    data.append("video_url", formData.video_url);
-    data.append("description", formData.description);
-    data.append("status", formData.status);
+
+    // 1. Append Text Data
+    Object.entries(formData).forEach(([key, value]) => {
+      data.append(key, value);
+    });
+
     data.append("amenities", JSON.stringify(amenitiesList));
+    data.append("existing_photos", JSON.stringify(existingPhotos));
 
-    photos.forEach((photo) => data.append("photos", photo));
+    // 2. Append NEW Project Photos
+    newPhotos.forEach((photo) => data.append("photos", photo));
 
+    // 3. Prepare Units Payload (JSON part)
+    // If it's a File/Blob, we send null in JSON so the backend looks in request.files
+    // If it's a String (URL), we send the URL so the backend keeps it
     const unitsPayload = units.map((u) => ({
       unit_type: u.unit_type,
       price: u.price,
@@ -226,26 +258,39 @@ const OffplanUpload: React.FC = () => {
       sqft: u.sqft,
       unit_Id: u.unit_Id,
       starting_price: u.starting_price,
+      floor_plan_img:
+        typeof u.floor_plan_img === "string" ? u.floor_plan_img : null,
     }));
 
     data.append("units", JSON.stringify(unitsPayload));
 
+    // 4. Append Unit Floor Plan FILES
+    // FIX: Checked for 'object' instead of 'instanceof File' to catch Blobs too
     units.forEach((unit) => {
-      if (unit.floor_plan_img) {
-        data.append(`floor_plan_${unit.unit_Id}`, unit.floor_plan_img);
+      if (unit.floor_plan_img && typeof unit.floor_plan_img !== "string") {
+        const fileKey = `floor_plan_${unit.unit_Id}`;
+        data.append(fileKey, unit.floor_plan_img);
+        console.log(
+          `Attached file for unit ${unit.unit_Id} with key: ${fileKey}`
+        );
       }
     });
 
+    // Debug: Print what we are sending
+    console.log("Submitting Units Payload:", unitsPayload);
+
     try {
       const response = await fetch(API_URL, {
-        method: "POST",
+        method: "PATCH",
         body: data,
       });
       const result = await response.json();
+
       if (response.ok) {
-        setMessage(result.message || "Offplan Posted Successfully!");
+        setMessage(result.message || "Updated Successfully!");
+        if (onSuccess) onSuccess();
       } else {
-        setMessage(result.error || "Failed to post offplan data.");
+        setMessage(result.error || "Failed to update.");
         setIsError(true);
       }
     } catch (error) {
@@ -261,14 +306,25 @@ const OffplanUpload: React.FC = () => {
   };
 
   return (
-    <div className="w-full mx-auto p-6 bg-white rounded-xl shadow-md my-8">
-      <h2 className="text-2xl font-bold mb-6 text-[#0B253F]">
-        🏠 Post New Offplan Project
-      </h2>
+    <div className="w-full mx-auto bg-white rounded-xl">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold text-[#0B253F]">
+          ✏️ Edit Offplan Project
+        </h2>
+        {onCancel && (
+          <button
+            onClick={onCancel}
+            className="text-gray-500 hover:text-gray-700 flex items-center gap-1 text-sm"
+          >
+            <ArrowLeft size={16} /> Back
+          </button>
+        )}
+      </div>
+
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Project Details */}
+        {/* --- 1. DETAILS --- */}
         <section className="space-y-4">
-          <h3 className="text-xl font-semibold text-gray-800">
+          <h3 className="text-xl font-semibold text-gray-800 border-b pb-2">
             Project Details
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -294,10 +350,8 @@ const OffplanUpload: React.FC = () => {
               type="text"
               name="offplan_Id"
               value={formData.offplan_Id}
-              onChange={handleInputChange}
-              placeholder="OFFPLAN ID"
-              className="border rounded-lg px-3 py-2 w-full bg-gray-50 text-gray-500 cursor-not-allowed"
-              readOnly
+              disabled
+              className="border rounded-lg px-3 py-2 w-full bg-gray-100 text-gray-500 cursor-not-allowed"
             />
             <select
               name="status"
@@ -306,7 +360,6 @@ const OffplanUpload: React.FC = () => {
               className="border rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-blue-500 outline-none"
               required
             >
-              <option value="">Select Status</option>
               <option value="Available">Available</option>
               <option value="Sold Out">Sold Out</option>
               <option value="Coming Soon">Coming Soon</option>
@@ -323,9 +376,9 @@ const OffplanUpload: React.FC = () => {
           </div>
         </section>
 
-        {/* Pricing & Location */}
+        {/* --- 2. PRICING & LOCATION --- */}
         <section className="space-y-4">
-          <h3 className="text-xl font-semibold text-gray-800">
+          <h3 className="text-xl font-semibold text-gray-800 border-b pb-2">
             Pricing & Location
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -352,7 +405,7 @@ const OffplanUpload: React.FC = () => {
               name="handover"
               value={formData.handover}
               onChange={handleInputChange}
-              placeholder="Handover Date (e.g., Q4 2025)"
+              placeholder="Handover Date"
               className="border rounded-lg px-3 py-2 w-full"
               required
             />
@@ -377,9 +430,9 @@ const OffplanUpload: React.FC = () => {
           </div>
         </section>
 
-        {/* Features & Media */}
+        {/* --- 3. FEATURES & MEDIA --- */}
         <section className="space-y-4">
-          <h3 className="text-xl font-semibold text-gray-800">
+          <h3 className="text-xl font-semibold text-gray-800 border-b pb-2">
             Features & Media
           </h3>
 
@@ -411,7 +464,7 @@ const OffplanUpload: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => removeAmenity(index)}
-                    className="text-red-500 font-bold hover:text-red-700"
+                    className="text-red-500 font-bold hover:text-red-700 ml-1"
                   >
                     <X size={14} />
                   </button>
@@ -420,7 +473,6 @@ const OffplanUpload: React.FC = () => {
             </div>
           </div>
 
-          {/* New Video Link Input */}
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <Video className="text-gray-400" size={18} />
@@ -430,47 +482,77 @@ const OffplanUpload: React.FC = () => {
               name="video_url"
               value={formData.video_url}
               onChange={handleInputChange}
-              placeholder="Promo Video URL (YouTube/Vimeo)"
+              placeholder="Promo Video URL"
               className="border rounded-lg pl-10 pr-3 py-2 w-full"
             />
           </div>
 
-          {/* Photos */}
-          <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 flex flex-col items-center justify-center bg-gray-50">
-            <label className="cursor-pointer flex flex-col items-center">
-              <UploadCloud size={32} className="text-gray-400 mb-2" />
-              <span className="text-sm font-semibold text-[#BA7F55]">
-                Upload Project Photos
-              </span>
-              <input
-                type="file"
-                onChange={handleAddPhoto}
-                accept="image/*"
-                className="hidden"
-              />
-            </label>
-            <div className="flex flex-wrap gap-4 mt-4 w-full justify-center">
-              {photoPreviews.map((src, index) => (
-                <div key={index} className="relative group">
+          {/* PHOTOS MANAGEMENT */}
+          <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 bg-gray-50">
+            <h4 className="text-sm font-bold text-gray-500 uppercase mb-4 text-center">
+              Manage Photos
+            </h4>
+
+            {/* Display Mixed List (Existing + New) */}
+            <div className="flex flex-wrap gap-4 justify-center mb-6">
+              {/* Existing */}
+              {existingPhotos.map((src, index) => (
+                <div key={`exist-${index}`} className="relative group">
                   <img
                     src={src}
-                    alt={`preview-${index}`}
-                    className="w-24 h-24 object-cover rounded-lg border shadow-sm"
+                    alt="Existing"
+                    className="w-24 h-24 object-cover rounded-lg border border-blue-200"
                   />
+                  <span className="absolute bottom-0 left-0 right-0 bg-blue-600 text-white text-[10px] text-center py-0.5">
+                    Existing
+                  </span>
                   <button
                     type="button"
-                    onClick={() => removePhoto(index)}
-                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-md hover:bg-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                    onClick={() => removeExistingPhoto(index)}
+                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <X size={12} />
+                  </button>
+                </div>
+              ))}
+              {/* New */}
+              {newPhotoPreviews.map((src, index) => (
+                <div key={`new-${index}`} className="relative group">
+                  <img
+                    src={src}
+                    alt="New"
+                    className="w-24 h-24 object-cover rounded-lg border border-green-200"
+                  />
+                  <span className="absolute bottom-0 left-0 right-0 bg-green-600 text-white text-[10px] text-center py-0.5">
+                    New
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => removeNewPhoto(index)}
+                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
                   >
                     <X size={12} />
                   </button>
                 </div>
               ))}
             </div>
+
+            <label className="cursor-pointer flex flex-col items-center justify-center w-full py-4 border border-gray-300 rounded-lg hover:bg-white transition bg-white/50">
+              <UploadCloud size={24} className="text-[#BA7F55] mb-1" />
+              <span className="text-sm font-semibold text-gray-600">
+                Add More Photos
+              </span>
+              <input
+                type="file"
+                onChange={handleAddNewPhoto}
+                accept="image/*"
+                className="hidden"
+              />
+            </label>
           </div>
         </section>
 
-        {/* Units Section */}
+        {/* --- 4. UNITS SECTION --- */}
         <section className="space-y-4">
           <div className="flex justify-between items-center">
             <h3 className="text-xl font-semibold text-gray-800">Unit Types</h3>
@@ -485,42 +567,37 @@ const OffplanUpload: React.FC = () => {
 
           {units.map((unit, index) => (
             <div
-              key={unit.unit_Id}
+              key={index}
               className="border border-gray-200 p-6 rounded-xl space-y-4 relative bg-gray-50 shadow-sm"
             >
               <div className="flex justify-between items-center mb-2">
                 <h4 className="font-bold text-[#0B253F] text-lg">
                   Unit Type #{index + 1}
                 </h4>
-                {units.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={() => removeUnit(index)}
-                    className="text-red-500 hover:text-red-700 text-sm font-medium flex items-center gap-1"
-                  >
-                    <X size={16} /> Remove
-                  </button>
-                )}
+                <button
+                  type="button"
+                  onClick={() => removeUnit(index)}
+                  className="text-red-500 hover:text-red-700 text-sm font-medium flex items-center gap-1"
+                >
+                  <X size={16} /> Remove
+                </button>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="col-span-1 md:col-span-2">
-                  <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">
-                    Unit Type (e.g. 2 Bedroom Apartment)
+                  <label className="text-xs font-bold text-gray-500 uppercase">
+                    Unit Type
                   </label>
                   <input
                     type="text"
                     name="unit_type"
                     value={unit.unit_type}
                     onChange={(e) => handleUnitChange(index, e)}
-                    placeholder="e.g. 2 Bedroom Apartment"
                     className="border rounded-lg px-3 py-2 w-full mt-1"
-                    required
                   />
                 </div>
-
                 <div>
-                  <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">
+                  <label className="text-xs font-bold text-gray-500 uppercase">
                     Total Sq.ft
                   </label>
                   <input
@@ -528,14 +605,11 @@ const OffplanUpload: React.FC = () => {
                     name="sqft"
                     value={unit.sqft}
                     onChange={(e) => handleUnitChange(index, e)}
-                    placeholder="e.g. 1250"
                     className="border rounded-lg px-3 py-2 w-full mt-1"
-                    required
                   />
                 </div>
-
                 <div>
-                  <label className="text-xs font-bold text-gray-500 uppercase tracking-wide">
+                  <label className="text-xs font-bold text-gray-500 uppercase">
                     Price (AED)
                   </label>
                   <input
@@ -543,9 +617,7 @@ const OffplanUpload: React.FC = () => {
                     name="price"
                     value={unit.price}
                     onChange={(e) => handleUnitChange(index, e)}
-                    placeholder="e.g. 1500000"
                     className="border rounded-lg px-3 py-2 w-full mt-1"
-                    required
                   />
                 </div>
               </div>
@@ -554,8 +626,18 @@ const OffplanUpload: React.FC = () => {
                 <label className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2 block">
                   Floor Plan Image
                 </label>
-                <div className="flex items-center gap-4">
-                  <label className="cursor-pointer bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-100 transition flex items-center gap-2">
+                <div className="flex flex-col items-center gap-4">
+                  {/* Preview Logic: Handle both URL strings and File Blobs */}
+                  <div className="relative w-full h-48 border rounded-md overflow-hidden bg-gray-100">
+                    <img
+                      src={unit.floor_plan_preview || PLACEHOLDER_IMAGE}
+                      alt="Floor Plan"
+                      className={`w-full h-full object-cover ${
+                        !unit.floor_plan_preview ? "opacity-50" : ""
+                      }`}
+                    />
+                  </div>
+                  <label className="cursor-pointer bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-100 transition flex items-center gap-2 w-full justify-center">
                     <ImageIcon size={18} />
                     {unit.floor_plan_img ? "Change Image" : "Upload Floor Plan"}
                     <input
@@ -565,34 +647,23 @@ const OffplanUpload: React.FC = () => {
                       className="hidden"
                     />
                   </label>
-                  {unit.floor_plan_preview && (
-                    <div className="relative w-16 h-16 border rounded-md overflow-hidden">
-                      <img
-                        src={unit.floor_plan_preview}
-                        alt="Floor Plan"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  )}
-                  {unit.floor_plan_img && (
-                    <span className="text-sm text-gray-600 truncate max-w-[200px]">
-                      {unit.floor_plan_img.name}
-                    </span>
-                  )}
                 </div>
               </div>
             </div>
           ))}
         </section>
 
-        {/* Submit */}
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-[#0B253F] text-white px-4 py-4 rounded-xl hover:bg-[#16385d] disabled:opacity-50 font-bold text-lg shadow-lg transition-all"
-        >
-          {loading ? "Posting..." : "🚀 Post Offplan Data"}
-        </button>
+        {/* ACTIONS */}
+        <div className="flex gap-4 pt-4 border-t">
+          <button
+            type="submit"
+            disabled={loading}
+            className="flex-1 bg-[#0B253F] text-white px-4 py-4 rounded-xl hover:bg-[#16385d] disabled:opacity-50 font-bold text-lg shadow-lg flex items-center justify-center gap-2"
+          >
+            <Save size={20} />
+            {loading ? "Saving Changes..." : "Update Project"}
+          </button>
+        </div>
 
         {message && (
           <p
@@ -608,4 +679,4 @@ const OffplanUpload: React.FC = () => {
   );
 };
 
-export default OffplanUpload;
+export default OffPlanEdit;

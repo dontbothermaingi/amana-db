@@ -40,6 +40,7 @@ const PropertyCard = React.memo(function PropertyCard({
       "faizan@amanahomes.ae": "/FAIZAN.JPG",
       "muhammadanas@amanahomes.ae": "/ANAS.JPG",
       "mark@amanahomes.ae": "/MARK.JPG",
+      "yang@amanahomes.ae": "/yang.PNG",
     };
     return agentImages[email] || "/amana-logo.png";
   }

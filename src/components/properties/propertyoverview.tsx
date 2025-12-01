@@ -122,6 +122,9 @@ function PropertyOverview() {
       case "mark@amanahomes.ae":
         pic = "/MARK.JPG";
         break;
+      case "yang@amanahomes.ae":
+        pic = "yang.PNG";
+        break;
       default:
         pic = "/amana-logo.png";
     }

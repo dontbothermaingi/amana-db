@@ -3,7 +3,7 @@ import {
   Typography,
   TextField,
   MenuItem,
-  Button,
+  // Button,
   Divider,
 } from "@mui/material";
 import { Suspense, useCallback, useMemo, useRef, useState } from "react";
@@ -11,50 +11,58 @@ import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import Form from "@/leads/form";
 import { Skeleton } from "../ui/skeleton";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, MapPin } from "lucide-react";
 
+// Update Interface to match Backend Response
 interface OffPlanItem {
-  id: string;
-  title: string;
+  id: number;
+  offplan_Id: string;
+  project_name: string;
   developer: string;
-  img: string;
-  startingPrice: number;
-  pp: string;
+  photos: string[];
+  starting_price: number;
+  payment_plan: string;
   handover: string;
+  location: string;
 }
+
+const FALLBACK_IMAGE = "/placeholder-image.png"; // Add a valid path
 
 function OffPlan() {
   const formRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
-  // const scrollToForm = useCallback(() => {
-  //   formRef.current?.scrollIntoView({ behavior: "smooth" });
-  // }, []);
-
-  const { data: stats } = useQuery<OffPlanItem[]>({
-    queryKey: ["project"],
+  // Fetch from your Render Backend
+  const { data: stats, isLoading } = useQuery<OffPlanItem[]>({
+    queryKey: ["offplan_list"],
     queryFn: () =>
-      fetch(`https://68e7771910e3f82fbf3f4033.mockapi.io/offplan/offplan`).then(
-        (resp) => resp.json()
+      fetch(`https://db-amana.onrender.com/offplans`).then((resp) =>
+        resp.json()
       ),
   });
 
   const [search, setSearch] = useState("");
   const [filterDeveloper, setFilterDeveloper] = useState("");
-  const [mapView, setMapView] = useState(false);
+  // const [mapView, setMapView] = useState(false);
 
+  // Extract unique developers
   const developers = useMemo(
     () => [...new Set(stats?.map((item) => item.developer) || [])],
     [stats]
   );
 
+  // Filter Logic
   const filteredProperties = useMemo(() => {
     if (!stats) return [];
 
-    return stats.filter((item) => {
-      const matchesSearch =
-        item.title.toLowerCase().includes(search.toLowerCase()) ||
-        item.developer.toLowerCase().includes(search.toLowerCase());
+    return stats?.filter((item) => {
+      const searchLower = search.toLowerCase();
+      // Safe check for undefined fields
+      const titleMatch = item.project_name?.toLowerCase().includes(searchLower);
+      const devMatch = item.developer?.toLowerCase().includes(searchLower);
+      const locMatch = item.location?.toLowerCase().includes(searchLower);
+
+      const matchesSearch = titleMatch || devMatch || locMatch;
 
       const matchesDev = filterDeveloper
         ? item.developer === filterDeveloper
@@ -64,6 +72,7 @@ function OffPlan() {
     });
   }, [stats, search, filterDeveloper]);
 
+  // Pagination Logic
   const itemsPerPage = 12;
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = Math.ceil(filteredProperties.length / itemsPerPage);
@@ -74,8 +83,9 @@ function OffPlan() {
   );
 
   const handleDetails = useCallback(
-    (propertyId: String) => {
-      navigate(`/off-plan/${propertyId}`);
+    (offplanId: string) => {
+      // Use the specific ID needed for the detail page query
+      navigate(`/off-plan/${offplanId}`);
     },
     [navigate]
   );
@@ -83,7 +93,7 @@ function OffPlan() {
   const pageTitle = "Dubai Off-Plan Projects";
 
   return (
-    <div className="w-full flex flex-col gap-3 py-10 animate-fadeIn">
+    <div className="w-full flex flex-col gap-3 py-10 animate-fadeIn bg-gray-50/50">
       <div className="lg:px-20 px-3 py-3 h-fit flex flex-col gap-5">
         <div className="flex flex-col gap-5 lg:gap-0 lg:flex-row justify-between items-start">
           {/* Title Section */}
@@ -91,7 +101,7 @@ function OffPlan() {
             <Typography
               fontFamily="DM Medium"
               fontSize={{ lg: "40px", xs: "30px" }}
-              className="leading-tight"
+              className="leading-tight text-[#0B253F]"
             >
               {pageTitle}
             </Typography>
@@ -107,58 +117,64 @@ function OffPlan() {
 
             <Typography
               fontFamily="IT Medium"
-              className="text-[#0B253F] text-lg"
+              className="text-[#BA7F55] text-lg"
             >
               {filteredProperties?.length} Properties Found
             </Typography>
           </div>
 
-          {/* Map Button */}
-          <Button
+          {/* Map Button Toggle */}
+          {/* <Button
             onClick={() => setMapView(!mapView)}
-            className="bg-[#0B253F] shadow-md shadow-black/10 hover:scale-105 transition-transform duration-200 hidden"
+            className="bg-[#0B253F] shadow-md shadow-blue-900/10 hover:scale-105 transition-transform duration-200"
           >
-            <Typography fontFamily="IT Bold" color="#BA7F55">
+            <Typography fontFamily="IT Bold" color="white">
               {mapView ? "Exit Map View" : "Map View"}
             </Typography>
-          </Button>
+          </Button> */}
         </div>
 
         <Divider className="my-3" />
 
         {/* Search & Filter Bar */}
-        {!mapView && (
-          <div className="flex flex-col lg:flex-row gap-4 w-full">
-            <TextField
-              label="Search Projects"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              fullWidth
-            />
 
-            <TextField
-              select
-              label="Developer"
-              value={filterDeveloper}
-              onChange={(e) => setFilterDeveloper(e.target.value)}
-              fullWidth
-            >
-              <MenuItem value="">All Developers</MenuItem>
-              {developers.map((dev) => (
-                <MenuItem key={dev} value={dev}>
-                  {dev}
-                </MenuItem>
-              ))}
-            </TextField>
-          </div>
-        )}
+        <div className="flex flex-col lg:flex-row gap-4 w-full p-4">
+          <TextField
+            label="Search Projects or Locations"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            fullWidth
+            variant="outlined"
+            size="medium"
+          />
+
+          <TextField
+            select
+            label="Developer"
+            value={filterDeveloper}
+            onChange={(e) => setFilterDeveloper(e.target.value)}
+            fullWidth
+            variant="outlined"
+            size="medium"
+          >
+            <MenuItem value="">All Developers</MenuItem>
+            {developers.map((dev) => (
+              <MenuItem key={dev} value={dev}>
+                {dev}
+              </MenuItem>
+            ))}
+          </TextField>
+        </div>
 
         {/* MAP OR GRID */}
-        <div className="flex flex-col gap-5">
-          {mapView ? (
+        <div className="flex flex-col gap-5 mt-4">
+          {false ? (
             <div className="h-full w-full animate-fadeIn">
               <Suspense fallback={<Skeleton className="h-[500px] w-full" />}>
-                {/* Map Component goes here */}
+                {/* <OffPlanMap properties={filteredProperties} /> */}
+                <div className="h-[500px] w-full bg-gray-200 rounded-xl flex items-center justify-center text-gray-500">
+                  Map Component Placeholder
+                </div>
               </Suspense>
             </div>
           ) : (
@@ -174,134 +190,163 @@ function OffPlan() {
                 gap="30px"
                 className="animate-slideUp"
               >
-                {currentData.length
-                  ? currentData.map((item: OffPlanItem) => (
+                {isLoading
+                  ? [...Array(itemsPerPage)].map((_, index) => (
+                      <Skeleton
+                        key={index}
+                        className="h-[400px] w-full rounded-2xl"
+                      />
+                    ))
+                  : currentData.map((item: OffPlanItem) => (
                       <div
                         key={item.id}
-                        className={`group relative rounded-xl overflow-hidden shadow-md transition-all duration-500 cursor-pointer`}
-                        onClick={() => handleDetails(item.id)}
+                        className={`group relative rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 cursor-pointer bg-black h-[500px]`}
+                        onClick={() => handleDetails(item.offplan_Id)}
                       >
                         {/* --- Image --- */}
                         <img
-                          src={item.img}
-                          alt="Property"
+                          src={
+                            item.photos && item.photos.length > 0
+                              ? item.photos[0]
+                              : FALLBACK_IMAGE
+                          }
+                          alt={item.project_name}
                           loading="lazy"
-                          className="w-full h-96 object-cover transition-transform duration-500 group-hover:scale-110"
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-90 group-hover:opacity-100"
                         />
 
-                        {/* --- Full Card Gradient Overlay --- */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80  to-transparent z-10" />
+                        {/* --- Gradient Overlays --- */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent z-10" />
+                        {/* <div className="absolute inset-0 bg-gradient-to-b from-black/30 to-transparent z-10" /> */}
 
-                        {/* --- Top Info Overlay (on top of gradient) --- */}
-                        <div className="absolute top-2 right-2 text-base opacity-90">
+                        {/* --- Top Info --- */}
+                        <div className="absolute top-4 right-4 z-20">
                           <div
                             style={{ fontFamily: "IT Medium" }}
-                            className="bg-white px-2 py-1 rounded-md text-sm"
+                            className="bg-white/95 backdrop-blur-sm px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wider text-[#0B253F] shadow-lg"
                           >
-                            {item?.developer}
+                            {item.developer}
                           </div>
                         </div>
 
-                        {/* --- Bottom Info Overlay (on top of gradient) --- */}
-                        <div className="absolute bottom-0 left-0 right-0 p-5 text-white z-20">
+                        {/* --- Bottom Info (Always Visible) --- */}
+                        <div className="absolute bottom-0 left-0 right-0 p-6 z-20 text-white transition-transform duration-500 transform translate-y-2 group-hover:translate-y-[-10px]">
                           <div
-                            style={{ fontFamily: "IT Medium" }}
-                            className="font-bold text-2xl"
+                            style={{ fontFamily: "GT Bold" }}
+                            className="text-2xl mb-1 leading-none shadow-black drop-shadow-md"
                           >
-                            {item?.title}
+                            {item.project_name}
                           </div>
-                          {/* <div
-                            style={{ fontFamily: "IT Medium" }}
-                            className="text-sm opacity-80"
+
+                          <div
+                            style={{ fontFamily: "IT Regular" }}
+                            className="text-md opacity-90 flex items-center gap-1 mb-2"
                           >
-                            <MapPin className="inline-block w-4 h-4 mr-1 mb-0.5" />
-                            {item?.community || item?.location}
-                          </div> */}
-                        </div>
-
-                        {/* --- Hover Extra Info --- */}
-                        <div className="absolute inset-0 z-20 bg-black/100 opacity-0 group-hover:opacity-100 transition duration-500 p-6 text-white flex flex-col justify-end gap-4">
-                          <div className="flex items-center gap-3 text-lg">
-                            Starting Price:{"  "}
-                            {new Intl.NumberFormat("en-AE", {
-                              style: "currency",
-                              currency: "AED",
-                              maximumFractionDigits: 0,
-                              minimumFractionDigits: 0,
-                            }).format(item?.startingPrice)}
+                            <MapPin size={14} className="text-[#BA7F55]" />
+                            {item.location}
                           </div>
 
-                          <div className="flex items-center gap-3 text-lg">
-                            Payment Plan : {item?.pp}
-                          </div>
+                          {/* Hidden Info (Slides up on Hover) */}
+                          <div className="h-0 overflow-hidden group-hover:h-auto transition-all duration-500 ease-in-out opacity-0 group-hover:opacity-100">
+                            <div className="w-12 h-0.5 bg-[#BA7F55] mb-3 mt-1"></div>
 
-                          <div className="flex items-center gap-3 text-lg">
-                            Handover: {item?.handover}
-                          </div>
-
-                          {/* {item?.portalAgent && (
-                            <div className="flex items-center gap-4 border-t border-white/30 pt-4 mt-2">
-                              <img
-                                src={item.portalAgent.photo}
-                                className="w-10 h-10 rounded-full object-cover"
-                              />
-                              <div className="text-sm">
-                                <div className="font-semibold text-base">
-                                  {item.portalAgent.name}
-                                </div>
-                                <div className="opacity-70">Verified Agent</div>
+                            <div className="space-y-1 text-md">
+                              <div className="flex justify-between">
+                                <span
+                                  style={{ fontFamily: "IT Medium" }}
+                                  className="opacity-70"
+                                >
+                                  Starting From:
+                                </span>
+                                <span style={{ fontFamily: "IT Medium" }}>
+                                  AED{" "}
+                                  {new Intl.NumberFormat("en-AE", {
+                                    maximumFractionDigits: 0,
+                                  }).format(item.starting_price)}
+                                </span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span
+                                  style={{ fontFamily: "IT Medium" }}
+                                  className="opacity-70"
+                                >
+                                  Payment Plan:
+                                </span>
+                                <span style={{ fontFamily: "IT Medium" }}>
+                                  {item.payment_plan}
+                                </span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span
+                                  style={{ fontFamily: "IT Medium" }}
+                                  className="opacity-70"
+                                >
+                                  Handover:
+                                </span>
+                                <span style={{ fontFamily: "IT Medium" }}>
+                                  {item.handover}
+                                </span>
                               </div>
                             </div>
-                          )} */}
+                          </div>
                         </div>
                       </div>
-                    ))
-                  : [...Array(itemsPerPage)].map((_, index) => (
-                      <Skeleton
-                        key={index}
-                        className="h-[300px] w-full rounded-xl"
-                      />
                     ))}
               </Box>
 
+              {/* No Results State */}
+              {!isLoading && currentData.length === 0 && (
+                <div className="py-20 text-center text-gray-500 w-full flex flex-col items-center">
+                  <Typography fontSize={20} fontFamily="DM Medium">
+                    No properties found
+                  </Typography>
+                  <Typography fontSize={14}>
+                    Try adjusting your search filters
+                  </Typography>
+                </div>
+              )}
+
               {/* Pagination */}
-              <div className="flex justify-center items-center gap-5 mt-10 overflow-x-auto animate-fadeIn">
-                <div
-                  onClick={() =>
-                    setCurrentPage((prev) => Math.max(prev - 1, 1))
-                  }
-                  className="cursor-pointer hover:scale-110 transition-transform"
-                >
-                  <ArrowLeft />
-                </div>
+              {totalPages > 1 && (
+                <div className="flex justify-center items-center gap-5 mt-16 overflow-x-auto animate-fadeIn">
+                  <button
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.max(prev - 1, 1))
+                    }
+                    disabled={currentPage === 1}
+                    className="p-2 rounded-full hover:bg-gray-100 disabled:opacity-30 transition-all"
+                  >
+                    <ArrowLeft size={20} />
+                  </button>
 
-                <div className="flex flex-wrap gap-3 items-center cursor-pointer">
-                  {[...Array(totalPages)].map((_, index) => (
-                    <div
-                      key={index}
-                      onClick={() => setCurrentPage(index + 1)}
-                      className={`border px-3 py-1 rounded-lg transition
-                        hover:bg-gray-200 shadow-sm
-                        ${
-                          currentPage === index + 1
-                            ? "bg-gray-300 shadow-md"
-                            : ""
-                        }`}
-                    >
-                      {index + 1}
-                    </div>
-                  ))}
-                </div>
+                  <div className="flex flex-wrap gap-2 items-center cursor-pointer">
+                    {[...Array(totalPages)].map((_, index) => (
+                      <div
+                        key={index}
+                        onClick={() => setCurrentPage(index + 1)}
+                        className={`w-10 h-10 flex items-center justify-center rounded-lg transition-all font-medium text-sm
+                          ${
+                            currentPage === index + 1
+                              ? "bg-[#0B253F] text-white shadow-md transform scale-105"
+                              : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50"
+                          }`}
+                      >
+                        {index + 1}
+                      </div>
+                    ))}
+                  </div>
 
-                <div
-                  onClick={() =>
-                    setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-                  }
-                  className="cursor-pointer hover:scale-110 transition-transform"
-                >
-                  <ArrowRight />
+                  <button
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                    }
+                    disabled={currentPage === totalPages}
+                    className="p-2 rounded-full hover:bg-gray-100 disabled:opacity-30 transition-all"
+                  >
+                    <ArrowRight size={20} />
+                  </button>
                 </div>
-              </div>
+              )}
             </div>
           )}
         </div>
@@ -310,27 +355,27 @@ function OffPlan() {
       {/* FORM SECTION */}
       <div
         ref={formRef}
-        className="bg-white shadow-lg border border-gray-200 rounded-3xl px-4 sm:px-8 py-10 flex flex-col items-center max-w-3xl mx-auto mb-1 lg:mt-10"
+        className="bg-white shadow-xl shadow-gray-200/50 border border-gray-100 rounded-3xl px-4 sm:px-8 py-12 flex flex-col items-center max-w-4xl mx-auto mb-10 mt-10 relative overflow-hidden"
       >
         <Typography
           fontFamily="RM Medium"
           color="#BA7F55"
-          className="uppercase tracking-wide text-sm mb-2"
+          className="uppercase tracking-widest text-xs mb-3 font-bold"
         >
-          [Get In Touch]
+          Get In Touch
         </Typography>
 
         <Typography
           fontFamily="DM Medium"
-          fontSize={{ xs: "24px", lg: "30px" }}
-          className="text-center mb-4"
+          fontSize={{ xs: "24px", lg: "36px" }}
+          className="text-center mb-4 text-[#0B253F]"
         >
           Let’s Make Your Property Journey Effortless
         </Typography>
 
         <Typography
           fontFamily="IT Light"
-          className="text-center text-gray-600 leading-relaxed max-w-xl"
+          className="text-center text-gray-600 leading-relaxed max-w-xl mb-8"
         >
           Whether you're buying, renting, or investing, our expert team is here
           to guide you every step of the way. Let's turn your property goals
@@ -339,7 +384,7 @@ function OffPlan() {
 
         <Form
           propertyId={""}
-          extraData={{ location: "Submitted from the offplan page" }}
+          extraData={{ location: "Submitted from the offplan listing page" }}
           formType="default"
         />
       </div>

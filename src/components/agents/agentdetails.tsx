@@ -127,7 +127,7 @@ function AgentDetails() {
 
   return (
     <div className="">
-      <div className="lg:px-20 xl:px-20 mx-auto py-10 lg:py-16 px-5">
+      <div className="lg:px-20 xl:px-20 mx-auto py-10 lg:py-20 px-5">
         {/* ---------- HERO SECTION ---------- */}
         <div className="grid lg:grid-cols-2 gap-10 items-center">
           <div className="max-w-2xl">

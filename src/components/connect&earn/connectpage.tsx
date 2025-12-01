@@ -9,9 +9,14 @@ import { Button } from "../ui/button";
 function ConnectAndEarn() {
   const isMobile = useMediaQuery("(max-width:768px)");
   const formRef = useRef<HTMLDivElement | null>(null);
+  const contentRef = useRef<HTMLDivElement | null>(null);
 
   function scrollToForm() {
     formRef.current?.scrollIntoView({ behavior: "smooth" });
+  }
+
+  function scrollToContent() {
+    contentRef.current?.scrollIntoView({ behavior: "smooth" });
   }
 
   return (
@@ -68,17 +73,20 @@ function ConnectAndEarn() {
             </Typography>
 
             <button
-              onClick={scrollToForm}
+              onClick={scrollToContent}
               className="flex items-center mt-5 gap-2 px-4 py-2 rounded-2xl border border-white/30 bg-white/10 text-white hover:bg-white hover:text-[#0B253F] transition"
             >
-              <Typography fontFamily="IT Medium">Start Earning Now</Typography>
+              <Typography fontFamily="IT Medium">Learn More</Typography>
             </button>
           </motion.div>
         </div>
       </div>
 
       {/* OVERVIEW SECTION */}
-      <div className="px-6 lg:px-24 py-20 flex flex-col lg:flex-row gap-20 items-start">
+      <div
+        className="px-6 lg:px-24 py-20 flex flex-col lg:flex-row gap-20 items-start"
+        ref={contentRef}
+      >
         <div className="w-full lg:w-1/2">
           <Typography
             fontFamily="IT Medium"
