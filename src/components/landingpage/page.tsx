@@ -41,34 +41,27 @@ const Page = () => {
           <Typography
             fontFamily="IT Bold"
             color="white"
-            fontSize={{ lg: "70px", xs: "32px" }}
+            fontSize={{ lg: "70px", xs: "29px" }}
             textAlign="center"
           >
             Open Doors, Open Arms
           </Typography>
-
           <Typography
             color="white"
             fontFamily="IT Regular"
-            fontSize={{ lg: "18px", xs: "15px" }}
+            fontSize={{ lg: "18px", xs: "14px" }}
             textAlign="center"
             className="mt-4"
           >
             {isMobile ? MOBILE_TEXT : DESKTOP_TEXT}
           </Typography>
-
-          {!isMobile && (
-            // <Magnet padding={50} disabled={false} magnetStrength={1}>
-            <Button
-              onClick={() => navigate("/sale/public-listings")}
-              style={{ fontFamily: "IT Bold" }}
-              className="flex items-center mt-10 gap-2 px-4 py-2 lg:px-5 lg:py-5 lg:text-lg rounded-2xl border border-white/30 bg-white hover:bg-white text-[#0B253F] transition z-[999] cursor-pointer"
-            >
-              Explore Properties
-            </Button>
-            //{" "}
-            // </Magnet>
-          )}
+          <Button
+            onClick={() => navigate("/sale/public-listings")}
+            style={{ fontFamily: "IT Bold" }}
+            className="flex items-center mt-10 gap-2 px-4 py-2 lg:px-5 lg:py-5 lg:text-lg rounded-2xl border border-white/30 bg-white hover:bg-white text-[#0B253F] transition  cursor-pointer"
+          >
+            Explore Properties
+          </Button>{" "}
         </div>
       </div>
     </div>

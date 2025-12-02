@@ -33,7 +33,7 @@ function AgentsOverview() {
   );
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 pt-10 lg:pt-1">
       {/* GLOBAL HEADER */}
       <div className="px-4">
         <div className="flex flex-col items-center justify-center py-10 px-6 text-center max-w-6xl mx-auto">

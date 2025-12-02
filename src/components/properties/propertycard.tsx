@@ -229,7 +229,7 @@ const PropertyCard = React.memo(function PropertyCard({
 
       {/* --- Status Label if Sold/Rented (Keep original logic) --- */}
       {!hasPhotosArray && statusLabel && (
-        <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-40">
+        <div className="absolute inset-0 bg-black/60 flex items-center justify-center ">
           <Typography
             fontFamily="IT Bold"
             className="text-white font-extrabold tracking-widest select-none border-4 border-white p-4 rotate-[-15deg]"

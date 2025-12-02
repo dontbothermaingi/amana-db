@@ -215,7 +215,7 @@ function PropertiesPage() {
   );
 
   return (
-    <div className="relative pb-20">
+    <div className="relative pb-20 pt-6">
       {/* Header + Title */}
       <div className="w-full flex flex-col gap-3 py-10 animate-fadeIn">
         <div className="lg:px-20 px-3 py-3 h-fit flex flex-col gap-5">

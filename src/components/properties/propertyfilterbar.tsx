@@ -188,7 +188,7 @@ function PropertyFilterBar({ onFilterChange, type }: FilterProps) {
     <>
       {isMobile ? (
         <>
-          <div className="sticky top-0 z-40 bg-[#0B253F] border-b border-[#274B7D]">
+          <div className="sticky top-0 bg-[#0B253F] border-b border-[#274B7D]">
             <button
               className="w-full py-3 font-semibold text-white"
               onClick={() => setOpenMobileFilters(true)}

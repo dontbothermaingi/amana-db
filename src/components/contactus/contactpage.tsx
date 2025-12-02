@@ -29,8 +29,8 @@ function ContactUs() {
   return (
     <div className="flex flex-col gap-4">
       {/* Hero */}
-      <div className="relative bg-[url('/GG.jpg')] lg:bg-[url('/FATIMA.JPG')] bg-cover bg-right lg:bg-top h-screen">
-        <div className="absolute inset-0 bg-gradient-to-t lg:bg-gradient-to-r from-black/85 via-black/40 lg:via-black/20 to-transparent h-full w-full" />
+      <div className="relative bg-[url('/kim.JPG')] lg:bg-[url('/kim.JPG')] bg-cover bg-center lg:bg-top h-screen">
+        <div className="absolute inset-0 bg-gradient-to-t lg:bg-gradient-to-r from-black/85 lg:via-black/20 to-transparent h-full w-full" />
         <div className="absolute inset-x-4 lg:inset-x-20 bottom-24 lg:bottom-28 text-left z-20">
           <div className="max-w-3xl">
             <Typography
@@ -55,7 +55,8 @@ function ContactUs() {
 
             <Typography
               fontFamily="IT Light"
-              className="text-gray-100 leading-relaxed max-w-2xl mb-6 text-sm lg:text-lg"
+              className="text-gray-100 leading-relaxed max-w-2xl mb-6"
+              fontSize={{ lg: "20px", xs: "14px" }}
             >
               Our team is dedicated to earning your trust whether you’re buying,
               selling, renting, or investing by focusing on your unique
