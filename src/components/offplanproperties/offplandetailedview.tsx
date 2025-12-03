@@ -12,11 +12,14 @@ import {
 } from "@/components/ui/carousel";
 import { Dialog, DialogContent, DialogTrigger } from "../ui/dialog";
 import { MapPin, CalendarClock, DollarSign } from "lucide-react";
+import { useState } from "react";
+import { Close } from "@mui/icons-material";
 
 const HERO_FALLBACK = "/placeholder-image.png";
 
 function OffPlanDetails() {
   const { propertyId } = useParams();
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const {
     data: project,
@@ -262,13 +265,24 @@ function OffPlanDetails() {
                       </h4>
                     </div>
 
-                    <div>
+                    <div
+                      className="group relative cursor-pointer overflow-hidden rounded-lg"
+                      onClick={() => setSelectedImage(unit.floor_plan_img)}
+                    >
                       {unit.floor_plan_img && (
-                        <img
-                          src={unit.floor_plan_img}
-                          alt="Floor Plan"
-                          className="w-full h-auto"
-                        />
+                        <>
+                          <img
+                            src={unit.floor_plan_img}
+                            alt="Floor Plan"
+                            className="w-full h-auto transition-transform duration-300 group-hover:scale-105"
+                          />
+                          {/* Optional: Add a visual cue that it's clickable */}
+                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+                            <span className="opacity-0 group-hover:opacity-100 bg-white/90 text-xs py-1 px-3 rounded-full shadow-sm transition-opacity">
+                              View Fullscreen
+                            </span>
+                          </div>
+                        </>
                       )}
                     </div>
 
@@ -360,6 +374,33 @@ function OffPlanDetails() {
                   </div>
                 </div>
               </div>
+
+              {/* Full Screen Image Viewer */}
+              <Dialog
+                open={!!selectedImage}
+                onOpenChange={(open) => !open && setSelectedImage(null)}
+              >
+                <DialogContent className="max-w-[95vw] max-h-[95vh] w-fit h-fit p-0 bg-transparent border-none shadow-none flex items-center justify-center outline-none">
+                  <div className="relative">
+                    {/* Close Button */}
+                    <button
+                      onClick={() => setSelectedImage(null)}
+                      className="absolute -top-10 -right-0 lg:-right-10 p-2 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors z-50"
+                    >
+                      <Close fontSize="medium" />
+                    </button>
+
+                    {/* The Image */}
+                    {selectedImage && (
+                      <img
+                        src={selectedImage}
+                        alt="Full View"
+                        className="max-h-[85vh] max-w-[90vw] object-contain rounded-md shadow-2xl"
+                      />
+                    )}
+                  </div>
+                </DialogContent>
+              </Dialog>
 
               <Dialog>
                 <DialogTrigger
