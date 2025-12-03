@@ -2,18 +2,6 @@
   command = "npm run build"
   publish = "dist"
 
-# 1. Cache the immutable assets (JS, CSS, Images) forever
-[[headers]]
-  for = "/assets/*"
-  [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
-
-# 2. NEVER cache the index.html (so browsers always see new updates)
-[[headers]]
-  for = "/*"
-  [headers.values]
-    Cache-Control = "public, max-age=0, must-revalidate"
-
 [[redirects]]
   from = "/*"
   to = "/index.html"
