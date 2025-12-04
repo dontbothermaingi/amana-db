@@ -395,7 +395,7 @@ function OffPlanDetails() {
                       <img
                         src={selectedImage}
                         alt="Full View"
-                        className="max-h-[85vh] max-w-[90vw] object-contain rounded-md shadow-2xl"
+                        className="max-h-[85vh] max-w-[90vw]  lg:w-[900px] object-contain rounded-md shadow-2xl"
                       />
                     )}
                   </div>
@@ -450,7 +450,7 @@ function OffPlanDetails() {
               <h4 className="text-sm font-bold text-gray-700 mb-3 uppercase tracking-wide">
                 Mortgage Estimator
               </h4>
-              <MortgageCalculator totalPrice={project.starting_price || 0} />
+              <MortgageCalculator totalPrice={""} />
             </div>
           </aside>
         </div>

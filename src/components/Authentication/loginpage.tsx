@@ -13,9 +13,9 @@ export function LoginPage() {
         <Card className="overflow-hidden p-0 gap-5">
           <CardContent className="grid p-0 md:grid-cols-2 gap-10">
             <Login />
-            <div className="bg-muted relative hidden md:block">
+            <div className="bg-muted relative md:block">
               <img
-                src="/login.jpg"
+                src="/r1.jpg"
                 alt="Image"
                 className="absolute inset-0 h-full w-full object-cover object-bottom dark:brightness-[0.2] dark:grayscale"
               />

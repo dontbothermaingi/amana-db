@@ -130,7 +130,7 @@ function AgentEdit({ agent }: AgentEditProps) {
   }
 
   return (
-    <div className="p-6 bg-white rounded-2xl shadow-lg w-full max-w-2xl mx-auto">
+    <div className="p-6 bg-white rounded-2xl shadow-lg w-full mx-auto">
       <Typography
         fontFamily="DM Medium"
         fontSize={{ xs: 24, lg: 28 }}

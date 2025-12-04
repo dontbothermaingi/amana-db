@@ -194,8 +194,6 @@ const OffplanUpload: React.FC = () => {
   // ... (handleSubmit and JSX remain exactly the same) ...
 
   const handleSubmit = async (e: FormEvent) => {
-    // (Your existing submit logic handles the files correctly
-    // because they are now already compressed in the state)
     e.preventDefault();
     setLoading(true);
     setMessage("");

@@ -2,16 +2,13 @@ import { useRef, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import PropertyCard from "../properties/propertycard";
-// 1. Ensure motion is imported here (it already was in your code)
 import { motion } from "framer-motion";
 import { FaWhatsapp } from "react-icons/fa";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Mail, Phone, MapPin, User, ShieldCheck } from "lucide-react";
 import { Skeleton } from "../ui/skeleton";
 
-// ... [Keep all your existing mapProperty function here unchanged] ...
 const mapProperty = (item: any) => ({
-  // ... your mapping logic
   listingType: item.offering_type || item.listing_type || "",
   community: item.community || item.sub_community || "",
   location: item.city || "",
@@ -29,7 +26,6 @@ const mapProperty = (item: any) => ({
 });
 
 function AgentDetails() {
-  // ... [Keep all existing hooks and logic unchanged] ...
   const { agentId } = useParams();
   const navigate = useNavigate();
   const [value, setValue] = useState<"sale" | "rent">("sale");
@@ -48,7 +44,6 @@ function AgentDetails() {
       queryKey: ["agentListings", agentId, value],
       enabled: !!agent,
       queryFn: async () => {
-        // ... [Keep your existing fetch logic here unchanged] ...
         const [crmRes, soldRes] = await Promise.all([
           fetch("https://db-amana.onrender.com/crm-data"),
           fetch(`https://db-amana.onrender.com/properties/${agentId}`),
@@ -194,7 +189,6 @@ function AgentDetails() {
             {/* -------------------------------------------------- */}
             {/* NEW SECTION: Custom QR Code with Hover Effect    */}
             {/* -------------------------------------------------- */}
-            {/* IMPORTANT: Replace 'agent.custom_qr_image' with the actual field name from your DB that holds the image URL */}
             {agent && (
               <div className="pt-6 border-t border-gray-200">
                 <p
@@ -206,7 +200,7 @@ function AgentDetails() {
                 {/* We use motion.a so the anchor tag itself animates */}
                 <motion.a
                   // IMPORTANT: Replace 'agent.qr_destination_url' with the field that holds the link the QR goes to
-                  href={agent.qr_destination_url || "#"}
+                  href={"#"}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-block p-2 bg-white rounded-2xl shadow-sm border border-gray-100"
