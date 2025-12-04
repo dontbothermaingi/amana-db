@@ -62,7 +62,7 @@ function AboutOverView() {
       </div>
 
       {/* Why Choose Us Section */}
-      <section className="py-16 px-4 lg:px-20 text-center">
+      <section className="pt-16 px-4 lg:px-20 text-center">
         <div className="max-w-4xl mx-auto">
           <div className="bg-[#0B253F] px-6 py-2 inline-block rounded-md mb-6">
             <Typography color="#BA7F55" fontFamily="IT Medium">
@@ -121,7 +121,7 @@ function AboutOverView() {
             Our Trusted Partners
           </Typography>
 
-          <div className="flex flex-wrap items-center justify-center gap-10 py-15 lg:max-w-2xl mx-auto">
+          <div className="flex flex-wrap items-center justify-center gap-10 py- lg:max-w-2xl mx-auto">
             <img
               src="/Aark.svg"
               alt="logo"

@@ -132,7 +132,7 @@ function PropertyOverview() {
   }
 
   return (
-    <div className="relative flex flex-col gap-10">
+    <div className="relative flex flex-col gap-10 pt-10">
       {/* Back Button */}
       {isMobile ? (
         <div className="fixed top-3 left-3 z-[999999999999999999999999999999999999999999999]">
@@ -157,9 +157,9 @@ function PropertyOverview() {
         </div>
       )}
 
-      <div className="h-full flex flex-col gap-2 px-4 sm:px-6 md:px-10 lg:px-40 py-1 lg:py-0">
+      <div className="h-full flex flex-col gap-2 px-4 sm:px-6 md:px-10 lg:px-40 py-1 lg:py-0 ">
         {/* Hero Section */}
-        <div className="flex flex-col items-center justify-center pt-5 px-6 text-center max-w-6xl mx-auto w-full">
+        <div className="flex flex-col items-center justify-center pt-5 px-6 text-center max-w-6xl mx-auto w-full lg:pb-5">
           {isLoading ? (
             <>
               <Skeleton className="h-6 w-48 mb-2 rounded-full" />

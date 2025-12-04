@@ -23,9 +23,14 @@ const valueCards = [
 
 export default function Renovation(): JSX.Element {
   const formRef = useRef<HTMLDivElement | null>(null);
+  const contentRef = useRef<HTMLDivElement | null>(null);
 
   function scrollToForm() {
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
+  function scrollToContent() {
+    contentRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
   }
 
   return (
@@ -73,11 +78,11 @@ export default function Renovation(): JSX.Element {
               <motion.button
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.98 }}
-                onClick={scrollToForm}
+                onClick={scrollToContent}
                 className="flex items-center gap-2 px-4 py-2 rounded-2xl border border-white/30 bg-white/10 text-white hover:bg-white hover:text-[#0B253F] transition"
                 aria-label="View portfolio"
               >
-                Book your call
+                Learn More
               </motion.button>
             </div>
           </motion.div>
@@ -85,7 +90,7 @@ export default function Renovation(): JSX.Element {
       </div>
 
       {/* Overview with stats */}
-      <section className="px-6 lg:px-40 pt-12 lg:pt-20 pb-8">
+      <section ref={contentRef} className="px-6 lg:px-40 pt-12 lg:pt-20 pb-8">
         <div className="grid lg:grid-cols-2 gap-8 items-center">
           <motion.div
             initial="hidden"
@@ -113,6 +118,18 @@ export default function Renovation(): JSX.Element {
               refurbishments, our approach is tailored, transparent and built
               for value on time, on budget.
             </Typography>
+
+            <div className="mt-5">
+              <motion.button
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={scrollToForm}
+                className="flex items-center gap-2 px-4 py-2 rounded-2xl border border-white/30 bg-[#0B253F] text-white transition cursor-pointer"
+                aria-label="View portfolio"
+              >
+                Enquire
+              </motion.button>
+            </div>
           </motion.div>
 
           <motion.div
@@ -134,14 +151,6 @@ export default function Renovation(): JSX.Element {
                 className="w-full h-full object-cover"
                 style={{ display: "block" }}
               />
-              <div className="absolute bottom-4 left-4 bg-white/80 backdrop-blur-md rounded-xl p-3">
-                <Typography fontFamily={"IT Medium"} sx={{ fontSize: "14px" }}>
-                  Villa Jumeirah — Full Interior & Landscape
-                </Typography>
-                <Typography className="text-xs text-gray-600">
-                  Completed: May 2025
-                </Typography>
-              </div>
             </div>
           </motion.div>
         </div>
