@@ -22,7 +22,7 @@ function AgentsOverview() {
       fetch("https://db-amana.onrender.com/agents")
         .then((res) => res.json())
         .catch((err) => console.error("Error fetching agents:", err)),
-    staleTime: 1000 * 60 * 10,
+    staleTime: 1000 * 60 * 60,
   });
 
   const handleDetails = useCallback(

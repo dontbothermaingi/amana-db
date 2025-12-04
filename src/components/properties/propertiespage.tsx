@@ -115,7 +115,7 @@ function PropertiesPage() {
 
       return [...crmArray, ...flaskArray].sort((a, b) => a.price - b.price);
     },
-    staleTime: 1000 * 60 * 10, // cache 10 min
+    staleTime: 1000 * 60 * 30, // cache 30 min
   });
 
   // Memoized filtered properties (one pass)
