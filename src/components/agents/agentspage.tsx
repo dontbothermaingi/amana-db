@@ -102,7 +102,7 @@ function AgentsOverview() {
                     }}
                     aria-label={`Team member ${item.name}`}
                   >
-                    <div className="absolute bg-gradient-to-t from-black/70 to-transparent h-full w-full" />
+                    <div className="absolute bg-gradient-to-t from-black/95 via-transparent to-transparent h-full w-full" />
 
                     <div className="absolute bottom-4 left-4 right-4 text-white">
                       <Typography fontFamily={"IT Medium"} fontSize="20px">
