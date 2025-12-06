@@ -11,6 +11,7 @@ function PropertyFilterBar({ onFilterChange, type }: FilterProps) {
   const initialFilters = {
     community: "",
     propertyType: "",
+    location: "Dubai",
     beds: "",
     bathrooms: "",
     sqftMin: "",
@@ -101,9 +102,37 @@ function PropertyFilterBar({ onFilterChange, type }: FilterProps) {
       className="bg-[#0B253F] flex flex-wrap gap-4 items-end"
       onSubmit={(e) => e.preventDefault()}
     >
+      <SelectField
+        label="Emirate"
+        name="location"
+        value={filters.location}
+        onChange={handleChange}
+        options={[
+          "Abu Dhabi",
+          "Ajman",
+          "Dubai",
+          "Sharjah",
+          "Umm Al Quwain",
+          "Ras Al Khaimah",
+          "Fujairah",
+        ]}
+        flex="1"
+      />
+
+      {/* <div className={`flex flex-col min-w-[120px]`}>
+        <label className="mb-1 font-medium text-white">Emirate</label>
+        <input
+          type="text"
+          name="location"
+          value={filters.location}
+          onChange={handleChange}
+          className="rounded-md px-3 py-2 text-[#BA7F55] bg-[#152D4A] border border-[#274B7D] focus:outline-none focus:ring-2 focus:ring-[#BA7F55]"
+        />
+      </div> */}
+
       {/* Community Search - biggest */}
       <div className={`flex flex-col min-w-[120px]`}>
-        <label className="mb-1 font-medium text-white">Community</label>
+        <label className="mb-1 font-medium text-white">Area</label>
         <input
           type="text"
           name="community"

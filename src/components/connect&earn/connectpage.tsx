@@ -37,7 +37,7 @@ function ConnectAndEarn() {
 
         <div
           className={`absolute ${
-            isMobile ? "bottom-28 left-4 px-4" : "bottom-24 left-20 max-w-3xl"
+            isMobile ? "bottom-28 left-4 px-4" : "bottom-10 left-10 max-w-3xl"
           }`}
         >
           <motion.div

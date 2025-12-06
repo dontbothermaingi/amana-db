@@ -124,6 +124,9 @@ function AgentDetails() {
       case "mark@amanahomes.ae":
         pic = "/markqr.png";
         break;
+      case "thekla@amanahomes.ae":
+        pic = "/thekla.png";
+        break;
       default:
         pic = "/amana-logo.png";
     }

@@ -1,7 +1,6 @@
-import { Divider, Typography, useMediaQuery } from "@mui/material";
+import { Divider, Typography } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import {
-  ArrowLeft,
   BadgeCheck,
   Bed,
   Mail,
@@ -10,7 +9,7 @@ import {
   Ruler,
   ShowerHead,
 } from "lucide-react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { FaWhatsapp } from "react-icons/fa";
 import MortgageCalculator from "./morgagecalculator";
 import ImageGalleryPreview from "./imagegallery";
@@ -23,8 +22,6 @@ import { Skeleton } from "../ui/skeleton"; // Ensure you have this component
 function PropertyOverview() {
   const { propertyId } = useParams();
   const navigate = useNavigate();
-  const location = useLocation();
-  const isMobile = useMediaQuery("(max-width:768px)");
 
   // Added isLoading here
   const { data: house, isLoading } = useQuery({
@@ -44,13 +41,6 @@ function PropertyOverview() {
     enabled: !!propertyId,
     staleTime: 1000 * 60 * 10,
   });
-
-  const handleGoBack = () => {
-    // Optional chaining in case house isn't loaded yet when clicking back (rare edge case)
-    navigate(`/${house?.offering_type || "sale"}/public-listings`, {
-      state: location.state,
-    });
-  };
 
   const keyInfo = useMemo<Record<string, string | undefined>>(() => {
     if (!house) return {};
@@ -133,31 +123,7 @@ function PropertyOverview() {
 
   return (
     <div className="relative flex flex-col gap-10 pt-10">
-      {/* Back Button */}
-      {isMobile ? (
-        <div className="fixed top-3 left-3 z-[999999999999999999999999999999999999999999999]">
-          <div
-            style={{ fontFamily: "IT Medium" }}
-            onClick={() => handleGoBack()}
-            className="bg-[#BA7F55] text-[#0B253F] rounded-full p-2"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </div>
-        </div>
-      ) : (
-        <div className="fixed top-8 left-8 z-[99]">
-          <Button
-            style={{ fontFamily: "IT Medium" }}
-            onClick={() => handleGoBack()}
-            className="bg-[#0B253F] cursor-pointer"
-          >
-            <ArrowLeft />
-            Back
-          </Button>
-        </div>
-      )}
-
-      <div className="h-full flex flex-col gap-2 px-4 sm:px-6 md:px-10 lg:px-40 py-1 lg:py-0 ">
+      <div className="h-full flex flex-col gap-2 px-4 sm:px-6 md:px-10 lg:px-20 py-1 lg:py-0 ">
         {/* Hero Section */}
         <div className="flex flex-col items-center justify-center pt-5 px-6 text-center max-w-6xl mx-auto w-full lg:pb-5">
           {isLoading ? (
@@ -539,7 +505,9 @@ function PropertyOverview() {
               {isLoading ? (
                 <Skeleton className="h-64 w-full rounded-xl" />
               ) : (
-                <MortgageCalculator totalPrice={house?.price} />
+                house?.offering_type == "sale" && (
+                  <MortgageCalculator totalPrice={house?.price} />
+                )
               )}
             </div>
           </div>

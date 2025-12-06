@@ -3,7 +3,7 @@ export default function Loader() {
   return (
     <div className="fixed z-[9999] inset-0 flex flex-col items-center justify-center bg-slate-900 text-white">
       <video
-        src="/yoh1.mp4"
+        src="/loadvide.mp4"
         autoPlay
         loop
         muted

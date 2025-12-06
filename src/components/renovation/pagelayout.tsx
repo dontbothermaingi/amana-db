@@ -38,7 +38,7 @@ export default function Renovation(): JSX.Element {
       {/* Hero */}
       <div className="relative bg-[url('/renovate3.jpg')] lg:bg-[url('/INT1.jpg')] bg-cover bg-bottom lg:bg-center h-screen">
         <div className="absolute inset-0 bg-gradient-to-t lg:bg-gradient-to-r from-black/85 via-black/40 lg:via-black/20 to-transparent h-full w-full" />
-        <div className="absolute inset-x-4 lg:inset-x-20 bottom-24 lg:bottom-28 text-left z-20">
+        <div className="absolute inset-x-4 lg:inset-x-10 bottom-24 lg:bottom-10 text-left z-20">
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}

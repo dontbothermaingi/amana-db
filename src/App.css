@@ -1,7 +1,25 @@
 :root {
-  --bg: #faf7f2; /* or your chosen warm white */
+  --bg: #fff6eb; /* or your chosen warm white */
 }
 
 body {
   background-color: var(--bg);
+}
+
+/* REQUIRED FOR LENIS */
+html.lenis,
+html.lenis body {
+  height: auto; /* This is crucial! Do not use 100% */
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
 }

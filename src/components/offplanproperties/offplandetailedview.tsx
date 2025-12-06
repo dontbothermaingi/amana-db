@@ -217,7 +217,7 @@ function OffPlanDetails() {
                 className="text-2xl font-semibold mb-4 border-b pb-2"
                 style={{ fontFamily: "IT Bold" }}
               >
-                Payment Plan
+                Payment Structure
               </h3>
               <div className="p-6 bg-[#0B253F] text-white rounded-xl shadow-lg flex flex-col md:flex-row justify-between items-center gap-4">
                 <div>
@@ -453,6 +453,42 @@ function OffPlanDetails() {
               <MortgageCalculator totalPrice={""} />
             </div>
           </aside>
+        </div>
+
+        {/* FORM SECTION */}
+        <div className="bg-white shadow-xl shadow-gray-200/50 border border-gray-100 rounded-3xl px-4 sm:px-8 py-12 flex flex-col items-center max-w-4xl mx-auto mb-10 mt-10 relative overflow-hidden">
+          <Typography
+            fontFamily="RM Medium"
+            color="#BA7F55"
+            className="uppercase tracking-widest text-xs mb-3 font-bold"
+          >
+            Get In Touch
+          </Typography>
+
+          <Typography
+            fontFamily="DM Medium"
+            fontSize={{ xs: "24px", lg: "36px" }}
+            className="text-center mb-4 text-[#0B253F]"
+          >
+            Let’s Make Your Property Journey Effortless
+          </Typography>
+
+          <Typography
+            fontFamily="IT Light"
+            className="text-center text-gray-600 leading-relaxed max-w-xl mb-8"
+          >
+            Whether you're buying, renting, or investing, our expert team is
+            here to guide you every step of the way. Let's turn your property
+            goals into reality—together.
+          </Typography>
+
+          <Form
+            propertyId={""}
+            extraData={{
+              location: "Submitted from the offplan listing page",
+            }}
+            formType="default"
+          />
         </div>
       </div>
     </div>

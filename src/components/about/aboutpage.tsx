@@ -28,7 +28,7 @@ function AboutOverView() {
 
   return (
     <div className="pb-20">
-      <div className="relative bg-[url('/about5.jpg')] lg:bg-[url('/DC.jpg')] bg-cover bg-right lg:bg-top h-[100vh]">
+      <div className="relative bg-[url('/about5.jpg')] lg:bg-[url('/team.png')] bg-cover bg-right lg:bg-top h-[100vh]">
         <div className="absolute h-full w-full bg-gradient-to-t lg:bg-gradient-to-r from-black/90 to-black/10" />
 
         {/* Hero Section */}
@@ -46,7 +46,7 @@ function AboutOverView() {
             fontSize={{ lg: "50px", xs: "34px" }}
             className="mb-4"
           >
-            About Us
+            About Our Team
           </Typography>
           <Typography
             fontSize={{ lg: "17px", xs: "14px" }}
@@ -110,88 +110,88 @@ function AboutOverView() {
             </div>
           ))}
         </Box>
-
-        {/* Clients Marquee */}
-        <div className="pt-15">
-          <Typography
-            textAlign={"center"}
-            fontFamily={"IT Medium"}
-            fontSize={{ lg: "50px", md: "40px", xs: "30px" }}
-          >
-            Our Trusted Partners
-          </Typography>
-
-          <div className="flex flex-wrap items-center justify-center gap-10 py- lg:max-w-2xl mx-auto">
-            <img
-              src="/Aark.svg"
-              alt="logo"
-              loading="lazy"
-              className="object-cover"
-            />
-
-            <img
-              src="/Arada.svg"
-              alt="logo"
-              loading="lazy"
-              className="object-cover"
-            />
-
-            <img
-              src="/Azizi.svg"
-              alt="logo"
-              loading="lazy"
-              className="object-cover"
-            />
-
-            <img
-              src="/Danube.svg"
-              alt="logo"
-              loading="lazy"
-              className="object-cover"
-            />
-
-            <img
-              src="/HeartOfEurope.svg"
-              alt="logo"
-              loading="lazy"
-              className="object-cover"
-            />
-
-            <img
-              src="/Mag.svg"
-              alt="logo"
-              loading="lazy"
-              className="object-cover"
-            />
-
-            <img
-              src="/nshama.svg"
-              alt="logo"
-              loading="lazy"
-              className="object-cover"
-            />
-
-            <img
-              src="/Object1.svg"
-              alt="logo"
-              loading="lazy"
-              className="object-cover"
-            />
-
-            <img
-              src="/Reportage.svg"
-              alt="logo"
-              loading="lazy"
-              className="object-cover"
-            />
-          </div>
-        </div>
       </section>
 
       {/* Agents Section */}
       <section className="px-4">
         <Agents />
       </section>
+
+      {/* Clients Marquee */}
+      <div className="pt-15">
+        <Typography
+          textAlign={"center"}
+          fontFamily={"IT Medium"}
+          fontSize={{ lg: "50px", md: "40px", xs: "30px" }}
+        >
+          Our Trusted Partners
+        </Typography>
+
+        <div className="flex flex-wrap items-center justify-center gap-10 py- lg:max-w-2xl mx-auto">
+          <img
+            src="/Aark.svg"
+            alt="logo"
+            loading="lazy"
+            className="object-cover"
+          />
+
+          <img
+            src="/Arada.svg"
+            alt="logo"
+            loading="lazy"
+            className="object-cover"
+          />
+
+          <img
+            src="/Azizi.svg"
+            alt="logo"
+            loading="lazy"
+            className="object-cover"
+          />
+
+          <img
+            src="/Danube.svg"
+            alt="logo"
+            loading="lazy"
+            className="object-cover"
+          />
+
+          <img
+            src="/HeartOfEurope.svg"
+            alt="logo"
+            loading="lazy"
+            className="object-cover"
+          />
+
+          <img
+            src="/Mag.svg"
+            alt="logo"
+            loading="lazy"
+            className="object-cover"
+          />
+
+          <img
+            src="/nshama.svg"
+            alt="logo"
+            loading="lazy"
+            className="object-cover"
+          />
+
+          <img
+            src="/Object1.svg"
+            alt="logo"
+            loading="lazy"
+            className="object-cover"
+          />
+
+          <img
+            src="/Reportage.svg"
+            alt="logo"
+            loading="lazy"
+            className="object-cover"
+          />
+        </div>
+      </div>
 
       {/* Contact Form */}
       <section className="bg-white shadow-lg border border-gray-200 rounded-3xl px-4 py-10 lg:px-8 lg:py-12 max-w-3xl mx-auto my-10">

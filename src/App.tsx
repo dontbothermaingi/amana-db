@@ -20,13 +20,19 @@ import ContactUs from "./components/contactus/contactpage";
 import { LoginPage } from "./components/Authentication/loginpage";
 import AdminPage from "./components/admin/page";
 import StaggeredMenu from "./components/ui/StaggeredMenu";
+import { useMediaQuery } from "@mui/material";
+import DesktopSidebar from "./components/landingpage/desktopnavbar";
 
 const LOADER_KEY = "loadershowdown";
 const LOADER_EXPIRE = 1000 * 60 * 60 * 2;
-const FADE_DURATION_MS = 1500;
+const FADE_DURATION_MS = 9000;
 
 function App() {
   const [fadeOut, setFadeOut] = useState(false);
+
+  // FIX 1: Add parentheses around the media query
+  const isMobile = useMediaQuery("(max-width:768px)");
+
   const [loading, setLoading] = useState(() => {
     const item = localStorage.getItem(LOADER_KEY);
     if (!item) return true;
@@ -36,26 +42,24 @@ function App() {
     return expired;
   });
 
+  // localStorage.removeItem(LOADER_KEY);
+
   useEffect(() => {
     if (!loading) return;
 
-    // Timer for when the loader starts fading out
     const fadeOutTimer = setTimeout(() => {
       setFadeOut(true);
-
-      // mark loader as shown
       localStorage.setItem(
         LOADER_KEY,
         JSON.stringify({ timestamp: Date.now() })
       );
 
-      // Timer for when the component is completely hidden and unmounted
       const hideTimer = setTimeout(() => {
         setLoading(false);
       }, FADE_DURATION_MS);
 
       return () => clearTimeout(hideTimer);
-    }, 5000);
+    }, 7000);
 
     return () => clearTimeout(fadeOutTimer);
   }, [loading]);
@@ -73,8 +77,7 @@ function App() {
       link: "/rent/public-listings",
     },
     { label: "OffPlan", ariaLabel: "Get in touch", link: "/off-plan" },
-    { label: "About Us", ariaLabel: "Learn about us", link: "/about-us" },
-    { label: "The Team", ariaLabel: "View our team", link: "/amana-team" },
+    { label: "About Our Team", ariaLabel: "Learn about us", link: "/about-us" },
     { label: "Connect & Earn", ariaLabel: "Connect and earn", link: "/earn" },
     {
       label: "Renovations",
@@ -85,23 +88,26 @@ function App() {
   ];
 
   const socialItems = [
-    { label: "Twitter", link: "https://x.com/amanahomesllc" },
+    {
+      label: "LinkedIn",
+      link: "https://www.linkedin.com/company/amana-homes-real-estate",
+    },
     {
       label: "Instagram",
       link: " https://www.instagram.com/amanahomes_realestate",
     },
-    { label: "TikTok", link: "https://www.tiktok.com/@amanahomesrealestate" },
-    { label: "YouTube", link: "https://www.youtube.com/@AmanaHomesRealEstate" },
     {
       label: "Facebook",
       link: "https://www.facebook.com/amanahomesrealestate/",
     },
+    { label: "YouTube", link: "https://www.youtube.com/@AmanaHomesRealEstate" },
+    { label: "X", link: "https://x.com/amanahomesllc" },
+    { label: "TikTok", link: "https://www.tiktok.com/@amana_homes_realestate" },
+    { label: "Snapchat", link: "https://www.snapchat.com/add/amanahomes" },
   ];
 
   return (
     <div className="relative h-screen">
-      <ScrollToTop />
-
       {loading && (
         <div
           className={`fixed inset-0 transition-opacity duration-[${FADE_DURATION_MS}ms] ${
@@ -112,61 +118,59 @@ function App() {
         </div>
       )}
 
+      {/* FIX 2: Changed 'flex-row' to 'flex-col md:flex-row' */}
       <div
-        className={`w-full h-full transition-opacity duration-[${FADE_DURATION_MS}ms] ${
-          // Content should be transparent initially, and fade in as the loader fades out.
-          // It should be fully opaque when the loader is gone or fading out.
+        className={`flex flex-col md:flex-row w-full h-full transition-opacity duration-[${FADE_DURATION_MS}ms] ${
           loading && !fadeOut ? "opacity-0" : "opacity-100"
         }`}
       >
-        {/* <div className="fixed bottom-10 w-full flex flex-col justify-center items-center z-[999]">
-          <div className="w-full">
-            <Navbar />
+        {isMobile ? (
+          /* Mobile Menu Wrapper */
+          <div className="relative z-50">
+            <StaggeredMenu
+              position="left"
+              items={menuItems}
+              socialItems={socialItems}
+              displaySocials={true}
+              displayItemNumbering={false}
+              menuButtonColor="white"
+              openMenuButtonColor="white"
+              changeMenuColorOnOpen={true}
+              colors={["#0B253F", "#BA7F55"]}
+              logoUrl="/amana.svg"
+              accentColor="#ff6b6b"
+              onMenuOpen={() => console.log("Menu opened")}
+              onMenuClose={() => console.log("Menu closed")}
+              isFixed={true}
+            />
           </div>
-        </div> */}
+        ) : (
+          <DesktopSidebar items={menuItems} socialItems={socialItems} />
+        )}
 
-        {/* <div
-          style={{ height: "100vh", background: "" }}
-          className="fixed inset-0 top-0 left-0 overflow-hidden"
-        > */}
-        <StaggeredMenu
-          position="right"
-          items={menuItems}
-          socialItems={socialItems}
-          displaySocials={true}
-          displayItemNumbering={true}
-          menuButtonColor="white"
-          openMenuButtonColor="white"
-          changeMenuColorOnOpen={true}
-          colors={["#B19EEF", "#5227FF"]}
-          logoUrl="/amana.svg"
-          accentColor="#ff6b6b"
-          onMenuOpen={() => console.log("Menu opened")}
-          onMenuClose={() => console.log("Menu closed")}
-          isFixed={true}
-        />
-        {/* </div> */}
-
-        <Routes>
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/admin" element={<AdminPage />} />
-          <Route path="/" element={<Page />} />
-          <Route path="/:type/public-listings" element={<PropertiesPage />} />
-          <Route path="/off-plan/:propertyId" element={<OffPlanDetails />} />
-          <Route path="/amana-team" element={<AgentsOverview />} />
-          <Route path="/off-plan" element={<OffPlan />} />
-          <Route path="/about-us" element={<AboutOverView />} />
-          <Route path="/agent-details/:agentId" element={<AgentDetails />} />
-          <Route path="/earn" element={<ConnectAndEarn />} />
-          <Route path="/luxury-renovations-dubai" element={<Renovation />} />
-          <Route path="/dubai-property-uk-investors" element={<Tenants />} />
-          <Route path="/contact-us" element={<ContactUs />} />
-
-          <Route
-            path="/public-listings/:propertyId"
-            element={<PropertyOverview />}
-          />
-        </Routes>
+        {/* Content Area */}
+        <div className="flex-1 h-full overflow-y-auto relative">
+          <ScrollToTop />
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/admin" element={<AdminPage />} />
+            <Route path="/" element={<Page />} />
+            <Route path="/:type/public-listings" element={<PropertiesPage />} />
+            <Route path="/off-plan/:propertyId" element={<OffPlanDetails />} />
+            <Route path="/amana-team" element={<AgentsOverview />} />
+            <Route path="/off-plan" element={<OffPlan />} />
+            <Route path="/about-us" element={<AboutOverView />} />
+            <Route path="/agent-details/:agentId" element={<AgentDetails />} />
+            <Route path="/earn" element={<ConnectAndEarn />} />
+            <Route path="/luxury-renovations-dubai" element={<Renovation />} />
+            <Route path="/dubai-property-uk-investors" element={<Tenants />} />
+            <Route path="/contact-us" element={<ContactUs />} />
+            <Route
+              path="/public-listings/:propertyId"
+              element={<PropertyOverview />}
+            />
+          </Routes>
+        </div>
       </div>
     </div>
   );

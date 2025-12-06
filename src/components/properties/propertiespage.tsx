@@ -142,7 +142,7 @@ function PropertiesPage() {
           .toLowerCase()
           .includes(filters.location.trim().toLowerCase())
       )
-        return false; // hide non-matching ones
+        return false;
 
       if (
         filters.propertyType &&
@@ -176,16 +176,16 @@ function PropertiesPage() {
     const { propertyType, location, community, reason } = filters;
 
     if (!location && !community && !propertyType && !reason)
-      return "Properties for Sale in the UAE";
+      return "Selection of Properties for Sale in the UAE";
 
     let title =
       reason == "rent"
         ? propertyType
           ? `${propertyType}s for Rent`
-          : "Properties for Rent"
+          : "Selection of Properties for Rent"
         : propertyType
         ? `${propertyType}s for Sale`
-        : "Properties for Sale";
+        : "Selection of Properties for Sale";
 
     if (location) title += ` in ${location}`;
     else title += ` in Dubai`;
@@ -218,7 +218,7 @@ function PropertiesPage() {
     <div className="relative pb-20 pt-6">
       {/* Header + Title */}
       <div className="w-full flex flex-col gap-3 py-10 animate-fadeIn">
-        <div className="lg:px-20 px-3 py-3 h-fit flex flex-col gap-5">
+        <div className="lg:px-10 px-3 py-3 h-fit flex flex-col gap-5">
           <div className="flex flex-col gap-5 lg:gap-0 lg:flex-row justify-between items-start">
             {/* Title Section */}
             <div className="flex flex-col gap-3">
