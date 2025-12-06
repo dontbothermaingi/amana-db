@@ -81,7 +81,7 @@ const transformProperties = (items: any[]): Listing[] => {
 function PropertiesPage() {
   const navigate = useNavigate();
   const { type } = useParams();
-  const itemsPerPage = 15;
+  const itemsPerPage = 16;
   const location = useLocation();
 
   const [filters, setFilters] = useState<Filters>({});
@@ -282,7 +282,7 @@ function PropertiesPage() {
                   gridTemplateColumns={{
                     md: "repeat(2,1fr)",
                     xs: "repeat(1,1fr)",
-                    lg: "repeat(5,1fr)",
+                    lg: "repeat(4,1fr)",
                   }}
                   gap={"30px"}
                   className="animate-slideUp"

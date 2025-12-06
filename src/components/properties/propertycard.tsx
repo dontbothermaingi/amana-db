@@ -1,5 +1,5 @@
 import { Typography } from "@mui/material";
-import { Bed, MapPin, Ruler, ShowerHead, ArrowRight } from "lucide-react";
+import { Bed, MapPin, Ruler, ShowerHead } from "lucide-react";
 import React, { useCallback } from "react";
 import { Button } from "../ui/button";
 import { useNavigate } from "react-router";
@@ -214,13 +214,13 @@ const PropertyCard = React.memo(function PropertyCard({
                 </Button>
 
                 {/* View Property Button (Visual cue for the main card click) */}
-                <Button
+                {/* <Button
                   size="icon"
                   className="bg-white text-black hover:bg-gray-200 rounded-full w-10 h-10 shadow-lg cursor-pointer"
                   // No onClick needed here because it bubbles up to the main card click
                 >
                   <ArrowRight className="w-5 h-5" />
-                </Button>
+                </Button> */}
               </div>
             </div>
           )}
