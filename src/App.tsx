@@ -19,9 +19,7 @@ import ScrollToTop from "./ScrollTop";
 import ContactUs from "./components/contactus/contactpage";
 import { LoginPage } from "./components/Authentication/loginpage";
 import AdminPage from "./components/admin/page";
-import StaggeredMenu from "./components/ui/StaggeredMenu";
 import { useMediaQuery } from "@mui/material";
-import DesktopSidebar from "./components/landingpage/desktopnavbar";
 import ResponsiveSidebar from "./components/landingpage/desktopnavbar";
 
 const LOADER_KEY = "loadershowdown";
