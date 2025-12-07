@@ -22,6 +22,7 @@ import AdminPage from "./components/admin/page";
 import StaggeredMenu from "./components/ui/StaggeredMenu";
 import { useMediaQuery } from "@mui/material";
 import DesktopSidebar from "./components/landingpage/desktopnavbar";
+import ResponsiveSidebar from "./components/landingpage/desktopnavbar";
 
 const LOADER_KEY = "loadershowdown";
 const LOADER_EXPIRE = 1000 * 60 * 60 * 2;
@@ -124,33 +125,12 @@ function App() {
           loading && !fadeOut ? "opacity-0" : "opacity-100"
         }`}
       >
-        {isMobile ? (
-          /* Mobile Menu Wrapper */
-          <div className="relative z-50">
-            <StaggeredMenu
-              position="left"
-              items={menuItems}
-              socialItems={socialItems}
-              displaySocials={true}
-              displayItemNumbering={false}
-              menuButtonColor="white"
-              openMenuButtonColor="white"
-              changeMenuColorOnOpen={true}
-              colors={["#0B253F", "#BA7F55"]}
-              logoUrl="/amana.svg"
-              accentColor="#ff6b6b"
-              onMenuOpen={() => console.log("Menu opened")}
-              onMenuClose={() => console.log("Menu closed")}
-              isFixed={true}
-            />
-          </div>
-        ) : (
-          <DesktopSidebar items={menuItems} socialItems={socialItems} />
-        )}
+        <ResponsiveSidebar items={menuItems} socialItems={socialItems} />
 
         {/* Content Area */}
         <div className="flex-1 h-full overflow-y-auto relative">
           <ScrollToTop />
+          {isMobile && <div className="h-7" />}
           <Routes>
             <Route path="/login" element={<LoginPage />} />
             <Route path="/admin" element={<AdminPage />} />

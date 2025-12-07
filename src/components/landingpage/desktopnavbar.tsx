@@ -1,10 +1,11 @@
-import { Calendar, Gift, Key, ShoppingBag, ToolCase } from "lucide-react";
-import React, { useState } from "react";
+import { useMediaQuery } from "@mui/material";
+import { Calendar, Gift, Key, ShoppingBag, ToolCase, X } from "lucide-react";
+import React, { useState, useEffect } from "react";
 import { FaSnapchatGhost } from "react-icons/fa";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
 /* -------------------------------------------------------------------------- */
-/* ICON ASSETS                                */
+/* ICON ASSETS (Unchanged)                                                    */
 /* -------------------------------------------------------------------------- */
 
 const NavIcons: any = {
@@ -175,14 +176,18 @@ interface SocialItem {
   link: string;
 }
 
-interface SidebarProps {
+interface NavigationProps {
   items: MenuItem[];
   socialItems: SocialItem[];
 }
 
-export const MobileTopBar = ({ onMenuClick }: { onMenuClick: () => void }) => {
+/* -------------------------------------------------------------------------- */
+/* MOBILE TOP BAR (Visible on small screens)                                  */
+/* -------------------------------------------------------------------------- */
+
+const MobileTopBar = ({ onMenuClick }: { onMenuClick: () => void }) => {
   return (
-    <div className="fixed top-0 left-0 right-0 h-16 bg-[#0B253F] border-b border-[#BA7F55]/20 flex items-center justify-between px-4 z-50 shadow-md">
+    <div className="fixed top-0 left-0 right-0 h-16 bg-[#0B253F] border-b border-[#BA7F55]/20 flex items-center justify-between px-4 z-50 shadow-md md:hidden">
       {/* Left: Hamburger */}
       <button
         onClick={onMenuClick}
@@ -215,182 +220,309 @@ export const MobileTopBar = ({ onMenuClick }: { onMenuClick: () => void }) => {
         />
       </div>
 
-      {/* Right: Spacer */}
+      {/* Right: Spacer to balance layout */}
       <div className="w-10" />
     </div>
   );
 };
 
-const DesktopSidebar: React.FC<SidebarProps> = ({ items, socialItems }) => {
-  const location = useLocation();
-  const navigate = useNavigate();
+/* -------------------------------------------------------------------------- */
+/* MOBILE DRAWER (Overlay - Dynamic)                                          */
+/* -------------------------------------------------------------------------- */
 
-  const [isExpanded, setIsExpanded] = useState(true);
+const MobileDrawer: React.FC<
+  NavigationProps & { isOpen: boolean; onClose: () => void }
+> = ({ items, socialItems, isOpen, onClose }) => {
+  const location = useLocation();
+
+  // Close drawer when route changes
+  useEffect(() => {
+    onClose();
+  }, [location.pathname]);
 
   return (
-    <div
-      style={{ fontFamily: "IT Medium" }}
-      className={`flex flex-col h-full bg-[#0B253F] border-r border-[#BA7F55]/20 transition-all duration-300 ease-in-out relative z-40 shadow-xl
-      ${isExpanded ? "w-[240px]" : "w-[75px]"}`}
-    >
-      {/* --- HEADER SECTION --- */}
+    <>
+      {/* Backdrop */}
       <div
-        className={`flex items-center p-3 mb-4 ${
-          isExpanded ? "justify-between" : "justify-center flex-col gap-4"
-        }`}
-      >
-        {/* Toggle Button */}
-        <button
-          onClick={() => setIsExpanded(!isExpanded)}
-          className="text-white hover:text-[#BA7F55] transition-colors p-1"
-          aria-label="Toggle Menu"
-        >
-          {isExpanded ? (
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M18 6L6 18M6 6l12 12" />
-            </svg>
-          ) : (
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <line x1="3" y1="12" x2="21" y2="12" />
-              <line x1="3" y1="6" x2="21" y2="6" />
-              <line x1="3" y1="18" x2="21" y2="18" />
-            </svg>
-          )}
-        </button>
-
-        {/* Back Button */}
-        <button
-          onClick={() => navigate(-1)}
-          className="text-white hover:text-[#BA7F55] transition-colors p-1"
-          title="Go Back"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <polyline points="15 18 9 12 15 6" />
-          </svg>
-        </button>
-      </div>
-
-      {/* --- LOGO --- */}
-      <div
-        className={`flex items-center justify-center mb-6 transition-all duration-300 ${
-          isExpanded ? "px-4" : "px-1"
-        }`}
-      >
-        <div
-          className={`bg-white rounded-full flex items-center justify-center shadow-md ${
-            isExpanded ? "h-20 w-20 p-2" : "h-10 w-10 p-1"
+        className={`fixed inset-0 bg-black/50 backdrop-blur-sm z-[60] transition-opacity duration-300 md:hidden
+          ${
+            isOpen
+              ? "opacity-100 pointer-events-auto"
+              : "opacity-0 pointer-events-none"
           }`}
-        >
-          <img
-            src="/amana.svg"
-            alt="Amana Homes"
-            className="w-full h-full object-contain"
-          />
+        onClick={onClose}
+      />
+
+      {/* Drawer Panel */}
+      <div
+        className={`fixed inset-y-0 left-0 w-[280px] bg-[#0B253F] z-[70] shadow-2xl transform transition-transform duration-300 ease-in-out md:hidden flex flex-col font-[IT Medium]
+          ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
+      >
+        {/* Header with Close Button */}
+        <div className="flex items-center justify-between p-4 border-b border-[#BA7F55]/20">
+          <div className="bg-white p-1 rounded-full h-10 w-10 flex items-center justify-center">
+            <img
+              src="/amana.svg"
+              alt="Amana Homes"
+              className="h-8 w-8 object-contain"
+            />
+          </div>
+          <button
+            onClick={onClose}
+            className="text-white hover:text-[#BA7F55] transition-colors"
+          >
+            <X size={28} />
+          </button>
         </div>
-      </div>
 
-      {/* --- NAVIGATION ITEMS --- */}
-      <div className="flex flex-col w-full flex-1 overflow-y-auto overflow-x-hidden no-scrollbar">
-        {items.map((item, index) => {
-          const isActive = location.pathname === item.link;
-
-          return (
-            <Link
-              key={index}
-              to={item.link}
-              aria-label={item.ariaLabel}
-              className={`relative flex items-center h-12 transition-all duration-200 group
-                ${isExpanded ? "px-6 justify-start" : "justify-center px-0"}
-                ${
-                  isActive
-                    ? "text-[#BA7F55] bg-white/5" // Active: Bronze text + subtle background
-                    : "text-white/80 hover:bg-white/5 hover:text-white" // Inactive: White-ish + Hover
-                }
-              `}
-            >
-              {/* Active Sidebar Line */}
-              {isActive && (
-                <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#BA7F55]" />
-              )}
-
-              <div className="flex-shrink-0">
-                {NavIcons[item.label] || NavIcons["Home"]}
-              </div>
-
-              <span
-                className={`ml-4 text-sm font-medium whitespace-nowrap transition-opacity duration-300 ${
-                  isExpanded ? "opacity-100 visible" : "opacity-0 invisible w-0"
-                }`}
+        {/* Navigation Items */}
+        <div className="flex-1 overflow-y-auto py-4">
+          {items.map((item, index) => {
+            const isActive = location.pathname === item.link;
+            return (
+              <Link
+                key={index}
+                to={item.link}
+                className={`flex items-center px-6 py-4 transition-all duration-200 border-l-4
+                  ${
+                    isActive
+                      ? "border-[#BA7F55] bg-white/5 text-[#BA7F55]"
+                      : "border-transparent text-white/80 hover:bg-white/5 hover:text-white"
+                  }`}
               >
-                {item.label}
-              </span>
-
-              {/* Tooltip (Collapsed) */}
-              {!isExpanded && (
-                <div className="absolute left-16 bg-[#0B253F] text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-[60] border border-[#BA7F55]/30 shadow-lg pointer-events-none">
-                  {item.label}
+                <div className="flex-shrink-0 mr-4">
+                  {NavIcons[item.label] || NavIcons["Home"]}
                 </div>
-              )}
-            </Link>
-          );
-        })}
-      </div>
+                <span className="text-base font-medium">{item.label}</span>
+              </Link>
+            );
+          })}
+        </div>
 
-      {/* --- FOOTER / SOCIALS --- */}
-      {/* Only show when expanded to keep collapsed view clean */}
-      {isExpanded && (
-        <div className="mt-auto border-t border-[#BA7F55]/20 p-4">
-          <div className="mb-2 text-md font-semibold tracking-wider text-[#BA7F55]">
+        {/* Footer / Socials */}
+        <div className="p-6 border-t border-[#BA7F55]/20 bg-[#081C30]">
+          <div className="mb-4 text-sm font-semibold tracking-wider text-[#BA7F55] text-center">
             Connect with us
           </div>
-          <div className="grid grid-cols-4 gap-3 place-items-center">
+          <div className="flex justify-center gap-4 flex-wrap">
             {socialItems.map((item, idx) => (
               <a
                 key={idx}
                 href={item.link}
                 target="_blank"
                 rel="noreferrer"
-                title={item.label}
-                className="text-white hover:text-[#BA7F55] transition-colors p-1"
+                className="text-white hover:text-[#BA7F55] transition-colors bg-white/5 p-2 rounded-full"
               >
                 {SocialIcons[item.label] || SocialIcons.Facebook}
               </a>
             ))}
           </div>
         </div>
-      )}
-    </div>
+      </div>
+    </>
   );
 };
 
-export default DesktopSidebar;
+/* -------------------------------------------------------------------------- */
+/* DESKTOP SIDEBAR (Existing Logic)                                           */
+/* -------------------------------------------------------------------------- */
+
+const DesktopSidebar: React.FC<NavigationProps> = ({ items, socialItems }) => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const isMobile = useMediaQuery("(max-width:768px)");
+  const [isExpanded, setIsExpanded] = useState(true);
+
+  return (
+    // Added 'hidden md:flex' to hide this component entirely on small screens
+
+    <>
+      {!isMobile && (
+        <div
+          style={{ fontFamily: "IT Medium" }}
+          className={`lg:flex flex-col h-full bg-[#0B253F] border-r border-[#BA7F55]/20 transition-all duration-300 ease-in-out relative z-40 shadow-xl
+      ${isExpanded ? "w-[240px]" : "w-[75px]"}`}
+        >
+          {/* Header */}
+          <div
+            className={`flex items-center p-3 mb-4 ${
+              isExpanded ? "justify-between" : "justify-center flex-col gap-4"
+            }`}
+          >
+            <button
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="text-white hover:text-[#BA7F55] transition-colors p-1"
+            >
+              {isExpanded ? (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M18 6L6 18M6 6l12 12" />
+                </svg>
+              ) : (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <line x1="3" y1="12" x2="21" y2="12" />
+                  <line x1="3" y1="6" x2="21" y2="6" />
+                  <line x1="3" y1="18" x2="21" y2="18" />
+                </svg>
+              )}
+            </button>
+            <button
+              onClick={() => navigate(-1)}
+              className="text-white hover:text-[#BA7F55] transition-colors p-1"
+              title="Go Back"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <polyline points="15 18 9 12 15 6" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Logo */}
+          <div
+            className={`flex items-center justify-center mb-6 transition-all duration-300 ${
+              isExpanded ? "px-4" : "px-1"
+            }`}
+          >
+            <div
+              className={`bg-white rounded-full flex items-center justify-center shadow-md ${
+                isExpanded ? "h-20 w-20 p-2" : "h-10 w-10 p-1"
+              }`}
+            >
+              <img
+                src="/amana.svg"
+                alt="Amana Homes"
+                className="w-full h-full object-contain"
+              />
+            </div>
+          </div>
+
+          {/* Nav Items */}
+          <div className="flex flex-col w-full flex-1 overflow-y-auto overflow-x-hidden no-scrollbar">
+            {items.map((item, index) => {
+              const isActive = location.pathname === item.link;
+              return (
+                <Link
+                  key={index}
+                  to={item.link}
+                  aria-label={item.ariaLabel}
+                  className={`relative flex items-center h-12 transition-all duration-200 group
+                ${isExpanded ? "px-6 justify-start" : "justify-center px-0"}
+                ${
+                  isActive
+                    ? "text-[#BA7F55] bg-white/5"
+                    : "text-white/80 hover:bg-white/5 hover:text-white"
+                }
+              `}
+                >
+                  {isActive && (
+                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#BA7F55]" />
+                  )}
+                  <div className="flex-shrink-0">
+                    {NavIcons[item.label] || NavIcons["Home"]}
+                  </div>
+                  <span
+                    className={`ml-4 text-sm font-medium whitespace-nowrap transition-opacity duration-300 ${
+                      isExpanded
+                        ? "opacity-100 visible"
+                        : "opacity-0 invisible w-0"
+                    }`}
+                  >
+                    {item.label}
+                  </span>
+                  {!isExpanded && (
+                    <div className="absolute left-16 bg-[#0B253F] text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-[60] border border-[#BA7F55]/30 shadow-lg pointer-events-none">
+                      {item.label}
+                    </div>
+                  )}
+                </Link>
+              );
+            })}
+          </div>
+
+          {/* Footer */}
+          {isExpanded && (
+            <div className="mt-auto border-t border-[#BA7F55]/20 p-4">
+              <div className="mb-2 text-md font-semibold tracking-wider text-[#BA7F55]">
+                Connect with us
+              </div>
+              <div className="grid grid-cols-4 gap-3 place-items-center">
+                {socialItems.map((item, idx) => (
+                  <a
+                    key={idx}
+                    href={item.link}
+                    target="_blank"
+                    rel="noreferrer"
+                    title={item.label}
+                    className="text-white hover:text-[#BA7F55] transition-colors p-1"
+                  >
+                    {SocialIcons[item.label] || SocialIcons.Facebook}
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </>
+  );
+};
+
+/* -------------------------------------------------------------------------- */
+/* MAIN EXPORT: Responsive Navigation Wrapper                                 */
+/* -------------------------------------------------------------------------- */
+
+const ResponsiveSidebar: React.FC<NavigationProps> = ({
+  items,
+  socialItems,
+}) => {
+  const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
+
+  return (
+    <>
+      {/* 1. Desktop Sidebar: Hidden on Mobile (controlled by CSS 'hidden md:flex') */}
+      <DesktopSidebar items={items} socialItems={socialItems} />
+
+      {/* 2. Mobile Top Bar: Hidden on Desktop (controlled by CSS 'md:hidden') */}
+      <MobileTopBar onMenuClick={() => setIsMobileDrawerOpen(true)} />
+
+      {/* 3. Mobile Drawer: Slide-out overlay */}
+      <MobileDrawer
+        items={items}
+        socialItems={socialItems}
+        isOpen={isMobileDrawerOpen}
+        onClose={() => setIsMobileDrawerOpen(false)}
+      />
+    </>
+  );
+};
+
+export default ResponsiveSidebar;
