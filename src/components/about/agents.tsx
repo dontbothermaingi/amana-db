@@ -130,7 +130,7 @@ function Team() {
           className="max-w-2xl mx-auto leading-relaxed"
         >
           From visionary leadership to dedicated support specialists, discover
-          the talent guiding your journey.
+          the talent guiding your journey in 17 different languages.
         </Typography>
       </div>
 

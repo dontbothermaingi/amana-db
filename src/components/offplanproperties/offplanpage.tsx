@@ -1,11 +1,4 @@
-import {
-  Box,
-  Typography,
-  TextField,
-  MenuItem,
-  // Button,
-  Divider,
-} from "@mui/material";
+import { Box, Typography, TextField, MenuItem, Divider } from "@mui/material";
 import { Suspense, useCallback, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -43,19 +36,19 @@ function OffPlan() {
 
   const [search, setSearch] = useState("");
   const [filterDeveloper, setFilterDeveloper] = useState("");
-  // const [mapView, setMapView] = useState(false);
 
   // Extract unique developers
   const developers = useMemo(
-    () => [...new Set(stats?.map((item) => item.developer) || [])],
+    () => [...new Set(stats?.map((item) => item.developer) || [])].sort(),
     [stats]
   );
 
-  // Filter Logic
+  // Filter & Sort Logic
   const filteredProperties = useMemo(() => {
     if (!stats) return [];
 
-    return stats?.filter((item) => {
+    // 1. Filter the items first
+    const filtered = stats.filter((item) => {
       const searchLower = search.toLowerCase();
       // Safe check for undefined fields
       const titleMatch = item.project_name?.toLowerCase().includes(searchLower);
@@ -70,6 +63,11 @@ function OffPlan() {
 
       return matchesSearch && matchesDev;
     });
+
+    // 2. Sort alphabetically by project_name
+    return filtered.sort((a, b) =>
+      (a.project_name || "").localeCompare(b.project_name || "")
+    );
   }, [stats, search, filterDeveloper]);
 
   // Pagination Logic
@@ -122,16 +120,6 @@ function OffPlan() {
               {filteredProperties?.length} Properties Found
             </Typography>
           </div>
-
-          {/* Map Button Toggle */}
-          {/* <Button
-            onClick={() => setMapView(!mapView)}
-            className="bg-[#0B253F] shadow-md shadow-blue-900/10 hover:scale-105 transition-transform duration-200"
-          >
-            <Typography fontFamily="IT Bold" color="white">
-              {mapView ? "Exit Map View" : "Map View"}
-            </Typography>
-          </Button> */}
         </div>
 
         <Divider className="my-3" />
