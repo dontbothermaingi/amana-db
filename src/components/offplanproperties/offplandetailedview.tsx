@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import MortgageCalculator from "../properties/morgagecalculator";
 import { Typography } from "@mui/material";
 import Form from "@/leads/form";
@@ -11,19 +11,31 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { Dialog, DialogContent, DialogTrigger } from "../ui/dialog";
-import { MapPin, CalendarClock, DollarSign } from "lucide-react";
+import {
+  MapPin,
+  CalendarClock,
+  DollarSign,
+  BadgeCheck,
+  Phone,
+  Mail,
+} from "lucide-react";
 import { useState } from "react";
 import { Close } from "@mui/icons-material";
+import { Button } from "../ui/button"; // Ensure you have this
+import { Skeleton } from "../ui/skeleton"; // Ensure you have this
+import { FaWhatsapp } from "react-icons/fa"; // Ensure you have this
 
 const HERO_FALLBACK = "/placeholder-image.png";
 
 function OffPlanDetails() {
   const { propertyId } = useParams();
+  const navigate = useNavigate();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
+  // 1. Fetch Offplan Project Details
   const {
     data: project,
-    isLoading,
+    isLoading: projectLoading,
     error,
   } = useQuery({
     queryKey: ["offplan_detail", propertyId],
@@ -33,12 +45,74 @@ function OffPlanDetails() {
       ),
   });
 
-  if (isLoading)
+  // 2. Fetch Agent Details (Runs only when project data is available)
+  const { data: agent, isLoading: agentLoading } = useQuery({
+    queryKey: ["agent_for_offplan", project?.agent_id],
+    queryFn: async () => {
+      const res = await fetch("https://db-amana.onrender.com/agents");
+      const allAgents = await res.json();
+      // Find the agent matching the ID stored in the offplan project
+      return allAgents.find((a: any) => a.id == project?.agent_id);
+    },
+    enabled: !!project?.agent_id, // Only run if project has loaded and has an agent_Id
+    staleTime: 1000 * 60 * 10,
+  });
+
+  // Helper to handle image mapping
+  function setPicture(agentData: any) {
+    if (!agentData) return "/amana-logo.png";
+    // If the agent has a direct img URL in DB, use it, otherwise fallback to switch logic
+    if (agentData.img && agentData.img.startsWith("http")) return agentData.img;
+
+    let pic = "";
+    // Fallback logic if images aren't fully populated in DB yet
+    switch (agentData.email) {
+      case "Guergana@amanahomes.ae":
+        pic = "/GG.JPG";
+        break;
+      case "attique@amanahomes.ae":
+        pic = "/ATTIQUE.JPG";
+        break;
+      case "charlotte@amanahomes.ae":
+        pic = "/CHARL.JPG";
+        break;
+      case "mohamedfahmy@amanahomes.ae":
+        pic = "/MO.JPG";
+        break;
+      case "fatima@amanahomes.ae":
+        pic = "/FATIMA.JPG";
+        break;
+      case "faizan@amanahomes.ae":
+        pic = "/FAIZAN.JPG";
+        break;
+      case "muhammadanas@amanahomes.ae":
+        pic = "/ANAS.JPG";
+        break;
+      case "mark@amanahomes.ae":
+        pic = "/MARK.JPG";
+        break;
+      case "yang@amanahomes.ae":
+        pic = "/yang.PNG"; // Ensure path is correct in your public folder
+        break;
+      default:
+        pic = "/amana-logo.png";
+    }
+    return pic;
+  }
+
+  const handleAgentClick = () => {
+    if (agent) {
+      navigate(`/agent-details/${agent.id}`, { state: { agent } });
+    }
+  };
+
+  if (projectLoading)
     return (
       <div className="h-screen flex items-center justify-center">
-        Loading...
+        <Skeleton className="h-12 w-48" />
       </div>
     );
+
   if (error || !project || project.error)
     return (
       <div className="h-screen flex items-center justify-center">
@@ -52,11 +126,8 @@ function OffPlanDetails() {
       ? project.photos[0]
       : HERO_FALLBACK;
 
-  // --- MAP FIX LOGIC ---
   const getMapSrc = () => {
     const mapLink = project.location_map;
-
-    // 1. If it's a valid embed link, return it (ensure HTTPS)
     if (
       mapLink &&
       mapLink.includes("embed") &&
@@ -64,9 +135,6 @@ function OffPlanDetails() {
     ) {
       return mapLink;
     }
-
-    // 2. Fallback: Generate a search embed based on the Location Name
-    // This works even if the database link is broken
     const locationQuery = encodeURIComponent(project.location || "Dubai");
     return `https://maps.google.com/maps?q=${locationQuery}&t=&z=13&ie=UTF8&iwloc=&output=embed`;
   };
@@ -95,7 +163,6 @@ function OffPlanDetails() {
               <a
                 href="#gallery"
                 className="flex items-center gap-2 text-sm text-gray-700 underline underline-offset-2"
-                style={{ fontFamily: "IT Medium" }}
               >
                 <button
                   className="px-6 py-3 bg-[#0B253F] text-white rounded-md lg:text-lg"
@@ -132,14 +199,13 @@ function OffPlanDetails() {
           {/* Left Column (Details) */}
           <div className="lg:col-span-2 space-y-12">
             {/* AMENITIES */}
-            <section className="">
+            <section>
               <h3
                 style={{ fontFamily: "IT Bold" }}
                 className="text-2xl font-semibold mb-6 border-b pb-2"
               >
                 Amenities
               </h3>
-
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                 {(project.amenities || []).map(
                   (amenity: string, idx: number) => (
@@ -155,7 +221,7 @@ function OffPlanDetails() {
               </div>
             </section>
 
-            {/* LOCATION - FIXED */}
+            {/* LOCATION */}
             <section>
               <h3
                 className="text-2xl font-semibold mb-4 border-b pb-2"
@@ -170,11 +236,10 @@ function OffPlanDetails() {
                 <MapPin className="text-[#BA7F55]" size={20} />
                 {project.location}
               </p>
-
               <iframe
                 title="map"
                 className="w-full h-72 rounded-xl border bg-gray-100"
-                src={getMapSrc()} // Uses the helper function
+                src={getMapSrc()}
                 loading="lazy"
               />
             </section>
@@ -188,7 +253,6 @@ function OffPlanDetails() {
                 >
                   Gallery
                 </h3>
-
                 <div className="w-full">
                   <Carousel className="w-full">
                     <CarouselContent>
@@ -264,7 +328,6 @@ function OffPlanDetails() {
                         {unit.unit_type}
                       </h4>
                     </div>
-
                     <div
                       className="group relative cursor-pointer overflow-hidden rounded-lg"
                       onClick={() => setSelectedImage(unit.floor_plan_img)}
@@ -276,7 +339,6 @@ function OffPlanDetails() {
                             alt="Floor Plan"
                             className="w-full h-auto transition-transform duration-300 group-hover:scale-105"
                           />
-                          {/* Optional: Add a visual cue that it's clickable */}
                           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
                             <span className="opacity-0 group-hover:opacity-100 bg-white/90 text-xs py-1 px-3 rounded-full shadow-sm transition-opacity">
                               View Fullscreen
@@ -285,7 +347,6 @@ function OffPlanDetails() {
                         </>
                       )}
                     </div>
-
                     <div className="space-y-1 mt-4">
                       <p className="text-gray-600 flex justify-between border-b border-gray-100 pb-1">
                         <span style={{ fontFamily: "IT Light" }}>Size:</span>
@@ -293,14 +354,6 @@ function OffPlanDetails() {
                           {unit.sqft} Sq.ft
                         </span>
                       </p>
-                      {/* <p className="text-gray-600 flex justify-between border-b border-gray-100 pb-1 pt-1">
-                        <span style={{ fontFamily: "IT Light" }}>
-                          Bathrooms:
-                        </span>
-                        <span style={{ fontFamily: "IT Medium" }}>
-                          {unit.baths}
-                        </span>
-                      </p> */}
                       <p className="text-[#0B253F] flex justify-between pt-2">
                         <span style={{ fontFamily: "IT Light" }}>Price:</span>
                         <span
@@ -318,9 +371,9 @@ function OffPlanDetails() {
             </section>
           </div>
 
-          {/* RIGHT SIDEBAR - FIXED (Removed 'hidden') */}
-          <aside className="sticky top-24 self-start space-y-6 h-fit">
-            {/* Project Summary Card */}
+          {/* RIGHT SIDEBAR - FIXED */}
+          <aside className="sticky top-5 self-start space-y-6 h-fit w-full">
+            {/* 1. Project Summary Card */}
             <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm w-full">
               <div className="mb-6 border-b pb-6">
                 <div className="text-sm text-gray-500 mb-1 font-medium uppercase tracking-wide">
@@ -375,27 +428,24 @@ function OffPlanDetails() {
                 </div>
               </div>
 
-              {/* Full Screen Image Viewer */}
+              {/* Full Screen Image Viewer Dialog */}
               <Dialog
                 open={!!selectedImage}
                 onOpenChange={(open) => !open && setSelectedImage(null)}
               >
                 <DialogContent className="max-w-[95vw] max-h-[95vh] w-fit h-fit p-0 bg-transparent border-none shadow-none flex items-center justify-center outline-none">
                   <div className="relative">
-                    {/* Close Button */}
                     <button
                       onClick={() => setSelectedImage(null)}
                       className="absolute -top-10 -right-0 lg:-right-10 p-2 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors z-50"
                     >
                       <Close fontSize="medium" />
                     </button>
-
-                    {/* The Image */}
                     {selectedImage && (
                       <img
                         src={selectedImage}
                         alt="Full View"
-                        className="max-h-[85vh] max-w-[90vw]  lg:w-[900px] object-contain rounded-md shadow-2xl"
+                        className="max-h-[85vh] max-w-[90vw] lg:w-[900px] object-contain rounded-md shadow-2xl"
                       />
                     )}
                   </div>
@@ -418,7 +468,6 @@ function OffPlanDetails() {
                     >
                       [Get In Touch]
                     </Typography>
-
                     <Typography
                       fontFamily={"DM Medium"}
                       fontSize={{ xs: "20px", lg: "24px" }}
@@ -426,15 +475,6 @@ function OffPlanDetails() {
                     >
                       Register Your Interest
                     </Typography>
-
-                    <Typography
-                      fontFamily={"IT Light"}
-                      className="text-center text-gray-600 leading-relaxed max-w-xs mb-4"
-                    >
-                      Fill in your details below and our team will send you the
-                      brochure and availability list.
-                    </Typography>
-
                     <Form
                       propertyId={project.project_name}
                       extraData={{ property_name: project.project_name }}
@@ -445,17 +485,133 @@ function OffPlanDetails() {
               </Dialog>
             </div>
 
-            {/* Calculator Widget */}
+            {/* 2. AGENT CARD (Inserted Here) */}
+            <div
+              className="relative w-full h-[500px] rounded-2xl overflow-hidden shadow-xl group cursor-pointer bg-slate-100 transition-all hover:shadow-2xl"
+              onClick={handleAgentClick}
+            >
+              {agentLoading ? (
+                // Agent Loading State
+                <div className="absolute inset-0 flex flex-col justify-end p-6 h-full w-full">
+                  <Skeleton className="absolute inset-0 w-full h-full z-0" />
+                  <div className="relative z-10 space-y-4">
+                    <Skeleton className="h-4 w-32 bg-slate-300/50" />
+                    <Skeleton className="h-8 w-48 bg-slate-300/50" />
+                    <Skeleton className="h-12 w-full rounded-md bg-slate-300/50" />
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {/* Background Image */}
+                  {agent ? (
+                    <div
+                      className="absolute inset-0 bg-cover bg-top transition-transform duration-700 group-hover:scale-105"
+                      style={{
+                        backgroundImage: `url('${setPicture(agent)}')`,
+                      }}
+                    />
+                  ) : (
+                    <div className="absolute inset-0 bg-gray-200 flex items-center justify-center">
+                      <p>Agent info unavailable</p>
+                    </div>
+                  )}
+
+                  {/* Gradient Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0B253F] via-[#0B253F]/70 to-transparent opacity-90"></div>
+
+                  {/* Content */}
+                  <div className="relative z-10 h-full flex flex-col justify-end p-6 text-white">
+                    <div className="mb-6">
+                      <div
+                        style={{ fontFamily: "IT Medium" }}
+                        className="flex items-center gap-2 mb-1 text-[#BA7F55]"
+                      >
+                        <BadgeCheck className="w-5 h-5" />
+                        <Typography
+                          fontFamily="IT Bold"
+                          className="uppercase tracking-wider text-xs"
+                        >
+                          Verified Agent
+                        </Typography>
+                      </div>
+                      <Typography
+                        fontFamily="DM Bold"
+                        fontSize={{ xs: "24px", lg: "28px" }}
+                        className="leading-tight"
+                      >
+                        {agent?.name || "Amana Homes"}
+                      </Typography>
+                      <Typography
+                        fontFamily="IT Light"
+                        className="text-gray-300 text-sm mt-1"
+                      >
+                        Property Advisor
+                      </Typography>
+                    </div>
+
+                    <div className="flex flex-col gap-3">
+                      {/* WhatsApp Button */}
+                      <a
+                        href={`https://wa.me/${agent?.phone_number}`} // Assuming 'phone_number' from your seed
+                        target="_blank"
+                        rel="noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <Button
+                          className="w-full bg-[#25D366] hover:bg-[#1ebd59] text-white h-12 shadow-md"
+                          style={{ fontFamily: "GT Bold" }}
+                        >
+                          <FaWhatsapp className="w-5 h-5 mr-2" />
+                          WhatsApp
+                        </Button>
+                      </a>
+
+                      {/* Call / Email Grid */}
+                      <div className="grid grid-cols-2 gap-3">
+                        <a
+                          href={`tel:${agent?.phone_number}`}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <Button
+                            variant="outline"
+                            className="w-full border-white/30 bg-white/10 text-white hover:bg-white hover:text-[#0B253F] h-10 transition-all backdrop-blur-md"
+                            style={{ fontFamily: "IT Medium" }}
+                          >
+                            <Phone className="w-4 h-4 mr-2" />
+                            Call
+                          </Button>
+                        </a>
+                        <a
+                          href={`mailto:${agent?.email}`}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <Button
+                            variant="outline"
+                            className="w-full border-white/30 bg-white/10 text-white hover:bg-[#BA7F55] hover:border-[#BA7F55] h-10 transition-all backdrop-blur-md"
+                            style={{ fontFamily: "IT Medium" }}
+                          >
+                            <Mail className="w-4 h-4 mr-2" />
+                            Email
+                          </Button>
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* 3. Calculator Widget */}
             <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
               <h4 className="text-sm font-bold text-gray-700 mb-3 uppercase tracking-wide">
                 Mortgage Estimator
               </h4>
-              <MortgageCalculator totalPrice={""} />
+              <MortgageCalculator totalPrice={project.starting_price || 0} />
             </div>
           </aside>
         </div>
 
-        {/* FORM SECTION */}
+        {/* BOTTOM FORM SECTION */}
         <div className="bg-white shadow-xl shadow-gray-200/50 border border-gray-100 rounded-3xl px-4 sm:px-8 py-12 flex flex-col items-center max-w-4xl mx-auto mb-10 mt-10 relative overflow-hidden">
           <Typography
             fontFamily="RM Medium"
@@ -464,7 +620,6 @@ function OffPlanDetails() {
           >
             Get In Touch
           </Typography>
-
           <Typography
             fontFamily="DM Medium"
             fontSize={{ xs: "24px", lg: "36px" }}
@@ -472,16 +627,13 @@ function OffPlanDetails() {
           >
             Let’s Make Your Property Journey Effortless
           </Typography>
-
           <Typography
             fontFamily="IT Light"
             className="text-center text-gray-600 leading-relaxed max-w-xl mb-8"
           >
             Whether you're buying, renting, or investing, our expert team is
-            here to guide you every step of the way. Let's turn your property
-            goals into reality—together.
+            here to guide you every step of the way.
           </Typography>
-
           <Form
             propertyId={""}
             extraData={{

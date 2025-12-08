@@ -5,8 +5,31 @@ import PropertyCard from "../properties/propertycard";
 import { motion } from "framer-motion";
 import { FaWhatsapp } from "react-icons/fa";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Mail, Phone, MapPin, User, ShieldCheck } from "lucide-react";
+import {
+  Mail,
+  Phone,
+  MapPin,
+  User,
+  ShieldCheck,
+  ArrowRight,
+} from "lucide-react";
 import { Skeleton } from "../ui/skeleton";
+
+// --- Types ---
+interface AgentOffplanItem {
+  id: number;
+  offplan_Id: string;
+  project_name: string;
+  developer: string;
+  location: string;
+  starting_price: number;
+  payment_plan: string;
+  handover: string;
+  photo?: string; // The backend returns a single thumbnail in the nested object
+  photos?: string[]; // Fallback if full object is passed
+}
+
+const FALLBACK_IMAGE = "/placeholder-image.png";
 
 const mapProperty = (item: any) => ({
   listingType: item.offering_type || item.listing_type || "",
@@ -31,7 +54,8 @@ function AgentDetails() {
   const [value, setValue] = useState<"sale" | "rent">("sale");
   const listRef = useRef<HTMLDivElement | null>(null);
 
-  const { data: agent } = useQuery({
+  // 1. Fetch Agent Data (Includes nested offplan_properties due to backend update)
+  const { data: agent, isLoading: isAgentLoading } = useQuery({
     queryKey: ["agent", agentId],
     queryFn: () =>
       fetch(`https://db-amana.onrender.com/agents/${agentId}`).then((res) =>
@@ -39,6 +63,7 @@ function AgentDetails() {
       ),
   });
 
+  // 2. Fetch Resale Listings
   const { data: combinedListings = [], isLoading: isListingsLoading } =
     useQuery({
       queryKey: ["agentListings", agentId, value],
@@ -83,7 +108,13 @@ function AgentDetails() {
     [navigate]
   );
 
-  if (!agent) return <p className="text-center py-20">Loading...</p>;
+  const handleOffPlanDetails = useCallback(
+    (offplanId: string) => navigate(`/off-plan/${offplanId}`),
+    [navigate]
+  );
+
+  if (isAgentLoading) return <p className="text-center py-20">Loading...</p>;
+  if (!agent) return <p className="text-center py-20">Agent not found.</p>;
 
   const details = [
     { label: "Email", value: agent.email, icon: <Mail /> },
@@ -133,13 +164,14 @@ function AgentDetails() {
     return pic;
   }
 
+  // ACCESSING OFF-PLANS DIRECTLY FROM AGENT OBJECT - O(1) Access
+  const agentOffPlans: AgentOffplanItem[] = agent.offplan_properties || [];
+
   return (
     <div className="">
       <div className="lg:px-20 xl:px-20 mx-auto py-10 lg:py-20 px-5">
         {/* ---------- HERO SECTION ---------- */}
         <div className="grid lg:grid-cols-2 gap-10 items-start">
-          {" "}
-          {/* Changed items-center to items-start for better alignment if left column gets taller */}
           <div className="max-w-2xl">
             <div className="flex items-center gap-3 mb-4">
               <ShieldCheck className="text-green-500 w-6 h-6" />
@@ -166,8 +198,6 @@ function AgentDetails() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 mb-8">
-              {" "}
-              {/* Increased mb-6 to mb-8 */}
               <a
                 href={`https://wa.me/${agent.phone_number}`}
                 target="_blank"
@@ -189,10 +219,8 @@ function AgentDetails() {
               </button>
             </div>
 
-            {/* -------------------------------------------------- */}
-            {/* NEW SECTION: Custom QR Code with Hover Effect    */}
-            {/* -------------------------------------------------- */}
-            {agent && (
+            {/* QR CODE SECTION */}
+            {agent.email !== "yang@amanahomes.ae" && (
               <div className="pt-6 border-t border-gray-200">
                 <p
                   style={{ fontFamily: "IT Medium" }}
@@ -200,36 +228,27 @@ function AgentDetails() {
                 >
                   Scan to connect with {agent.name.split(" ")[0]}
                 </p>
-                {/* We use motion.a so the anchor tag itself animates */}
                 <motion.a
-                  // IMPORTANT: Replace 'agent.qr_destination_url' with the field that holds the link the QR goes to
                   href={"#"}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-block p-2 bg-white rounded-2xl shadow-sm border border-gray-100"
-                  // This defines the hover animation (scale up by 15%)
                   whileHover={{
                     scale: 1.15,
                     transition: { type: "spring", stiffness: 300 },
                   }}
-                  // Optional: Slight shrink on click
                   whileTap={{ scale: 0.95 }}
                 >
                   <img
-                    // IMPORTANT: Your image source field
                     src={setQrCode(agent)}
                     alt={`${agent.name} QR Code`}
-                    // Adjust w-36 h-36 if you need it bigger or smaller
                     className="w-36 h-36 object-contain rounded-xl"
                   />
                 </motion.a>
               </div>
             )}
-            {/* -------------------------------------------------- */}
-            {/* END NEW SECTION                                  */}
-            {/* -------------------------------------------------- */}
           </div>
-          {/* Right HERO IMAGE (Unchanged) */}
+          {/* HERO IMAGE */}
           <div className="relative w-full h-[520px] rounded-2xl overflow-hidden shadow-lg">
             <img
               src={agent.img}
@@ -239,11 +258,12 @@ function AgentDetails() {
           </div>
         </div>
 
-        {/* ----------  MAIN CONTENT GRID (Unchanged) ---------- */}
+        {/* ---------- MAIN CONTENT GRID ---------- */}
         <div className="mt-10 gap-10">
-          {/* ... keep rest of the component unchanged ... */}
-          <div className="w-full space-y-10">
-            {/* Agent Info */}
+          <div className="w-full space-y-20">
+            {" "}
+            {/* Increased spacing between sections */}
+            {/* 1. PERSONAL INFO */}
             <section>
               <h3
                 className="text-2xl font-semibold mb-4"
@@ -272,10 +292,8 @@ function AgentDetails() {
                 ))}
               </div>
             </section>
-
-            {/* ACTIVE LISTINGS */}
+            {/* 2. RESALE LISTINGS */}
             <section ref={listRef}>
-              {/* ... existing listings code ... */}
               <h3
                 className="text-2xl font-semibold mb-4 pt-5"
                 style={{ fontFamily: "IT Bold" }}
@@ -296,8 +314,7 @@ function AgentDetails() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6">
                 {isListingsLoading ? (
-                  // Show skeletons while fetching new data for the tab
-                  [...Array(10)].map((_, idx) => (
+                  [...Array(5)].map((_, idx) => (
                     <Skeleton key={idx} className="h-94 w-full rounded-xl" />
                   ))
                 ) : combinedListings.length > 0 ? (
@@ -326,6 +343,121 @@ function AgentDetails() {
                 )}
               </div>
             </section>
+            {/* 3. OFF-PLAN PORTFOLIO (NEW SECTION) */}
+            {agentOffPlans.length > 0 && (
+              <section>
+                <div className="flex justify-between items-end mb-6 border-b pb-4">
+                  <div>
+                    <h3
+                      className="text-2xl font-semibold"
+                      style={{ fontFamily: "IT Bold" }}
+                    >
+                      Exclusive Off-Plan Projects
+                    </h3>
+                    <p
+                      className="text-gray-500 mt-1"
+                      style={{ fontFamily: "IT Light" }}
+                    >
+                      Projects represented by {agent.name.split(" ")[0]}
+                    </p>
+                  </div>
+                  <div
+                    className="text-[#BA7F55] flex items-center gap-1 cursor-pointer hover:underline"
+                    style={{ fontFamily: "IT Medium" }}
+                    onClick={() => navigate("/off-plan")}
+                  >
+                    View All <ArrowRight size={16} />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {agentOffPlans.map((item: AgentOffplanItem) => (
+                    <div
+                      key={item.id}
+                      className="group relative rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 cursor-pointer bg-black h-[400px]"
+                      onClick={() => handleOffPlanDetails(item.offplan_Id)}
+                    >
+                      {/* Image */}
+                      <img
+                        src={
+                          item.photo ||
+                          (item.photos && item.photos[0]) ||
+                          FALLBACK_IMAGE
+                        }
+                        alt={item.project_name}
+                        loading="lazy"
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 opacity-90 group-hover:opacity-100"
+                      />
+
+                      {/* Overlays */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 to-transparent z-10" />
+
+                      {/* Developer Badge */}
+                      <div className="absolute top-4 right-4 z-20">
+                        <div
+                          style={{ fontFamily: "IT Medium" }}
+                          className="bg-white/95 backdrop-blur-sm px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wider text-[#0B253F] shadow-lg"
+                        >
+                          {item.developer}
+                        </div>
+                      </div>
+
+                      {/* Bottom Info */}
+                      <div className="absolute bottom-0 left-0 right-0 p-5 z-20 text-white transition-transform duration-500 transform translate-y-2 group-hover:translate-y-[-10px]">
+                        <div
+                          style={{ fontFamily: "GT Bold" }}
+                          className="text-xl mb-1 leading-none shadow-black drop-shadow-md"
+                        >
+                          {item.project_name}
+                        </div>
+
+                        <div
+                          style={{ fontFamily: "IT Regular" }}
+                          className="text-sm opacity-90 flex items-center gap-1 mb-2"
+                        >
+                          <MapPin size={14} className="text-[#BA7F55]" />
+                          {item.location}
+                        </div>
+
+                        {/* Hidden details that slide up */}
+                        <div className="h-0 overflow-hidden group-hover:h-auto transition-all duration-500 ease-in-out opacity-0 group-hover:opacity-100">
+                          <div className="w-10 h-0.5 bg-[#BA7F55] mb-3 mt-1"></div>
+
+                          <div className="space-y-1 text-sm">
+                            <div className="flex justify-between">
+                              <span
+                                style={{ fontFamily: "IT Medium" }}
+                                className="opacity-70"
+                              >
+                                From:
+                              </span>
+                              <span style={{ fontFamily: "IT Medium" }}>
+                                AED{" "}
+                                {new Intl.NumberFormat("en-AE", {
+                                  maximumFractionDigits: 0,
+                                  notation: "compact",
+                                }).format(item.starting_price)}
+                              </span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span
+                                style={{ fontFamily: "IT Medium" }}
+                                className="opacity-70"
+                              >
+                                Handover:
+                              </span>
+                              <span style={{ fontFamily: "IT Medium" }}>
+                                {item.handover}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
           </div>
         </div>
       </div>
