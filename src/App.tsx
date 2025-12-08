@@ -2,14 +2,13 @@ import { Route, Routes } from "react-router-dom";
 import "./App.css";
 import Page from "./components/landingpage/page";
 import PropertiesPage from "./components/properties/propertiespage";
-// import Navbar from "./components/landingpage/navbar";
 import "leaflet/dist/leaflet.css";
 import PropertyOverview from "./components/properties/propertyoverview";
 import OffPlan from "./components/offplanproperties/offplanpage";
 import OffPlanDetails from "./components/offplanproperties/offplandetailedview";
 import AboutOverView from "./components/about/aboutpage";
 import AgentsOverview from "./components/agents/agentspage";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Loader from "./components/landingpage/loader";
 import AgentDetails from "./components/agents/agentdetails";
 import ConnectAndEarn from "./components/connect&earn/connectpage";
@@ -22,46 +21,36 @@ import AdminPage from "./components/admin/page";
 import { useMediaQuery } from "@mui/material";
 import ResponsiveSidebar from "./components/landingpage/desktopnavbar";
 
-const LOADER_KEY = "loadershowdown";
-const LOADER_EXPIRE = 1000 * 60 * 60 * 2;
-const FADE_DURATION_MS = 9000;
+const VIDEO_DISPLAY_TIME = 7000;
+const FADE_DURATION = 1000;
+const SESSION_KEY = "has_seen_loader_v1"; // Key for session storage
 
 function App() {
   const [fadeOut, setFadeOut] = useState(false);
-
-  // FIX 1: Add parentheses around the media query
   const isMobile = useMediaQuery("(max-width:768px)");
 
+  // 1. CHECK SESSION STORAGE ON INITIALIZATION
   const [loading, setLoading] = useState(() => {
-    const item = localStorage.getItem(LOADER_KEY);
-    if (!item) return true;
-
-    const parsed = JSON.parse(item);
-    const expired = Date.now() - parsed.timestamp > LOADER_EXPIRE;
-    return expired;
+    // If we find the key in sessionStorage, user has been here this session
+    const hasSeen = sessionStorage.getItem(SESSION_KEY);
+    // If hasSeen is true, loading should be false. If not, loading is true.
+    return !hasSeen;
   });
 
-  // localStorage.removeItem(LOADER_KEY);
+  const handleVideoStart = () => {
+    // 2. MARK SESSION AS "VISITED"
+    // We set this as soon as the video starts playing.
+    // If they refresh after this point, the loader will NOT show again.
+    sessionStorage.setItem(SESSION_KEY, "true");
 
-  useEffect(() => {
-    if (!loading) return;
-
-    const fadeOutTimer = setTimeout(() => {
+    setTimeout(() => {
       setFadeOut(true);
-      localStorage.setItem(
-        LOADER_KEY,
-        JSON.stringify({ timestamp: Date.now() })
-      );
 
-      const hideTimer = setTimeout(() => {
+      setTimeout(() => {
         setLoading(false);
-      }, FADE_DURATION_MS);
-
-      return () => clearTimeout(hideTimer);
-    }, 7000);
-
-    return () => clearTimeout(fadeOutTimer);
-  }, [loading]);
+      }, FADE_DURATION);
+    }, VIDEO_DISPLAY_TIME);
+  };
 
   const menuItems = [
     { label: "Home", ariaLabel: "Go to home page", link: "/" },
@@ -109,23 +98,22 @@ function App() {
     <div className="relative h-screen">
       {loading && (
         <div
-          className={`fixed inset-0 transition-opacity duration-[${FADE_DURATION_MS}ms] ${
+          className={`fixed inset-0 z-[9999] transition-opacity duration-[${FADE_DURATION}ms] ease-in-out ${
             fadeOut ? "opacity-0" : "opacity-100"
           }`}
         >
-          <Loader />
+          {/* Ensure your Loader component still uses onPlaying={onVideoStart} */}
+          <Loader onVideoStart={handleVideoStart} />
         </div>
       )}
 
-      {/* FIX 2: Changed 'flex-row' to 'flex-col md:flex-row' */}
       <div
-        className={`flex flex-col md:flex-row w-full h-full transition-opacity duration-[${FADE_DURATION_MS}ms] ${
+        className={`flex flex-col md:flex-row w-full h-full transition-opacity duration-[${FADE_DURATION}ms] ${
           loading && !fadeOut ? "opacity-0" : "opacity-100"
         }`}
       >
         <ResponsiveSidebar items={menuItems} socialItems={socialItems} />
 
-        {/* Content Area */}
         <div className="flex-1 h-full overflow-y-auto relative">
           <ScrollToTop />
           {isMobile && <div className="h-7" />}

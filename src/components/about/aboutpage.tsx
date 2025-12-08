@@ -29,7 +29,7 @@ function AboutOverView() {
   return (
     <div className="pb-20">
       <div className="relative bg-[url('/about5.jpg')] lg:bg-[url('/team.png')] bg-cover bg-right lg:bg-top h-[100vh]">
-        <div className="absolute h-full w-full bg-gradient-to-t lg:bg-gradient-to-r from-black/90 to-black/10" />
+        <div className="absolute h-full w-full bg-gradient-to-t lg:bg-gradient-to-r from-black/90 via-black/40 to-transparent" />
 
         {/* Hero Section */}
         <div className="absolute bottom-30 left-2 lg:bottom-20 lg:left-20 max-w-2xl px-2">
